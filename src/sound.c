@@ -199,7 +199,7 @@ int Sound_Init(void) {
         // these sounds aren't in the ROM, so if the MML is missing or broken we have to abort
         if (!MML_Compile(soundFilenames[i], &sounds[i])) {
             Platform_ShowError("Error compiling %s", soundFilenames[i]);
-            Platform_Quit();
+            return 0;
         }
     }
     return 1;
