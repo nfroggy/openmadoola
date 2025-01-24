@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     // start game
     else {
         // load game music & sfx
-        Sound_LoadGameSounds();
+        if (!Sound_LoadGameSounds()) { return -1; }
         // start gameplay
         Task_Init(Title_Run);
     }

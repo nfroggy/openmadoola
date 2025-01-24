@@ -154,7 +154,7 @@ void Sound_Init(void) {
     Blargg_Apu_Init(SOUND_FREQ);
     DBEntry *entry = DB_Find("volume");
     if (entry) {
-        volume = (int) entry->data[0];
+        volume = (int)entry->data[0];
     }
     Blargg_Apu_Volume(volume);
     muted = 0;
