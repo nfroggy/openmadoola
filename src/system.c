@@ -1,5 +1,5 @@
 /* system.c: Engine management code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -43,7 +43,7 @@ int System_Init(void) {
 
     // initialize engine components
     if (!Graphics_Init()) { return 0; }
-    if (!Sound_Init()) { return 0; }
+    Sound_Init();
     Save_Init();
     HighScore_Init();
     Joy_Init();

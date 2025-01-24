@@ -1,5 +1,5 @@
 /* main.c: Entry point
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -29,6 +29,7 @@
 
 #include "demo.h"
 #include "game.h"
+#include "sound.h"
 #include "soundtest.h"
 #include "system.h"
 #include "task.h"
@@ -66,10 +67,12 @@ int main(int argc, char **argv) {
 
     if (!System_Init()) { return -1; }
 
+    // play mml file
     if ((argc == 3) && checkFlag(argv[1], "p")) {
         SoundTest_RunStandaloneInit(argv[2]);
         Task_Init(SoundTest_RunStandaloneTask);
     }
+    // record demo
     else if ((argc == (8 + NUM_WEAPONS)) && checkFlag(argv[1], "r")) {
         int param = 2;
         char *filename = argv[param++];
@@ -109,7 +112,11 @@ int main(int argc, char **argv) {
         Game_RecordDemoInit(filename, type, stage - 1, health, magic, boots, weapons);
         Task_Init(Game_RecordDemoTask);
     }
+    // start game
     else {
+        // load game music & sfx
+        Sound_LoadGameSounds();
+        // start gameplay
         Task_Init(Title_Run);
     }
     System_GameLoop();

@@ -1,5 +1,5 @@
 /* sound.h: Sound engine and output code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -81,9 +81,15 @@ extern Sound sounds[NUM_SOUNDS];
 
 /**
  * @brief Initializes sound output
- * @returns 1 on success, 0 on failure
 */
-int Sound_Init(void);
+void Sound_Init(void);
+
+/**
+ * @brief Loads all the game sounds from either the ROM or MML files off disk.
+ * It's necessary to run this function before starting the game.
+ * @returns 1 on success, 0 on failure.
+ */
+int Sound_LoadGameSounds(void);
 
 /**
  * @brief Sets the volume.

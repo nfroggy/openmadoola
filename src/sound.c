@@ -1,5 +1,5 @@
 /* sound.c: Sound engine and output code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -150,15 +150,17 @@ static Uint8 *Sound_LoadData(Uint8 *romData, Sound *out) {
     return romData + cursor;
 }
 
-int Sound_Init(void) {
+void Sound_Init(void) {
     Blargg_Apu_Init(SOUND_FREQ);
     DBEntry *entry = DB_Find("volume");
     if (entry) {
-        volume = (int)entry->data[0];
+        volume = (int) entry->data[0];
     }
     Blargg_Apu_Volume(volume);
     muted = 0;
+}
 
+int Sound_LoadGameSounds(void) {
     // load sound data from the ROM
     Uint8 *src = chrRom + CHR_ROM_SOUND;
     for (int i = 0; i < NUM_ROM_SOUNDS; i++) {
