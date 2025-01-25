@@ -1,5 +1,5 @@
 /* lucia.c: Lucia object code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -480,16 +480,10 @@ lockScroll:
 
 checkDamage:
     if (luciaHurtPoints) {
-        // yokko-chan's collision value
-        if (luciaHurtPoints == 0xFF) {
-            // arcade mode plays a fun sound effect when lucia touches yokko-chan
-            if (gameType == GAME_TYPE_ARCADE) {
-                Sound_Play(SFX_ITEM);
-            }
+        // 0xff is yokko-chan's collision value when not in arcade mode
+        if ((luciaHurtPoints == 0xff) && !keywordDisplay) {
             // display the keyword if we haven't already
-            else if (!keywordDisplay) {
-                    keywordDisplay++;
-            }
+            keywordDisplay++;
         }
         // lucia collected an item
         else if (luciaHurtPoints >= ITEM_FLAG) {

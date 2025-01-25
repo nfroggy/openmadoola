@@ -1,5 +1,5 @@
 /* yokkochan.c: Yokko-chan object code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -19,6 +19,7 @@
 
 #include "collision.h"
 #include "game.h"
+#include "item.h"
 #include "map.h"
 #include "object.h"
 #include "rng.h"
@@ -26,9 +27,13 @@
 #include "sprite.h"
 #include "yokkochan.h"
 
+#define YOKKO_CHAN_KILLED -2
+
 void YokkoChan_InitObj(Object *o) {
-    // don't spawn if keyword has already been displayed
-    if ((gameType != GAME_TYPE_ARCADE) && keywordDisplay) {
+    // arcade mode: don't spawn yokko-chan if lucia killed him
+    // other modes: don't spawn yokko-chan if lucia's seen the keyword screen or killed him
+    if (((gameType == GAME_TYPE_ARCADE) && (keywordDisplay == YOKKO_CHAN_KILLED)) ||
+        ((gameType != GAME_TYPE_ARCADE) && keywordDisplay)) {
         o->type = OBJ_NONE;
         return;
     }
@@ -87,8 +92,12 @@ void YokkoChan_Obj(Object *o) {
         o->type = OBJ_NONE;
         return;
     }
-    // disable keyword if lucia kills yokko-chan
-    if (!Collision_Handle(o, &spr, COLLISION_SIZE_16X16, 255)) {
-        keywordDisplay = -1;
+
+    // arcade mode: touching yokko-chan restores 500 MP per frame
+    // else: touching yokko-chan displays the keyword screen (0xff = "show keyword")
+    Uint8 yokkoPower = (gameType == GAME_TYPE_ARCADE) ? (ITEM_FLAG + ITEM_SCROLL) : 0xff;
+    if (!Collision_Handle(o, &spr, COLLISION_SIZE_16X16, yokkoPower)) {
+        // disable keyword if lucia kills yokko-chan
+        keywordDisplay = YOKKO_CHAN_KILLED;
     }
 }
