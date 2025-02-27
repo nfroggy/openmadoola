@@ -71,6 +71,7 @@ For a list of the all the changes I'm aware of between the console and arcade ve
 - The Plus changes (see above) are included
 - Anything related to inserting coins isn't here. The continue system is the same as the other game types.
 - The "Press Start" text on the title screen blinks slower than the original because I think it looks nicer.
+- Lucia's health gets decremented by 1 point every 32 frames, but the changed MP mechanics aren't ported over.
 - There's enemy collision in the attract mode. I added a couple other stages besides Stage 1 to the attract mode to add some variety.
 - Lucia starts with 3 lives instead of 2. This may have originally been a DIP switch though.
 - Because OpenMadoola has start/select buttons, none of the control changes have been ported over.
