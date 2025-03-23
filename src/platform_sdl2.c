@@ -30,21 +30,23 @@
 #include "nanotime.h"
 #include "nes_ntsc.h"
 #include "platform.h"
+#include "util.h"
 
 // --- video stuff ---
 static Uint8 frameStarted = 0;
 static Uint8 scale = 3;
 static Uint8 fullscreen = 0;
+static int display = 0;
 // NES framebuffer
 static Uint8 framebuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 // destination to draw to when drawing in fullscreen
 static SDL_Rect fullscreenRect;
-static SDL_Window *window;
-static SDL_Renderer *renderer;
+static SDL_Window *window = NULL;
+static SDL_Renderer *renderer = NULL;
 // texture that the game engine draws to
-static SDL_Texture *drawTexture;
+static SDL_Texture *drawTexture = NULL;
 // texture that gets nearest-neighbor scaled
-static SDL_Texture *scaleTexture;
+static SDL_Texture *scaleTexture = NULL;
 static int vsync;
 static nanotime_step_data stepData;
 static nes_ntsc_t ntsc;
@@ -85,10 +87,11 @@ static SDL_GameController *controller;
 
 // static function declarations
 static void Platform_PumpEvents(void);
+static int Platform_SetupRenderer(void);
 
 static int Platform_InitVideo(void) {
     SDL_DisplayMode displayMode;
-    SDL_GetDesktopDisplayMode(0, &displayMode);
+    SDL_GetDesktopDisplayMode(display, &displayMode);
 
     // set up window
     int windowWidth, windowHeight;
@@ -102,7 +105,8 @@ static int Platform_InitVideo(void) {
     }
     window = SDL_CreateWindow(
         "OpenMadoola",
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+        SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
         windowWidth, windowHeight,
         fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN);
     if (!window) {
@@ -110,8 +114,17 @@ static int Platform_InitVideo(void) {
         return 0;
     }
     SDL_ShowCursor(fullscreen ? SDL_DISABLE : SDL_ENABLE);
+    return Platform_SetupRenderer();
+}
 
-    // set up renderer
+static int Platform_SetupRenderer(void) {
+    SDL_DisplayMode displayMode;
+    SDL_GetDesktopDisplayMode(display, &displayMode);
+
+    if (drawTexture) { SDL_DestroyTexture(drawTexture); }
+    if (scaleTexture) { SDL_DestroyTexture(scaleTexture); }
+    if (renderer) { SDL_DestroyRenderer(renderer); }
+
     int refreshRate = displayMode.refresh_rate;
     // round up if refresh rate is 59 or something
     if (refreshRate && (((refreshRate + 1) % 60) == 0)) {
@@ -175,10 +188,10 @@ static int Platform_InitVideo(void) {
 }
 
 static void Platform_DestroyVideo(void) {
-    SDL_DestroyTexture(drawTexture);
-    SDL_DestroyTexture(scaleTexture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyTexture(drawTexture);  drawTexture = NULL;
+    SDL_DestroyTexture(scaleTexture); scaleTexture = NULL;
+    SDL_DestroyRenderer(renderer);    renderer = NULL;
+    SDL_DestroyWindow(window);        window = NULL;
 }
 
 void Platform_StartFrame(void) {
@@ -295,6 +308,11 @@ int Platform_SetFullscreen(int requested) {
         Platform_DestroyVideo();
         Platform_InitVideo();
         DB_Set("fullscreen", &fullscreen, 1);
+        if (fullscreen) {
+            Uint8 data[4];
+            Util_SaveSint32(display, data);
+            DB_Set("fullscreenDisplay", data, sizeof(data));
+        }
         DB_Save();
     }
     return fullscreen;
@@ -429,6 +447,15 @@ int Platform_Init(void) {
     entry = DB_Find("fullscreen");
     if (entry) { fullscreen = entry->data[0]; }
     paletteType = (gameType == GAME_TYPE_ARCADE) ? PALETTE_TYPE_2C04 : PALETTE_TYPE_NES;
+    entry = DB_Find("fullscreenDisplay");
+    // only start on non-primary display if we're starting in fullscreen
+    if (fullscreen && entry && (entry->dataLen == sizeof(Sint32))) {
+        display = Util_LoadSint32(entry->data);
+        // make sure display number is valid
+        if (display >= SDL_GetNumVideoDisplays()) {
+            display = 0;
+        }
+    }
 
     if (!Platform_InitPalettes()) { return 0; }
     Platform_InitNTSC();
@@ -490,6 +517,14 @@ static void Platform_PumpEvents(void) {
                 if (button != INPUT_INVALID) {
                     Input_SetState(button, event.type == SDL_CONTROLLERBUTTONDOWN);
                 }
+            }
+            break;
+
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
+                display = event.window.data1;
+                // reconfigure renderer because vsync status may have changed
+                Platform_SetupRenderer();
             }
             break;
 
