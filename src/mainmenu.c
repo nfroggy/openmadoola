@@ -21,6 +21,7 @@
 #include "constants.h"
 #include "menu.h"
 #include "options.h"
+#include "platform.h"
 #include "save.h"
 #include "soundtest.h"
 #include "sprite.h"
@@ -42,10 +43,11 @@ static MenuItem items[] = {
     MENU_TASK("Options", Options_Run),
     MENU_TASK("Sound Test", SoundTest_Run),
     MENU_TASK("Title Screen", Title_Run),
+    MENU_LINK("Quit", Platform_Quit),
 };
 
 void MainMenu_Run(void) {
     BG_SetAllPalettes(palette);
     Sprite_SetAllPalettes(palette + 16);
-    Menu_Run(10, 9, 3, items, ARRAY_LEN(items), NULL);
+    Menu_Run(10, 7, 3, items, ARRAY_LEN(items), NULL);
 }
