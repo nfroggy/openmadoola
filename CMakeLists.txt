@@ -256,10 +256,8 @@ endif()
 set_target_properties(openmadoola PROPERTIES
     C_STANDARD 17
     C_STANDARD_REQUIRED ON
-    C_EXTENSIONS OFF
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
 )
 
 # endianness
