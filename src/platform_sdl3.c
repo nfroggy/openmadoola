@@ -1,5 +1,5 @@
 /* platform_sdl3.c: SDL3 specific code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -32,21 +32,24 @@
 #include "nes_ntsc.h"
 #include "palette.h"
 #include "platform.h"
+#include "util.h"
 
 // --- video stuff ---
 static Uint8 frameStarted = 0;
 static Uint8 scale = 3;
 static Uint8 fullscreen = 0;
+static Uint32 display;
 // NES framebuffer
 static Uint8 framebuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 // destination to draw to when drawing in fullscreen
 static SDL_FRect fullscreenRect;
-static SDL_Window *window;
-static SDL_Renderer *renderer;
+static SDL_PropertiesID windowProperties;
+static SDL_Window *window = NULL;
+static SDL_Renderer *renderer = NULL;
 // texture that the game engine draws to
-static SDL_Texture *drawTexture;
+static SDL_Texture *drawTexture = NULL;
 // texture that gets nearest-neighbor scaled
-static SDL_Texture *scaleTexture;
+static SDL_Texture *scaleTexture = NULL;
 static int vsync;
 static nanotime_step_data stepData;
 static nes_ntsc_t ntsc;
@@ -88,9 +91,10 @@ static SDL_Gamepad *gamepad;
 
 // static function declarations
 static void Platform_PumpEvents(void);
+static int Platform_SetupRenderer(void);
 
 static int Platform_InitVideo(void) {
-    const SDL_DisplayMode *displayMode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+    const SDL_DisplayMode *displayMode = SDL_GetDesktopDisplayMode(display);
     // set up window
     int windowWidth, windowHeight;
     if (fullscreen) {
@@ -103,14 +107,35 @@ static int Platform_InitVideo(void) {
         windowHeight = SCREEN_HEIGHT * scale;
         SDL_ShowCursor();
     }
-    window = SDL_CreateWindow(
-        "OpenMadoola",
-        windowWidth, windowHeight,
-        fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+
+    windowProperties = SDL_CreateProperties();
+    if (!windowProperties) {
+        Platform_ShowError("Error creating window properties: %s", SDL_GetError());
+        return 0;
+    }
+
+    SDL_SetStringProperty(windowProperties, SDL_PROP_WINDOW_CREATE_TITLE_STRING, "OpenMadoola");
+    SDL_SetNumberProperty(windowProperties, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, windowWidth);
+    SDL_SetNumberProperty(windowProperties, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, windowHeight);
+    SDL_SetBooleanProperty(windowProperties, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, (bool)fullscreen);
+    SDL_SetNumberProperty(windowProperties, SDL_PROP_WINDOW_CREATE_X_NUMBER, SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
+    SDL_SetNumberProperty(windowProperties, SDL_PROP_WINDOW_CREATE_Y_NUMBER, SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
+
+    window = SDL_CreateWindowWithProperties(windowProperties);
     if (!window) {
         Platform_ShowError("Error creating window: %s", SDL_GetError());
         return 0;
     }
+
+    return Platform_SetupRenderer();
+}
+
+static int Platform_SetupRenderer(void) {
+    const SDL_DisplayMode *displayMode = SDL_GetDesktopDisplayMode(display);
+
+    if (drawTexture) { SDL_DestroyTexture(drawTexture); }
+    if (scaleTexture) { SDL_DestroyTexture(scaleTexture); }
+    if (renderer) { SDL_DestroyRenderer(renderer); }
 
     // set up renderer
     int refreshRate = (int)(displayMode->refresh_rate);
@@ -182,10 +207,11 @@ static int Platform_InitVideo(void) {
 }
 
 static void Platform_DestroyVideo(void) {
-    SDL_DestroyTexture(drawTexture);
-    SDL_DestroyTexture(scaleTexture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyTexture(drawTexture);    drawTexture = NULL;
+    SDL_DestroyTexture(scaleTexture);   scaleTexture = NULL;
+    SDL_DestroyRenderer(renderer);      renderer = NULL;
+    SDL_DestroyWindow(window);          window = NULL;
+    SDL_DestroyProperties(windowProperties);
 }
 
 void Platform_StartFrame(void) {
@@ -301,6 +327,11 @@ int Platform_SetFullscreen(int requested) {
         Platform_DestroyVideo();
         Platform_InitVideo();
         DB_Set("fullscreen", &fullscreen, 1);
+        if (fullscreen) {
+            Uint8 data[4];
+            Util_SaveUint32(display, data);
+            DB_Set("fullscreenDisplay", data, sizeof(data));
+        }
         DB_Save();
     }
     return fullscreen;
@@ -436,6 +467,27 @@ int Platform_Init(void) {
     entry = DB_Find("fullscreen");
     if (entry) { fullscreen = entry->data[0]; }
     paletteType = (gameType == GAME_TYPE_ARCADE) ? PALETTE_TYPE_2C04 : PALETTE_TYPE_NES;
+    entry = DB_Find("fullscreenDisplay");
+    if (fullscreen && entry && (entry->dataLen == sizeof(Uint32))) {
+        display = Util_LoadUint32(entry->data);
+        // make sure display number is valid
+        int numDisplays;
+        SDL_DisplayID *displays = SDL_GetDisplays(&numDisplays);
+        int found = 0;
+        for (int i = 0; i < numDisplays; i++) {
+            if (displays[i] == display) {
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            display = SDL_GetPrimaryDisplay();
+        }
+        SDL_free(displays);
+    }
+    else {
+        display = SDL_GetPrimaryDisplay();
+    }
 
     if (!Platform_InitPalettes()) { return 0; }
     Platform_InitNTSC();
@@ -498,6 +550,12 @@ static void Platform_PumpEvents(void) {
                     Input_SetState(button, event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN);
                 }
             }
+            break;
+
+        case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+            display = (Uint32)(event.window.data1);
+            // reconfigure renderer because vsync status may have changed
+            Platform_SetupRenderer();
             break;
 
         // handle quit

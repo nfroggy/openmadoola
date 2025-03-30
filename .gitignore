@@ -7,8 +7,5 @@
 imgui.ini
 build/
 .idea/
-cmake-build-debug/
-cmake-build-release/
-cmake-build-test/
-cmake-build-sanitize/
+cmake-build-*/
 cscope.out
