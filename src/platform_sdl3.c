@@ -456,7 +456,7 @@ static SDL_Gamepad *Platform_FindGamepad(void) {
 }
 
 int Platform_Init(void) {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
         printf("Error initializing SDL: %s\n", SDL_GetError());
         return 0;
     }
