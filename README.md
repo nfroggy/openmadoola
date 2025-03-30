@@ -4,6 +4,8 @@ Free software (GPL v2.0 or later) reimplementation of "The Wing of Madoola" with
 
 ![OpenMadoola screenshot](screenshot.png)
 
+## [Build instructions](BUILDING.md)
+
 ## Usage
 
 In order to function, OpenMadoola requires the font.bin, 2c04.pal, and nes.pal data files as well as the demo and mml directories from this repository. These are included with the pre-built Windows binaries on the Releases page. OpenMadoola also requires a Wing of Madoola ROM image. The ROM image can either be a standard NES ROM file named "madoola.nes" or the "sharedassets0.assets" file from [Sunsoft is Back! Retro Game Selection](https://store.steampowered.com/app/2821290/SUNSOFT_is_Back/) on Steam. OpenMadoola reads all the graphics and level data from the ROM image, and will refuse to start if it is not present.
@@ -82,33 +84,6 @@ For a list of the all the changes I'm aware of between the console and arcade ve
 - The game over screen doesn't play after you beat the game.
 - Lucia can only use the fountain once per life, per stage. Otherwise you can get stay in a stage indefinitely and kill enemies over and over, which breaks the scoring system.
 - All the default high scores are now 10x lower. In my opinion, the default high scores should be relatively easy to beat.
-
-## Build Instructions
-
-### UNIX-like platforms (GNU/Linux, Mac OS X, etc)
-
-Install GCC or Clang, make, cmake, and the SDL2 development libraries from your package manager.
-
-Generate the build files with
-```
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-```
-
-Next, compile the executable with this command:
-```
-cmake --build build --config Release
-```
-
-### Windows
-
-Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) and [cmake](https://cmake.org/download/).
-
-Download the latest SDL2 VC development version from [here](https://github.com/libsdl-org/SDL/releases). Unzip the file into libs\\SDL2, making sure that you go down a level so the top-level directories in the folder are docs\\ include\\ libs\\ etc.
-
-Run cmake on the checked out source directory, then open the generated solution in Visual Studio.
-
-Note that I don't check if the project builds with Visual Studio in between releases, so if you check out from master it's possible that the project won't build without changes. If you make a PR with the required changes, that would be appreciated.
-
 
 ## Used Software
 
