@@ -48,7 +48,7 @@ cmake --build build --config Release
 
 Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) and [cmake](https://cmake.org/download/).
 
-Download the latest SDL3 VC development version (SDL2-devel-3.n.n-VC.zip) from [here](https://github.com/libsdl-org/SDL/releases). Unzip the file into libs\\SDL3, making sure that you go down a level so the top-level directories in the folder are cmake\\ include\\ lib\\ etc.
+Download the latest SDL3 VC development version (SDL3-devel-3.n.n-VC.zip) from [here](https://github.com/libsdl-org/SDL/releases). Unzip the file into libs\\SDL3, making sure that you go down a level so the top-level directories in the folder are cmake\\ include\\ lib\\ etc.
 
 Open the cmake gui, and click "Browse Source...". Browse to where you checked out the repo. Create a new folder inside your repo folder called "build". Click "Browse Build..." and browse to the build folder you just created. Click "Configure", and leave everything as default. Set the "ACTIVE_PLATFORM" dropdown to SDL3, then click "Generate".
 
