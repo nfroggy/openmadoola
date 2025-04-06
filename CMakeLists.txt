@@ -223,7 +223,11 @@ set(HEADER_LIST
     "libs/nes_ntsc/nes_ntsc_impl.h"
 )
 
-add_executable(openmadoola WIN32 ${SOURCE_LIST} ${HEADER_LIST})
+if(MSVC)
+    add_executable(openmadoola WIN32 ${SOURCE_LIST} ${HEADER_LIST} dist/openmadoola.rc)
+else()
+    add_executable(openmadoola WIN32 ${SOURCE_LIST} ${HEADER_LIST})
+endif()
 
 target_include_directories(openmadoola PRIVATE
     "src"
