@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=OpenMadoola
+Exec=openmadoola
+Icon=com.infochunk.openmadoola
+Comment=Wing of Madoola reimplementation
+Terminal=false
+Type=Application
+Categories=Game;
+StartupNotify=true
