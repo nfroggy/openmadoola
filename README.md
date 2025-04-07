@@ -16,12 +16,14 @@ If you don't have an original cartridge or don't want to deal with dumping it, I
 
 OpenMadoola will attempt to read the ROM image and data files from these directories:
 
-1. `~/.openmadoola`
-2. `/usr/local/share/openmadoola`
-3. `/usr/share/openmadoola`
-4. Current working directory
+1. `$XDG_DATA_HOME/openmadoola`
+2. `~/.openmadoola`
+3. `/app/share/openmadoola`
+4. `/usr/local/share/openmadoola`
+5. `/usr/share/openmadoola`
+6. Current working directory
 
-It will also write configuration and save data to `~/.openmadoola`.
+It will also write configuration and save data to `$XDG_DATA_HOME/openmadoola` if it exists, otherwise `~/.openmadoola`.
 
 ### Windows
 

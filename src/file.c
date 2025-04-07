@@ -30,7 +30,8 @@
 #include "file.h"
 
 #ifdef OM_UNIX
-#define OM_HOMEDIR ".openmadoola"
+#define OM_XDG_DIR "openmadoola"
+#define OM_HOME_DIR ".openmadoola"
 static int filenameBuffLen = 256;
 static char *filenameBuff = NULL;
 #endif
@@ -69,27 +70,35 @@ static void checkBuffSize(int size) {
         filenameBuff = omrealloc(filenameBuff, filenameBuffLen);
     }
 }
+
+static FILE *getFileFromEnvvarDir(const char *envvar, const char *dir, const char *filename, const char *mode) {
+    char *envvarPath = getenv(envvar);
+    if (envvarPath) {
+        checkBuffSize(strlen(envvarPath) + 1 + strlen(dir) + 1 + strlen(filename) + 1);
+        int length = sprintf(filenameBuff, "%s/%s", envvarPath, dir);
+        // try to make the directory in case it doesn't exist
+        mkdir(filenameBuff, S_IRWXU);
+        sprintf(filenameBuff + length, "/%s", filename);
+        return fopen(filenameBuff, mode);
+    }
+    return NULL;
+}
 #endif
 
 FILE *File_Open(const char *filename, const char *mode) {
 #ifdef OM_UNIX
-    const char dirname[] = OM_HOMEDIR;
-    char *homedir = getenv("HOME");
-    if (homedir) {
-        checkBuffSize(strlen(homedir) + 1 + strlen(dirname) + 1 + strlen(filename) + 1);
-        strcpy(filenameBuff, homedir);
-        strcat(filenameBuff, "/");
-        strcat(filenameBuff, dirname);
-        // try to make the directory in case it doesn't exist
-        mkdir(filenameBuff, S_IRWXU);
-        strcat(filenameBuff, "/");
-        // concatenate the directory name with the requested filename
-        strcat(filenameBuff, filename);
-        return fopen(filenameBuff, mode);
+    FILE *fp;
+
+    // first, try XDG data dir
+    if ((fp = getFileFromEnvvarDir("XDG_DATA_HOME", OM_XDG_DIR, filename, mode))) {
+        return fp;
     }
-    else {
-        return fopen(filename, mode);
+    // if that didn't work, try home dir
+    if ((fp = getFileFromEnvvarDir("HOME", OM_HOME_DIR, filename, mode))) {
+        return fp;
     }
+    // if that didn't work, try current working dir
+    return fopen(filename, mode);
 #else
     return fopen(filename, mode);
 #endif
@@ -97,7 +106,9 @@ FILE *File_Open(const char *filename, const char *mode) {
 
 #ifdef OM_UNIX
 static char *resourceDirs[] = {
+    NULL, // xdg data dir placeholder
     NULL, // ~/.openmadoola/ placeholder
+    "/app/share/openmadoola/", // for flatpak
     "/usr/local/share/openmadoola/",
     "/usr/share/openmadoola/",
     "", // current working directory
@@ -108,13 +119,18 @@ FILE *File_OpenResource(const char *filename, const char *mode) {
     // set up home data directory name
 #ifdef OM_UNIX
     if (!resourceDirs[0]) {
+        char *xdgDataDir = getenv("XDG_DATA_HOME");
+        if (xdgDataDir) {
+            resourceDirs[1] = ommalloc(strlen(xdgDataDir) + 1 + strlen(OM_XDG_DIR) + 2);
+            sprintf(resourceDirs[1], "%s/" OM_XDG_DIR "/", xdgDataDir);
+        }
+    }
+
+    if (!resourceDirs[1]) {
         char *homedir = getenv("HOME");
         if (homedir) {
-            resourceDirs[0] = ommalloc(strlen(homedir) + 1 + strlen(OM_HOMEDIR) + 2);
-            strcpy(resourceDirs[0], homedir);
-            strcat(resourceDirs[0], "/");
-            strcat(resourceDirs[0], OM_HOMEDIR);
-            strcat(resourceDirs[0], "/");
+            resourceDirs[1] = ommalloc(strlen(homedir) + 1 + strlen(OM_HOME_DIR) + 2);
+            sprintf(resourceDirs[1], "%s/" OM_HOME_DIR "/", homedir);
         }
     }
 
