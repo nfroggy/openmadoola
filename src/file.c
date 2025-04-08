@@ -113,26 +113,22 @@ static char *resourceDirs[] = {
     "/usr/share/openmadoola/",
     "", // current working directory
 };
+
+static void setupResourceDir(char **dirPtr, const char *envvar, const char *dir) {
+    if (!(*dirPtr)) {
+        char *envvarPath = getenv(envvar);
+        if (envvarPath) {
+            *dirPtr = ommalloc(strlen(envvarPath) + 1 + strlen(dir) + 2);
+            sprintf(*dirPtr, "%s/%s/", envvarPath, dir);
+        }
+    }
+}
 #endif
 
 FILE *File_OpenResource(const char *filename, const char *mode) {
-    // set up home data directory name
 #ifdef OM_UNIX
-    if (!resourceDirs[0]) {
-        char *xdgDataDir = getenv("XDG_DATA_HOME");
-        if (xdgDataDir) {
-            resourceDirs[1] = ommalloc(strlen(xdgDataDir) + 1 + strlen(OM_XDG_DIR) + 2);
-            sprintf(resourceDirs[1], "%s/" OM_XDG_DIR "/", xdgDataDir);
-        }
-    }
-
-    if (!resourceDirs[1]) {
-        char *homedir = getenv("HOME");
-        if (homedir) {
-            resourceDirs[1] = ommalloc(strlen(homedir) + 1 + strlen(OM_HOME_DIR) + 2);
-            sprintf(resourceDirs[1], "%s/" OM_HOME_DIR "/", homedir);
-        }
-    }
+    setupResourceDir(&resourceDirs[0], "XDG_DATA_HOME", OM_XDG_DIR);
+    setupResourceDir(&resourceDirs[1], "HOME", OM_HOME_DIR);
 
     for (int i = 0; i < ARRAY_LEN(resourceDirs); i++) {
         if (resourceDirs[i]) {
