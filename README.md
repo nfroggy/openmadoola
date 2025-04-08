@@ -33,12 +33,12 @@ OpenMadoola will attempt to read the ROM image and data files from the current w
 
 Keyboard | Gamepad (xbox layout) | Equivalent NES button
 -------- | --------------------- | ---------------------
-W | D-Pad Up | D-Pad Up
-S | D-Pad Down | D-Pad Down
-A | D-Pad Left | D-Pad Left
-D | D-Pad Right | D-Pad Right
-J | X | B
-K | A | A
+Up | D-Pad Up | D-Pad Up
+Down | D-Pad Down | D-Pad Down
+Left | D-Pad Left | D-Pad Left
+Right | D-Pad Right | D-Pad Right
+X | X | B
+Z | A | A
 Right Shift | Back | Select
 Enter | Start | Start
 

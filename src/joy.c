@@ -33,14 +33,14 @@ Uint32 joyRaw;
 Uint32 joyEdgeRaw;
 
 static int keyMappings[] = {
-    INPUT_KEY_D,
-    INPUT_KEY_A,
-    INPUT_KEY_S,
-    INPUT_KEY_W,
+    INPUT_KEY_RIGHT,
+    INPUT_KEY_LEFT,
+    INPUT_KEY_DOWN,
+    INPUT_KEY_UP,
     INPUT_KEY_RETURN,
     INPUT_KEY_RSHIFT,
-    INPUT_KEY_J,
-    INPUT_KEY_K,
+    INPUT_KEY_X,
+    INPUT_KEY_Z,
 };
 
 static int gamepadMappings[] = {
