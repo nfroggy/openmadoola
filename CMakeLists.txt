@@ -8,39 +8,16 @@ set_property(CACHE ACTIVE_PLATFORM PROPERTY STRINGS ${PLATFORM_LIST})
 
 option(SANITIZE "Compile with asan/ubsan (gcc/clang only)" OFF)
 
-if(ACTIVE_PLATFORM STREQUAL SDL2)
-    # use vendored sdl2 lib on msvc
-    if(MSVC)
-        set(SDL2_INCLUDE_DIRS "libs/SDL2/include")
-        set(SDL2_LINK_LIBRARIES "${PROJECT_SOURCE_DIR}/libs/SDL2/lib/x64/SDL2.lib;${PROJECT_SOURCE_DIR}/libs/SDL2/lib/x64/SDL2main.lib")
-        set(PLATFORM_DLL_PATH ${PROJECT_SOURCE_DIR}/libs/SDL2/lib/x64)
-    # otherwise use system sdl2
-    else()
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(SDL2 REQUIRED sdl2)
-        set(PLATFORM_CFLAGS_OTHER ${SDL2_CFLAGS_OTHER})
-    endif()
-    # set up platform vars
-    set(PLATFORM_IMPL "src/platform_sdl2.c")
-    set(PLATFORM_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-    set(PLATFORM_LINK_LIBRARIES ${SDL2_LINK_LIBRARIES})
-elseif(ACTIVE_PLATFORM STREQUAL SDL3)
-    # use vendored sdl3 lib on msvc
-    if(MSVC)
-        set(PLATFORM_INCLUDE_DIRS "libs/SDL3/include")
-        set(PLATFORM_LINK_LIBRARIES "${PROJECT_SOURCE_DIR}/libs/SDL3/lib/x64/SDL3.lib")
-        set(PLATFORM_DLL_PATH ${PROJECT_SOURCE_DIR}/libs/SDL3/lib/x64)
-    # otherwise use system sdl3
-    else()
-        find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
-        set(PLATFORM_LINK_LIBRARIES SDL3::SDL3)
-    endif()
-    set(PLATFORM_IMPL "src/platform_sdl3.c")
+if(MSVC)
+    add_executable(openmadoola WIN32 dist/openmadoola.rc)
+else()
+    add_executable(openmadoola WIN32)
 endif()
 
-set(SOURCE_LIST
+target_sources(openmadoola PRIVATE
     # game code
     "src/main.c"
+    "src/alloc.c"
     "src/bg.c"
     "src/buffer.c"
     "src/camera.c"
@@ -76,7 +53,6 @@ set(SOURCE_LIST
     "src/title.c"
     "src/util.c"
     "src/weapon.c"
-    ${PLATFORM_IMPL}
 
     # object code
     "src/objects/biforce.c"
@@ -126,11 +102,8 @@ set(SOURCE_LIST
     "libs/nanotime/nanotime.c"
 
     "libs/nes_ntsc/nes_ntsc.c"
-)
 
-set(HEADER_LIST
-    # game code
-    "src/alloc.c"
+    # game code headers
     "src/alloc.h"
     "src/bg.h"
     "src/buffer.h"
@@ -170,7 +143,7 @@ set(HEADER_LIST
     "src/util.h"
     "src/weapon.h"
     
-    # object code
+    # object code headers
     "src/objects/biforce.h"
     "src/objects/bospido.h"
     "src/objects/boundball.h"
@@ -206,7 +179,7 @@ set(HEADER_LIST
     "src/objects/yokkochan.h"
     "src/objects/zadofly.h"
     
-    # vendored libraries
+    # vendored library headers
     "libs/blargg_apu/blargg_apu.h"
     "libs/blargg_apu/blargg_common.h"
     "libs/blargg_apu/blargg_source.h"
@@ -223,12 +196,6 @@ set(HEADER_LIST
     "libs/nes_ntsc/nes_ntsc_impl.h"
 )
 
-if(MSVC)
-    add_executable(openmadoola WIN32 ${SOURCE_LIST} ${HEADER_LIST} dist/openmadoola.rc)
-else()
-    add_executable(openmadoola WIN32 ${SOURCE_LIST} ${HEADER_LIST})
-endif()
-
 target_include_directories(openmadoola PRIVATE
     "src"
     "src/objects"
@@ -236,24 +203,53 @@ target_include_directories(openmadoola PRIVATE
     "libs/libco"
     "libs/nanotime"
     "libs/nes_ntsc"
-    ${PLATFORM_INCLUDE_DIRS}
 )
 
-target_link_libraries(openmadoola PRIVATE ${PLATFORM_LINK_LIBRARIES})
+# platform stuff
+if(ACTIVE_PLATFORM STREQUAL SDL2)
+    # use vendored sdl2 lib on msvc
+    if(MSVC)
+        set(SDL2_INCLUDE_DIRS "libs/SDL2/include")
+        set(SDL2_LINK_LIBRARIES "${PROJECT_SOURCE_DIR}/libs/SDL2/lib/x64/SDL2.lib;${PROJECT_SOURCE_DIR}/libs/SDL2/lib/x64/SDL2main.lib")
+        set(MSVC_PLATFORM_DLL_PATH ${PROJECT_SOURCE_DIR}/libs/SDL2/lib/x64)
+        # otherwise use system sdl2
+    else()
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(SDL2 REQUIRED sdl2)
+        target_compile_options(openmadoola PRIVATE ${SDL2_CFLAGS_OTHER})
+    endif()
+    # set up platform vars
+    target_sources(openmadoola PRIVATE "src/platform_sdl2.c")
+    target_include_directories(openmadoola PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(openmadoola PRIVATE ${SDL2_LINK_LIBRARIES})
+    target_compile_definitions(openmadoola PRIVATE OM_PLATFORM_SDL2)
+elseif(ACTIVE_PLATFORM STREQUAL SDL3)
+    # use vendored sdl3 lib on msvc
+    if(MSVC)
+        target_include_directories(openmadoola PRIVATE "libs/SDL3/include")
+        target_link_libraries(openmadoola PRIVATE "${PROJECT_SOURCE_DIR}/libs/SDL3/lib/x64/SDL3.lib")
+        set(MSVC_PLATFORM_DLL_PATH ${PROJECT_SOURCE_DIR}/libs/SDL3/lib/x64)
+        # otherwise use system sdl3
+    else()
+        find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
+        target_link_libraries(openmadoola PRIVATE SDL3::SDL3)
+    endif()
+    target_sources(openmadoola PRIVATE "src/platform_sdl3.c")
+    target_compile_definitions(openmadoola PRIVATE OM_PLATFORM_SDL3)
+endif()
 
 # make visual studio folders work correctly
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_LIST} ${HEADER_LIST})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 
 # compiler warnings
 if(MSVC)
     target_compile_options(openmadoola PRIVATE /W3)
 else()
-    set(GCC_CFLAGS -Wall -Wvla -Wformat=2)
+    target_compile_options(openmadoola PRIVATE -Wall -Wvla -Wformat=2)
     if(SANITIZE)
-        set(GCC_CFLAGS ${GCC_CFLAGS} -fsanitize=address,undefined)
+        target_compile_options(openmadoola PRIVATE -fsanitize=address,undefined)
         target_link_options(openmadoola PRIVATE -fsanitize=address,undefined)
     endif()
-    target_compile_options(openmadoola PRIVATE ${GCC_CFLAGS} ${PLATFORM_CFLAGS_OTHER})
 endif()
 
 # language versions
@@ -282,7 +278,7 @@ if(MSVC)
     # set the debugger working directory
     set_target_properties(openmadoola PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     # make sure the debugger can find the sdl2 dll file
-    set(OM_PATH "PATH=%PATH%" ${PLATFORM_DLL_PATH})
+    set(OM_PATH "PATH=%PATH%" ${MSVC_PLATFORM_DLL_PATH})
     set_target_properties(openmadoola PROPERTIES VS_DEBUGGER_ENVIRONMENT "${OM_PATH}")
     # statically link the runtime library in case the user doesn't have msvc redistributable installed
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
