@@ -1,4 +1,4 @@
-/* licenses.c: Displays software license information
+/* licenses.h: Displays software license information
 * Copyright (c) 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
