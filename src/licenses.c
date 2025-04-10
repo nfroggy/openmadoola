@@ -46,7 +46,7 @@ static void displayLicense(const char *title, const char **pages, int numPages) 
         }
         if (joyEdge & (JOY_A | JOY_START | JOY_SELECT)) {
             if (++page >= numPages) {
-                page = 0;
+                return;
             }
             Sound_Play(SFX_MENU);
         }
@@ -54,8 +54,8 @@ static void displayLicense(const char *title, const char **pages, int numPages) 
             return;
         }
 
-        BG_Print(1, 2, 0, "%s license (pg %d/%d)", title, page + 1, numPages);
-        BG_Print(1, 5, 0, "%s", pages[page]);
+        BG_Print(1, 1, 0, "%s license (pg %d/%d)", title, page + 1, numPages);
+        BG_Print(1, 4, 0, "%s", pages[page]);
         BG_Display();
         Task_Yield();
     }
@@ -85,9 +85,9 @@ static void dispOpenMadoolaLicense(void) {
         "the GNU General Public License for\n\n"
         "more details.\n\n\n\n"
         "You should have received a\n\n"
-        "copy of the GNU General Public",
+        "copy of the GNU General Public\n\n"
+        "License along with",
 
-        "License along with\n\n"
         "OpenMadoola. If not, see\n\n"
         "https://www.gnu.org/licenses/"
     };
@@ -118,9 +118,9 @@ static void dispBlipBufferLicense(void) {
         "the GNU Lesser General Public\n\n"
         "License for more details.\n\n\n\n"
         "You should have received a\n\n"
-        "copy of the GNU Lesser General",
+        "copy of the GNU Lesser General\n\n"
+        "Public License along with this",
 
-        "Public License along with this\n\n"
         "module; if not, write to the\n\n"
         "Free Software Foundation,\n\n"
         "Inc., 59 Temple Place, Suite\n\n"
@@ -140,9 +140,9 @@ void dispLibcoLicense(void) {
         "granted, provided that the\n\n"
         "above copyright notice and\n\n"
         "this permission notice appear\n\n"
-        "in all copies.",
+        "in all copies.\n\n\n\n"
+        "THE SOFTWARE IS PROVIDED {AS",
 
-        "THE SOFTWARE IS PROVIDED {AS\n\n"
         "IS} AND THE AUTHOR DISCLAIMS\n\n"
         "ALL WARRANTIES WITH REGARD TO\n\n"
         "THIS SOFTWARE INCLUDING ALL\n\n"
@@ -153,10 +153,10 @@ void dispLibcoLicense(void) {
         "DIRECT, INDIRECT, OR\n\n"
         "CONSEQUENTIAL DAMAGES OR ANY\n\n"
         "DAMAGES WHATSOEVER RESULTING\n\n"
-        "FROM LOSS OF USE, DATA OR\n\n",
-
+        "FROM LOSS OF USE, DATA OR\n\n"
         "PROFITS, WHETHER IN AN ACTION\n\n"
-        "OF CONTRACT, NEGLIGENCE OR\n\n"
+        "OF CONTRACT, NEGLIGENCE OR",
+
         "TORTIOUS ACTION, ARISING OUT\n\n"
         "OF OR IN CONNECTION WITH THE\n\n"
         "USE OR PERFORMANCE OF THIS\n\n"
@@ -165,8 +165,7 @@ void dispLibcoLicense(void) {
         "in this project except\n\n"
         "valgrind.h which is licensed\n\n"
         "under a BSD-style license. See\n\n"
-        "the license text and copyright\n\n",
-
+        "the license text and copyright\n\n"
         "notice contained within that\n\n"
         "file."
     };
@@ -198,9 +197,9 @@ void dispNanotimeLicense(void) {
         "large and to the detriment of\n\n"
         "our heirs and successors. We\n\n"
         "intend this dedication to be\n\n"
-        "an overt act of relinquishment",
+        "an overt act of relinquishment\n\n"
+        "in perpetuity of all present",
 
-        "in perpetuity of all present\n\n"
         "and future rights to this\n\n"
         "software under copyright law.\n\n\n\n"
         "THE SOFTWARE IS PROVIDED {AS\n\n"
@@ -210,10 +209,10 @@ void dispNanotimeLicense(void) {
         "THE WARRANTIES OF\n\n"
         "MERCHANTABILITY, FITNESS FOR A\n\n"
         "PARTICULAR PURPOSE AND\n\n"
-        "NONINFRINGEMENT. IN NO EVENT",
-
+        "NONINFRINGEMENT. IN NO EVENT\n\n"
         "SHALL THE AUTHORS BE LIABLE\n\n"
-        "FOR ANY CLAIM, DAMAGES OR\n\n"
+        "FOR ANY CLAIM, DAMAGES OR",
+
         "OTHER LIABILITY, WHETHER IN AN\n\n"
         "ACTION OF CONTRACT, TORT OR\n\n"
         "OTHERWISE, ARISING FROM, OUT\n\n"
@@ -237,9 +236,9 @@ void dispNesNtscLicense(void) {
         "Free Software Foundation;\n\n"
         "either version 2.1 of the\n\n"
         "License, or (at your option)\n\n"
-        "any later version.",
+        "any later version.\n\n\n\n"
+        "This module is distributed",
 
-        "This module is distributed\n\n"
         "in the hope that it will be\n\n"
         "useful, but WITHOUT ANY\n\n"
         "WARRANTY; without even the\n\n"
@@ -249,10 +248,10 @@ void dispNesNtscLicense(void) {
         "the GNU Lesser General Public\n\n"
         "License for more details.\n\n\n\n"
         "You should have received a\n\n"
-        "copy of the GNU Lesser General",
-
+        "copy of the GNU Lesser General\n\n"
         "Public License along with this\n\n"
-        "module; if not, write to the\n\n"
+        "module; if not, write to the",
+
         "Free Software Foundation,\n\n"
         "Inc., 51 Franklin Street,\n\n"
         "Fifth Floor, Boston, MA\n\n"
@@ -285,9 +284,9 @@ void dispNesSndEmuLicense(void) {
         "the GNU Lesser General Public\n\n"
         "License for more details.\n\n\n\n"
         "You should have received a\n\n"
-        "copy of the GNU Lesser General",
+        "copy of the GNU Lesser General\n\n"
+        "Public License along with this",
 
-        "Public License along with this\n\n"
         "module; if not, write to the\n\n"
         "Free Software Foundation,\n\n"
         "Inc., 59 Temple Place, Suite\n\n"
@@ -308,9 +307,9 @@ void dispSDL2License(void) {
         "liable for any damages arising\n\n"
         "from the use of this software.\n\n\n\n"
         "Permission is granted to\n\n"
-        "anyone to use this software",
+        "anyone to use this software\n\n"
+        "for any purpose, including",
 
-        "for any purpose, including\n\n"
         "commercial applications, and\n\n"
         "to alter it and redistribute\n\n"
         "it freely, subject to the\n\n"
@@ -320,10 +319,10 @@ void dispSDL2License(void) {
         "you must not claim that you\n\n"
         "wrote the original software.\n\n"
         "If you use this software in a\n\n"
-        "product, an acknowledgment in",
-
+        "product, an acknowledgment in\n\n"
         "the product documentation\n\n"
-        "would be appreciated but is\n\n"
+        "would be appreciated but is",
+
         "not required.\n\n"
         "2. Altered source versions\n\n"
         "must be plainly marked as\n\n"
@@ -350,9 +349,9 @@ void dispSDL3License(void) {
         "liable for any damages arising\n\n"
         "from the use of this software.\n\n\n\n"
         "Permission is granted to\n\n"
-        "anyone to use this software",
+        "anyone to use this software\n\n"
+        "for any purpose, including",
 
-        "for any purpose, including\n\n"
         "commercial applications, and\n\n"
         "to alter it and redistribute\n\n"
         "it freely, subject to the\n\n"
@@ -362,10 +361,10 @@ void dispSDL3License(void) {
         "you must not claim that you\n\n"
         "wrote the original software.\n\n"
         "If you use this software in a\n\n"
-        "product, an acknowledgment in",
-
+        "product, an acknowledgment in\n\n"
         "the product documentation\n\n"
-        "would be appreciated but is\n\n"
+        "would be appreciated but is",
+
         "not required.\n\n"
         "2. Altered source versions\n\n"
         "must be plainly marked as\n\n"
