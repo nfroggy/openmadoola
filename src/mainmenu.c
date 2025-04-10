@@ -19,6 +19,7 @@
 
 #include "bg.h"
 #include "constants.h"
+#include "licenses.h"
 #include "menu.h"
 #include "options.h"
 #include "platform.h"
@@ -42,6 +43,7 @@ static MenuItem items[] = {
     MENU_TASK("Start Game", Save_Screen),
     MENU_TASK("Options", Options_Run),
     MENU_TASK("Sound Test", SoundTest_Run),
+    MENU_TASK("Licenses", Licenses_Run),
     MENU_TASK("Title Screen", Title_Run),
     MENU_LINK("Quit", Platform_Quit),
 };
