@@ -436,6 +436,12 @@ static SDL_GameController *Platform_FindController(void) {
 }
 
 int Platform_Init(void) {
+    // this makes sure the application icon is correct
+#ifdef OM_UNIX
+    setenv("SDL_VIDEO_X11_WMCLASS", "com.infochunk.OpenMadoola", 1);
+    setenv("SDL_VIDEO_WAYLAND_WMCLASS", "com.infochunk.OpenMadoola", 1);
+#endif
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0) {
         printf("Error initializing SDL: %s\n", SDL_GetError());
         return 0;
