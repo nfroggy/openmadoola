@@ -285,3 +285,33 @@ if(MSVC)
     # statically link the runtime library in case the user doesn't have msvc redistributable installed
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
+
+# installation stuff (only supported on unix-like platforms)
+if(NOT MSVC)
+    install(TARGETS openmadoola
+        DESTINATION bin
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(FILES dist/openmadoola_launcher.sh
+        DESTINATION bin
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(FILES dist/com.infochunk.OpenMadoola.desktop
+        DESTINATION share/applications
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+    install(FILES dist/com.infochunk.OpenMadoola.metainfo.xml
+        DESTINATION share/metainfo
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+    install(FILES dist/com.infochunk.OpenMadoola.png
+        DESTINATION share/icons/hicolor/512x512/apps
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+    install(FILES font.bin nes.pal 2c04.pal
+        DESTINATION share/openmadoola
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+    install(DIRECTORY demo/
+        DESTINATION share/openmadoola/demo
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+    install(DIRECTORY mml/
+        DESTINATION share/openmadoola/mml
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+endif()

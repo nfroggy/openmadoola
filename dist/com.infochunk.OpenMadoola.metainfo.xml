@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>com.infochunk.OpenMadoola</id>
+
+    <name>OpenMadoola</name>
+    <summary>Wing of Madoola reimplementation</summary>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-2.0-or-later</project_license>
+
+    <developer id="com.infochunk">
+        <name>Nathan Misner</name>
+    </developer>
+
+    <launchable type="desktop-id">com.infochunk.OpenMadoola.desktop</launchable>
+
+    <content_rating type="oars-1.1">
+        <content_attribute id="violence-fantasy">mild</content_attribute>
+    </content_rating>
+
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+        <control>gamepad</control>
+    </supports>
+
+    <branding>
+        <color type="primary" scheme_preference="light">#f39fbd</color>
+        <color type="primary" scheme_preference="dark">#000b5a</color>
+    </branding>
+
+    <screenshots>
+        <screenshot type="default">
+            <image>https://www.infochunk.com/madoola/metainfo_imgs/1.png</image>
+            <caption>Lucia runs through the mountainous Stage 2</caption>
+        </screenshot>
+        <screenshot>
+            <image>https://www.infochunk.com/madoola/metainfo_imgs/2.png</image>
+            <caption>Lucia attacks an enemy in Stage 3 (screenshot taken in Arcade mode)</caption>
+        </screenshot>
+        <screenshot>
+            <image>https://www.infochunk.com/madoola/metainfo_imgs/3.png</image>
+            <caption>Lucia explores the Stage 5 castle</caption>
+        </screenshot>
+        <screenshot>
+            <image>https://www.infochunk.com/madoola/metainfo_imgs/4.png</image>
+            <caption>OpenMadoola save select screen. The original game didn't support saving game data.</caption>
+        </screenshot>
+    </screenshots>
+
+    <description>
+        <p>
+            For hundreds of years, the Lamer clan has guarded &quot;The Wing of Madoola&quot;, a magical bird statue that grants whoever posesses it the power to rule the world. Darutos, a traitor of the Lamer clan, has stolen the statue and uses its power to summon monsters to conquer the world. It's up to Lucia, the only member of Lamer who can use magic, to defeat Darutos and recover the Wing of Madoola. You can do it, Lucia!
+        </p>
+        <p>
+            OpenMadoola is a free software reimplementation of &quot;The Wing of Madoola&quot; with bug fixes and optional gameplay enhancements. OpenMadoola was developed so people who own &quot;The Wing of Madoola&quot; on cartridge or on Steam can have more fun with their game. OpenMadoola is not a standalone game and will not function without externally supplied game data. This project is not licensed or endorsed by Sunsoft.
+        </p>
+        <p>
+            OpenMadoola is my attempt to make the definitive version of &quot;The Wing of Madoola&quot;. It plays just like the original game engine, but runs natively on your computer. OpenMadoola offers many enhancements over the original version of the game, including:
+        </p>
+        <ul>
+            <li>Game runs without NES hardware limitations (no slowdown, no sprite flicker, etc.)</li>
+            <li>Gameplay data is saved to disk</li>
+            <li>A recreation of the cancelled VS. System arcade port, &quot;The Wings of Madoola&quot;</li>
+            <li>An MML compiler that allows users to make their own music and sound effects</li>
+            <li>Numerous bugfixes and optional gameplay tweaks</li>
+        </ul>
+    </description>
+
+    <url type="homepage">https://www.infochunk.com/madoola/openmadoola.html</url>
+    <url type="vcs-browser">https://github.com/nfroggy/openmadoola</url>
+    <url type="bugtracker">https://github.com/nfroggy/openmadoola/issues</url>
+
+    <releases>
+        <release version="1.14" date="2025-04-12">
+            <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.14</url>
+            <description>
+                <ul>
+                    <li>Improve behavior when playing on a computer with multiple monitors</li>
+                    <li>Add quit menu option</li>
+                    <li>Add license viewer</li>
+                    <li>Add program icon</li>
+                </ul>
+            </description>
+        </release>
+    </releases>
+</component>

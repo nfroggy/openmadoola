@@ -1,9 +1,10 @@
 [Desktop Entry]
 Name=OpenMadoola
-Exec=openmadoola
+Exec=openmadoola_launcher.sh
 Icon=com.infochunk.OpenMadoola
 Comment=Wing of Madoola reimplementation
 Terminal=false
 Type=Application
-Categories=Game;
+Categories=Game;ActionGame;AdventureGame;
+Keywords=game;adventure;action;platform;
 StartupNotify=true
