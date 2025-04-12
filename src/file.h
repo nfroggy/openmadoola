@@ -50,13 +50,22 @@ void File_WriteUint32BE(Uint32 data, FILE *fp);
 Uint32 File_ReadUint32BE(FILE *fp);
 
 /**
- * @brief Opens the given file from $HOME/.openmadoola/filename on unix-like
- * systems, current working directory on other systems.
+ * @brief Opens the given file from $XDG_DATA_HOME/openmadoola/filename or
+ * $HOME/.openmadoola/filename on unix-like systems, current working
+ * directory on other systems.
  * @param filename the name of the file to open
  * @param mode fopen mode code
  * @returns the file pointer to the opened file
  */
 FILE *File_Open(const char *filename, const char *mode);
+
+/**
+ * @brief Deletes the given file. Attempts to delete it from $XDG_DATA_HOME/openmadoola/filename,
+ * $HOME/.openmadoola/filename, and current working directory/filename on unix-like systems, and
+ * just current working directory on other systems.
+ * @param filename name of the file to delete
+ */
+void File_Remove(const char *filename);
 
 /**
  * @brief For opening a read-only data file. On unix-like systems, iterates

@@ -105,6 +105,28 @@ FILE *File_Open(const char *filename, const char *mode) {
 }
 
 #ifdef OM_UNIX
+static int removeFileFromEnvvarDir(const char *envvar, const char *dirname, const char *filename) {
+    char *envvarPath = getenv(envvar);
+    if (envvarPath) {
+        checkBuffSize(strlen(envvarPath) + 1 + strlen(dirname) + 1 + strlen(filename) + 1);
+        sprintf(filenameBuff, "%s/%s/%s", envvarPath, dirname, filename);
+        return remove(filenameBuff);
+    }
+    return -1;
+}
+#endif
+
+void File_Remove(const char *filename) {
+#ifdef OM_UNIX
+    removeFileFromEnvvarDir("XDG_DATA_HOME", OM_XDG_DIR, filename);
+    removeFileFromEnvvarDir("HOME", OM_HOME_DIR, filename);
+    remove(filename);
+#else
+    remove(filename);
+#endif
+}
+
+#ifdef OM_UNIX
 static char *resourceDirs[] = {
     NULL, // xdg data dir placeholder
     NULL, // ~/.openmadoola/ placeholder

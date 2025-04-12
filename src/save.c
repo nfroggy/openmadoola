@@ -109,7 +109,7 @@ void Save_EraseFile(int num) {
     files[num] = NULL;
     char filename[20];
     snprintf(filename, sizeof(filename), "file%d.sav", num + 1);
-    remove(filename);
+    File_Remove(filename);
 }
 
 void Save_Init(void) {

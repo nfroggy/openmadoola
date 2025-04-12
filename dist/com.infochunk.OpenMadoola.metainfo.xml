@@ -80,6 +80,7 @@
                     <li>Add quit menu option</li>
                     <li>Add license viewer</li>
                     <li>Add program icon</li>
+                    <li>Fix save file deletion behavior on unix-like systems</li>
                 </ul>
             </description>
         </release>
