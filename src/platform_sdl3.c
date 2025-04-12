@@ -457,8 +457,7 @@ static SDL_Gamepad *Platform_FindGamepad(void) {
 
 int Platform_Init(void) {
     // this makes sure the application icon is correct
-    bool val = SDL_SetHint(SDL_HINT_APP_ID, "com.infochunk.OpenMadoola");
-    printf("hint: %d\n", val);
+    SDL_SetHint(SDL_HINT_APP_ID, "com.infochunk.OpenMadoola");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
         printf("Error initializing SDL: %s\n", SDL_GetError());
         return 0;
