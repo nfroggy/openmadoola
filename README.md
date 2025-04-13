@@ -4,6 +4,14 @@ Free software (GPL v2.0 or later) reimplementation of "The Wing of Madoola" with
 
 ![OpenMadoola screenshot](screenshot.png)
 
+## Downloading the game (pre-built)
+
+If you run GNU/Linux, you can [download the latest release from Flathub](https://flathub.org/apps/com.infochunk.OpenMadoola) if you don't feel like building it from source. The Flatpak version of the game has a couple minor things to note due to sandboxing, see [here](FLATPAK.md) for more information.
+
+If you run Windows, you can download the latest release from the Releases page of this repo.
+
+If you run Mac OS X, you're going to have to build the game from source. I don't feel like paying Apple $100/year for a signing certificate.
+
 ## [Build instructions](BUILDING.md)
 
 ## Usage
