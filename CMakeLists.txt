@@ -8,13 +8,9 @@ set_property(CACHE ACTIVE_PLATFORM PROPERTY STRINGS ${PLATFORM_LIST})
 
 option(SANITIZE "Compile with asan/ubsan (gcc/clang only)" OFF)
 
-if(MSVC)
-    add_executable(openmadoola WIN32 dist/openmadoola.rc)
-else()
-    add_executable(openmadoola WIN32)
-endif()
+add_executable(openmadoola WIN32)
 
-target_sources(openmadoola PRIVATE
+set(OM_SOURCES
     # game code
     "src/main.c"
     "src/alloc.c"
@@ -198,6 +194,11 @@ target_sources(openmadoola PRIVATE
     "libs/nes_ntsc/nes_ntsc_impl.h"
 )
 
+# add icon resource file if compiling with msvc
+if(MSVC)
+	list(APPEND OM_SOURCES "dist/openmadoola.rc")
+endif()
+
 target_include_directories(openmadoola PRIVATE
     "src"
     "src/objects"
@@ -221,7 +222,7 @@ if(ACTIVE_PLATFORM STREQUAL SDL2)
         target_compile_options(openmadoola PRIVATE ${SDL2_CFLAGS_OTHER})
     endif()
     # set up platform vars
-    target_sources(openmadoola PRIVATE "src/platform_sdl2.c")
+	list(APPEND OM_SOURCES "src/platform_sdl2.c")
     target_include_directories(openmadoola PRIVATE ${SDL2_INCLUDE_DIRS})
     target_link_libraries(openmadoola PRIVATE ${SDL2_LINK_LIBRARIES})
     target_compile_definitions(openmadoola PRIVATE OM_PLATFORM_SDL2)
@@ -236,12 +237,14 @@ elseif(ACTIVE_PLATFORM STREQUAL SDL3)
         find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
         target_link_libraries(openmadoola PRIVATE SDL3::SDL3)
     endif()
-    target_sources(openmadoola PRIVATE "src/platform_sdl3.c")
+	list(APPEND OM_SOURCES "src/platform_sdl3.c")
     target_compile_definitions(openmadoola PRIVATE OM_PLATFORM_SDL3)
 endif()
 
 # make visual studio folders work correctly
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${OM_SOURCES})
+
+target_sources(openmadoola PRIVATE ${OM_SOURCES})
 
 # compiler warnings
 if(MSVC)
@@ -286,23 +289,11 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-# installation stuff (only supported on unix-like platforms)
-if(NOT MSVC)
+# installation (only supported on unix-like platforms)
+if(UNIX)
     install(TARGETS openmadoola
         DESTINATION bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-    install(FILES dist/openmadoola_launcher.sh
-        DESTINATION bin
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-    install(FILES dist/com.infochunk.OpenMadoola.desktop
-        DESTINATION share/applications
-        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-    install(FILES dist/com.infochunk.OpenMadoola.metainfo.xml
-        DESTINATION share/metainfo
-        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-    install(FILES dist/com.infochunk.OpenMadoola.png
-        DESTINATION share/icons/hicolor/512x512/apps
-        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
     install(FILES font.bin nes.pal 2c04.pal
         DESTINATION share/openmadoola
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
@@ -314,4 +305,19 @@ if(NOT MSVC)
         DESTINATION share/openmadoola/mml
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+	# install zenity launcher and xdg stuff on non-apple platforms
+	if(NOT APPLE)
+		install(FILES dist/openmadoola_launcher.sh
+			DESTINATION bin
+			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+		install(FILES dist/com.infochunk.OpenMadoola.desktop
+			DESTINATION share/applications
+			PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+		install(FILES dist/com.infochunk.OpenMadoola.metainfo.xml
+			DESTINATION share/metainfo
+			PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+		install(FILES dist/com.infochunk.OpenMadoola.png
+			DESTINATION share/icons/hicolor/512x512/apps
+			PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+	endif()
 endif()
