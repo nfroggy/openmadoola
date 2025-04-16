@@ -196,7 +196,7 @@ set(OM_SOURCES
 
 # add icon resource file if compiling with msvc
 if(MSVC)
-	list(APPEND OM_SOURCES "dist/openmadoola.rc")
+    list(APPEND OM_SOURCES "dist/openmadoola.rc")
 endif()
 
 target_include_directories(openmadoola PRIVATE
@@ -222,7 +222,7 @@ if(ACTIVE_PLATFORM STREQUAL SDL2)
         target_compile_options(openmadoola PRIVATE ${SDL2_CFLAGS_OTHER})
     endif()
     # set up platform vars
-	list(APPEND OM_SOURCES "src/platform_sdl2.c")
+    list(APPEND OM_SOURCES "src/platform_sdl2.c")
     target_include_directories(openmadoola PRIVATE ${SDL2_INCLUDE_DIRS})
     target_link_libraries(openmadoola PRIVATE ${SDL2_LINK_LIBRARIES})
     target_compile_definitions(openmadoola PRIVATE OM_PLATFORM_SDL2)
@@ -237,7 +237,7 @@ elseif(ACTIVE_PLATFORM STREQUAL SDL3)
         find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
         target_link_libraries(openmadoola PRIVATE SDL3::SDL3)
     endif()
-	list(APPEND OM_SOURCES "src/platform_sdl3.c")
+    list(APPEND OM_SOURCES "src/platform_sdl3.c")
     target_compile_definitions(openmadoola PRIVATE OM_PLATFORM_SDL3)
 endif()
 
@@ -305,19 +305,19 @@ if(UNIX)
         DESTINATION share/openmadoola/mml
         DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-	# install zenity launcher and xdg stuff on non-apple platforms
-	if(NOT APPLE)
-		install(FILES dist/openmadoola_launcher.sh
-			DESTINATION bin
-			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-		install(FILES dist/com.infochunk.OpenMadoola.desktop
-			DESTINATION share/applications
-			PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-		install(FILES dist/com.infochunk.OpenMadoola.metainfo.xml
-			DESTINATION share/metainfo
-			PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-		install(FILES dist/com.infochunk.OpenMadoola.png
-			DESTINATION share/icons/hicolor/512x512/apps
-			PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-	endif()
+    # install zenity launcher and xdg stuff on non-apple platforms
+    if(NOT APPLE)
+        install(FILES dist/openmadoola_launcher.sh
+            DESTINATION bin
+            PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+        install(FILES dist/com.infochunk.OpenMadoola.desktop
+            DESTINATION share/applications
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+        install(FILES dist/com.infochunk.OpenMadoola.metainfo.xml
+            DESTINATION share/metainfo
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+        install(FILES dist/com.infochunk.OpenMadoola.png
+            DESTINATION share/icons/hicolor/512x512/apps
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+    endif()
 endif()
