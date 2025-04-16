@@ -50,7 +50,9 @@ Z | A | A
 Right Shift | Back | Select
 Enter | Start | Start
 
-You can change the controls in the options menu. Pressing A+B+Select+Start while in-game will exit to the title screen.
+You can change the controls in the options menu.
+
+**Pressing A+B+Select+Start while in-game will exit to the title screen.**
 
 ### Game types
 
