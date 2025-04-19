@@ -1,5 +1,5 @@
 /* platform.h: Platform specific code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -121,3 +121,8 @@ void Platform_QueueSamples(Sint16 *samples, int count);
  * @returns the number of queued audio samples
  */
 int Platform_GetQueuedSamples(void);
+
+/**
+ * @returns 1 if there's a gamepad connected, 0 otherwise
+ */
+int Platform_GamepadConnected(void);

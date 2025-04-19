@@ -396,6 +396,10 @@ int Platform_GetQueuedSamples(void) {
     return (int)SDL_GetQueuedAudioSize(audioDevice) / sizeof(Sint16);
 }
 
+int Platform_GamepadConnected(void) {
+    return !!controller;
+}
+
 static int Platform_LoadPalette(char *filename, Uint32 *out, Uint8 *outNtsc) {
     FILE *fp = File_OpenResource(filename, "rb");
     if (!fp) {

@@ -1,5 +1,5 @@
 /* options.c: Options screen
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -59,21 +59,36 @@ struct {
     {"Start", JOY_START},
 };
 
-static int last = INPUT_INVALID;
-static void Options_InputCallback(int button) {
-    last = button;
-}
-
 #define KEYBOARD_CONTROLS 0
 #define GAMEPAD_CONTROLS 1
 static int mapType;
+static int last = INPUT_INVALID;
+static void Options_InputCallback(int button) {
+    if ((mapType == KEYBOARD_CONTROLS) && (button >= INPUT_KEY_MIN) && (button <= INPUT_KEY_MAX)) {
+        last = button;
+    }
+    else if ((mapType == GAMEPAD_CONTROLS) && (button >= INPUT_GAMEPAD_MIN) && (button <= INPUT_GAMEPAD_MAX)) {
+        last = button;
+    }
+}
 
 void Options_Map(void) {
     BG_Clear();
+    Sprite_ClearList();
+
+    // show a message if the user tried to map a gamepad and there isn't one connected
+    if ((mapType == GAMEPAD_CONTROLS) && !Platform_GamepadConnected()) {
+        BG_Print(5, 8, 0, "Gamepad not connected.");
+        for (int i = 0; i < 60; i++) {
+            BG_Display();
+            Task_Yield();
+        }
+        return;
+    }
+
     Input_SetOnPressFunc(Options_InputCallback);
     for (int i = 0; i < ARRAY_LEN(buttonNames); i++) {
         while (1) {
-            Sprite_ClearList();
             BG_Print(2, (i * 2) + 2, 0, "Press key for %s", buttonNames[i].name);
             if (last != INPUT_INVALID) {
                 BG_Print(24, (i * 2) + 2, 0, "%s", Input_ButtonName(last));
@@ -86,6 +101,11 @@ void Options_Map(void) {
                 last = INPUT_INVALID;
                 break;
             }
+            BG_Display();
+            Task_Yield();
+        }
+        // wait a few frames to debounce
+        for (int j = 0; j < 10; j++) {
             BG_Display();
             Task_Yield();
         }
