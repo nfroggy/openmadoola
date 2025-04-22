@@ -1,5 +1,5 @@
 /* hud.c: HUD display code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -52,7 +52,7 @@ static void HUD_ShowNum(Sint16 num, Uint16 xPos, Uint16 yPos, Uint8 palnum, Uint
     // draw number sprites
     for (int i = 0; i < 4; i++) {
         spr.tile = ((num % 10) * 2) + BASE_NUM;
-        Sprite_Draw(&spr, NULL);
+        Sprite_DrawOverlay(&spr);
         spr.x -= DIGIT_WIDTH;
         num /= 10;
     }
@@ -61,12 +61,12 @@ static void HUD_ShowNum(Sint16 num, Uint16 xPos, Uint16 yPos, Uint8 palnum, Uint
         // draw left border
         spr.x = xPos;
         spr.tile = BORDER_TILE;
-        Sprite_Draw(&spr, NULL);
+        Sprite_DrawOverlay(&spr);
 
         // draw right border
         spr.x = xPos + (5 * DIGIT_WIDTH);
         spr.mirror = H_MIRROR;
-        Sprite_Draw(&spr, NULL);
+        Sprite_DrawOverlay(&spr);
     }
 }
 
@@ -84,14 +84,14 @@ void HUD_DisplayOriginal(Sint16 health, Sint16 magic) {
 void HUD_DisplayPlus(Sint16 health, Sint16 magic) {
     HUD_ShowNum(health, 14, 16, 3, 1);
     HUD_ShowNum(magic, 14, 36, 0, 1);
-    HUD_WeaponInit(18, 55);
+    HUD_Weapon(18, 55);
 }
 
 void HUD_DisplayArcade(Sint16 health, Sint16 magic, Uint32 score) {
     HUD_ShowScore(score, 16, 23, 1);
     HUD_ShowNum(health, SCREEN_WIDTH - 60, SCREEN_HEIGHT - 65, 3, 0);
     HUD_ShowNum(magic, SCREEN_WIDTH - 60, SCREEN_HEIGHT - 41, 0, 0);
-    HUD_WeaponInit(SCREEN_WIDTH - 68, SCREEN_HEIGHT - 41);
+    HUD_Weapon(SCREEN_WIDTH - 68, SCREEN_HEIGHT - 41);
 }
 
 static Uint8 weaponTiles[] = {
@@ -102,37 +102,27 @@ static Uint8 weaponPalettes[] = {
     1, 3, 3, 1, 3, 3, 1,
 };
 
-static Sprite *weaponSprite;
-static Sprite *weaponBG1;
-static Sprite *weaponBG2;
+void HUD_Weapon(Sint16 x, Sint16 y) {
+    Sprite spr = { 0 };
 
-void HUD_WeaponInit(Sint16 x, Sint16 y) {
-    weaponBG1 = Sprite_Get();
-    weaponBG1->size = SPRITE_8X16;
-    weaponBG1->x = x;
-    weaponBG1->y = y;
-    weaponBG1->tile = 0x4C;
-    weaponBG1->mirror = 0;
-    weaponBG1->palette = 0;
+    // first weapon background
+    spr.size = SPRITE_8X16;
+    spr.x = x;
+    spr.y = y;
+    spr.tile = 0x4C;
+    spr.mirror = 0;
+    spr.palette = 0;
+    Sprite_DrawOverlay(&spr);
 
-    weaponBG2 = Sprite_Get();
-    weaponBG2->size = SPRITE_8X16;
-    weaponBG2->x = weaponBG1->x + 8;
-    weaponBG2->y = weaponBG1->y;
-    weaponBG2->tile = 0x4C;
-    weaponBG2->mirror = H_MIRROR;
-    weaponBG2->palette = 0;
+    // second weapon background
+    spr.x += 8;
+    spr.mirror = H_MIRROR;
+    Sprite_DrawOverlay(&spr);
 
-    weaponSprite = Sprite_Get();
-    weaponSprite->size = SPRITE_8X16;
-    weaponSprite->x = weaponBG1->x + 4;
-    weaponSprite->y = weaponBG1->y;
-    weaponSprite->tile = weaponTiles[currentWeapon];
-    weaponSprite->mirror = 0;
-    weaponSprite->palette = weaponPalettes[currentWeapon];
-}
-
-void HUD_Weapon(void) {
-    weaponSprite->tile = weaponTiles[currentWeapon];
-    weaponSprite->palette = weaponPalettes[currentWeapon];
+    // weapon
+    spr.x = x + 4;
+    spr.tile = weaponTiles[currentWeapon];
+    spr.mirror = 0;
+    spr.palette = weaponPalettes[currentWeapon];
+    Sprite_DrawOverlay(&spr);
 }

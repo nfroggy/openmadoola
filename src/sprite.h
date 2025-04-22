@@ -1,5 +1,5 @@
 /* sprite.h: Sprite display code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -55,6 +55,11 @@ void Sprite_SetAllPalettes(Uint8 *palette);
  * @brief Clears the sprite list, should be run at the start of each frame
 */
 void Sprite_ClearList(void);
+
+/**
+ * @brief Clears the overlay sprite list
+ */
+void Sprite_ClearOverlayList(void);
 
 /**
  * @brief Gets the next free sprite in the sprite list.
@@ -131,6 +136,17 @@ int Sprite_SetDrawLarge(Sprite *s, Object *o, Uint16 *tiles, Sint8 *offsets, Sin
 void Sprite_SetDrawLargeAbs(Sprite *s, Object *o, Uint16 *tiles, Sint8 *offsets);
 
 /**
+ * @brief Adds a sprite to the list to be drawn
+ * @param s Sprite to add to the list
+ */
+void Sprite_DrawOverlay(Sprite *s);
+
+/**
  * @brief Draws all the sprites in the sprite list, should be run at the end of each frame
 */
 void Sprite_Display(void);
+
+/**
+ * @brief Renders all the sprites in the overlay list to the screen.
+ */
+void Sprite_DisplayOverlay(void);

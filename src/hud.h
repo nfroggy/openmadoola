@@ -1,5 +1,5 @@
 /* hud.h: HUD display code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -25,15 +25,8 @@ void HUD_DisplayPlus(Sint16 health, Sint16 magic);
 void HUD_DisplayArcade(Sint16 health, Sint16 magic, Uint32 score);
 
 /**
- * @brief Reserves sprites for the weapon display (necessary to split out because
- * the sprite list doesn't get cleared when the game is paused, but the player
- * can still switch weapons)
+ * @brief Displays the current weapon
  * @param x display x coordinate
  * @param y display y coordinate
  */
-void HUD_WeaponInit(Sint16 x, Sint16 y);
-
-/**
- * @brief Updates the HUD weapon display from the currently selected weapon
- */
-void HUD_Weapon(void);
+void HUD_Weapon(Sint16 x, Sint16 y);

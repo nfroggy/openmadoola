@@ -1,5 +1,5 @@
 /* game.c: Game related management code and global variables
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -375,34 +375,45 @@ initRoom:
         Game_HandlePaletteShifting();
         Task_Yield();
         Game_HandlePause();
+        Sprite_ClearOverlayList();
+        switch (gameType) {
+        case GAME_TYPE_ORIGINAL:
+            HUD_DisplayOriginal(health, magic);
+            if (paused) {
+                Game_HandleWeaponSwitch();
+                HUD_Weapon((SCREEN_WIDTH / 2) - (16 / 2), 32);
+            }
+            break;
+
+        case GAME_TYPE_PLUS:
+            Game_HandleWeaponSwitch();
+            HUD_DisplayPlus(health, magic);
+            break;
+
+        case GAME_TYPE_ARCADE:
+            Game_HandleWeaponSwitch();
+            HUD_DisplayArcade(health, magic, score);
+            break;
+        }
         if (!paused) {
             Sprite_ClearList();
-            switch (gameType) {
-            case GAME_TYPE_ORIGINAL:
-                HUD_DisplayOriginal(health, magic);
-                break;
-
-            case GAME_TYPE_PLUS:
-                Game_HandleWeaponSwitch();
-                HUD_DisplayPlus(health, magic);
-                break;
-
-            case GAME_TYPE_ARCADE:
-                Game_HandleWeaponSwitch();
-                HUD_DisplayArcade(health, magic, score);
-                break;
-            }
             RNG_Get(); // update RNG once per frame
             Weapon_Process();
             Object_ListRun();
             Enemy_Spawn();
             Game_HandleRoomChange();
         }
-        else {
-            HUD_Weapon();
-        }
         Map_Draw();
-        Sprite_Display();
+
+        // if we're paused or an odd number of frames, draw the hud over the game sprites
+        if (paused || (gameFrames & 1)) {
+            Sprite_Display();
+            Sprite_DisplayOverlay();
+        }
+        else { // if on an even frame, draw the game sprites over the hud (lets you see enemies that are under the hud)
+            Sprite_DisplayOverlay();
+            Sprite_Display();
+        }
 
         // --- soft reset code (NOTE: not in original game) ---
         if ((joy & SOFT_RESET) == SOFT_RESET) {
@@ -518,8 +529,8 @@ static void Game_HandleWeaponSwitch(void) {
 }
 
 static void Game_HandlePause(void) {
-    if (paused) {
-        if (joyEdge & JOY_START) {
+    if (joyEdge & JOY_START) {
+        if (paused) {
             if (gameType == GAME_TYPE_ORIGINAL) {
                 Game_PlayRoomSong();
             }
@@ -528,19 +539,12 @@ static void Game_HandlePause(void) {
             }
             Sound_Play(SFX_PAUSE);
             paused = 0;
-            return;
         }
-        Game_HandleWeaponSwitch();
-    }
-    else {
-        if (joyEdge & JOY_START) {
+        else {
             Sound_SaveState();
             Sound_Reset();
             Sound_Play(SFX_PAUSE);
             paused = 1;
-            if (gameType == GAME_TYPE_ORIGINAL) {
-                HUD_WeaponInit((SCREEN_WIDTH / 2) - (16 / 2), 32);
-            }
         }
     }
 }
