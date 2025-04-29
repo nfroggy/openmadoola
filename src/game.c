@@ -37,6 +37,7 @@
 #include "object.h"
 #include "options.h"
 #include "palette.h"
+#include "pausemenu.h"
 #include "platform.h"
 #include "rng.h"
 #include "rom.h"
@@ -374,8 +375,15 @@ initRoom:
         gameFrames++;
         Game_HandlePaletteShifting();
         Task_Yield();
-        Game_HandlePause();
         Sprite_ClearOverlayList();
+        // when recording a demo, pressing start ends the demo recording
+        if (Demo_Recording() && (joyEdge & JOY_START)) {
+            return STAGE_EXIT_RESET;
+        }
+        // otherwise, pressing start pauses the game
+        else {
+            Game_HandlePause();
+        }
         switch (gameType) {
         case GAME_TYPE_ORIGINAL:
             HUD_DisplayOriginal(health, magic);
@@ -413,11 +421,6 @@ initRoom:
         else { // if on an even frame, draw the game sprites over the hud (lets you see enemies that are under the hud)
             Sprite_DisplayOverlay();
             Sprite_Display();
-        }
-
-        // --- soft reset code (NOTE: not in original game) ---
-        if ((joy & SOFT_RESET) == SOFT_RESET) {
-            return STAGE_EXIT_RESET;
         }
 
         // --- handle keyword screen ---
@@ -529,6 +532,11 @@ static void Game_HandleWeaponSwitch(void) {
 }
 
 static void Game_HandlePause(void) {
+    // if the player chose the quit option in the pause menu, quit to the title screen
+    if (paused && PauseMenu_Run()) {
+        Task_Switch(Title_Run);
+    }
+
     if (joyEdge & JOY_START) {
         if (paused) {
             if (gameType == GAME_TYPE_ORIGINAL) {
@@ -545,6 +553,7 @@ static void Game_HandlePause(void) {
             Sound_Reset();
             Sound_Play(SFX_PAUSE);
             paused = 1;
+            PauseMenu_Init();
         }
     }
 }

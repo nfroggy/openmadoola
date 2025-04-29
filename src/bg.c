@@ -1,5 +1,5 @@
 /* bg.c: Background display code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -25,7 +25,7 @@
 #include "map.h"
 #include "palette.h"
 
-#define TEXT_BASE (0x800) // font characters are stored in bank 7
+#define TEXT_BASE (0x800)
 
 typedef struct {
     Uint16 tile;
@@ -97,11 +97,11 @@ int BG_VPrint(Uint16 x, Uint16 y, Uint8 palnum, char *fmt, va_list args) {
     return len;
 }
 
-void BG_SetPalette(int palnum, Uint8 *palette) {
+void BG_SetPalette(int palnum, const Uint8 *palette) {
     memcpy(&colorPalette[palnum * PALETTE_SIZE], palette, PALETTE_SIZE);
 }
 
-void BG_SetAllPalettes(Uint8 *palette) {
+void BG_SetAllPalettes(const Uint8 *palette) {
     memcpy(colorPalette, palette, PALETTE_SIZE * 4);
 }
 

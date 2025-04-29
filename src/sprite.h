@@ -40,16 +40,16 @@ typedef struct {
 
 /**
  * @brief Sets a sprite palette
- * @param palnum the palette number (0-3)
+ * @param palnum the palette number (0-7)
  * @param palette 4-byte palette array
 */
-void Sprite_SetPalette(int palnum, Uint8 *palette);
+void Sprite_SetPalette(int palnum, const Uint8 *palette);
 
 /**
- * @brief Sets all sprite palettes
+ * @brief Sets sprite palettes 0-4
  * @param palette 16-byte palette array
 */
-void Sprite_SetAllPalettes(Uint8 *palette);
+void Sprite_SetAllPalettes(const Uint8 *palette);
 
 /**
  * @brief Clears the sprite list, should be run at the start of each frame

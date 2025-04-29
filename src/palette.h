@@ -1,5 +1,5 @@
 /* palette.h: Color palette
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -21,8 +21,8 @@
 #include "constants.h"
 #include "graphics.h"
 
-// first 4: background next 4: sprites
-extern Uint8 colorPalette[PALETTE_SIZE * 8];
+// first 4: background next 8: sprites
+extern Uint8 colorPalette[];
 extern Uint8 flashTimer;
 
 /**

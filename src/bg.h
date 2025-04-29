@@ -1,5 +1,5 @@
 /* bg.h: Background display code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -95,13 +95,13 @@ int BG_VPrint(Uint16 x, Uint16 y, Uint8 palnum, char *fmt, va_list args);
  * @param palnum the palette number to set (0-3)
  * @param palette the 4-byte palette array to write
 */
-void BG_SetPalette(int palnum, Uint8 *palette);
+void BG_SetPalette(int palnum, const Uint8 *palette);
 
 /**
  * @brief Sets all background palettes
  * @param palettes the 16-byte palette array to write
 */
-void BG_SetAllPalettes(Uint8 *palettes);
+void BG_SetAllPalettes(const Uint8 *palettes);
 
 /**
  * @brief Sets the background's scroll position.

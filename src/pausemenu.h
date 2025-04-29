@@ -1,5 +1,5 @@
-/* palette.c: Color palette
- * Copyright (c) 2023-2025 Nathan Misner
+/* pausemenu.h: Game pause menu
+* Copyright (c) 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -17,28 +17,7 @@
  * along with OpenMadoola. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
+#pragma once
 
-#include "constants.h"
-#include "file.h"
-#include "game.h"
-#include "graphics.h"
-#include "palette.h"
-#include "platform.h"
-
-// which NES colors to use
-Uint8 colorPalette[PALETTE_SIZE * 12];
-// palette to use when flashTimer is nonzero
-static Uint8 flashPalette[ARRAY_LEN(colorPalette)];
-Uint8 flashTimer = 0;
-
-Uint8 *Palette_Run(void) {
-    if (flashTimer) {
-        flashTimer--;
-        for (int i = 0; i < ARRAY_LEN(colorPalette); i++) {
-            flashPalette[i] = (((gameFrames << 2) & 0x30) + colorPalette[i]) & 0x3f;
-        }
-        return flashPalette;
-    }
-    return colorPalette;
-}
+void PauseMenu_Init(void);
+int PauseMenu_Run(void);

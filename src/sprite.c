@@ -29,15 +29,15 @@
 #include "sprite.h"
 
 static Sprite sprites[200];
-static Sprite overlaySprites[32];
+static Sprite overlaySprites[200];
 
 static int addOrder = 0;
 
-void Sprite_SetPalette(int palnum, Uint8 *palette) {
+void Sprite_SetPalette(int palnum, const Uint8 *palette) {
     memcpy(&colorPalette[(palnum + 4) * PALETTE_SIZE], palette, PALETTE_SIZE);
 }
 
-void Sprite_SetAllPalettes(Uint8 *palette) {
+void Sprite_SetAllPalettes(const Uint8 *palette) {
     memcpy(colorPalette + (4 * PALETTE_SIZE), palette, PALETTE_SIZE * 4);
 }
 
