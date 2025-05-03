@@ -81,6 +81,7 @@ static void Game_InitCommon(void);
 static void Game_InitDemo(DemoData *data);
 static void Game_Run(void);
 static int Game_RunStage(void);
+static void Game_DrawHud(void);
 static void Game_HandleWeaponSwitch(void);
 static void Game_HandlePause(void);
 static void Game_SetRoom(Uint8 roomNum);
@@ -91,7 +92,7 @@ typedef enum {
     STAGE_EXIT_NEXTSTAGE,
     STAGE_EXIT_DIED,
     STAGE_EXIT_WON,
-    STAGE_EXIT_RESET,
+    STAGE_EXIT_DEMO_RECORDING_QUIT,
 } GameRunStageExit;
 static int Game_RunStage(void);
 
@@ -278,7 +279,7 @@ static void Game_Run(void) {
             Task_Switch(Title_Run);
             break;
 
-        case STAGE_EXIT_RESET:
+        case STAGE_EXIT_DEMO_RECORDING_QUIT:
             Task_Switch(Title_Run);
             break;
         }
@@ -370,7 +371,6 @@ initRoom:
     }
     lastRoom = currRoom;
 
-
     while (1) {
         gameFrames++;
         Game_HandlePaletteShifting();
@@ -378,31 +378,10 @@ initRoom:
         Sprite_ClearOverlayList();
         // when recording a demo, pressing start ends the demo recording
         if (Demo_Recording() && (joyEdge & JOY_START)) {
-            return STAGE_EXIT_RESET;
+            return STAGE_EXIT_DEMO_RECORDING_QUIT;
         }
-        // otherwise, pressing start pauses the game
-        else {
-            Game_HandlePause();
-        }
-        switch (gameType) {
-        case GAME_TYPE_ORIGINAL:
-            HUD_DisplayOriginal(health, magic);
-            if (paused) {
-                Game_HandleWeaponSwitch();
-                HUD_Weapon((SCREEN_WIDTH / 2) - (16 / 2), 32);
-            }
-            break;
-
-        case GAME_TYPE_PLUS:
-            Game_HandleWeaponSwitch();
-            HUD_DisplayPlus(health, magic);
-            break;
-
-        case GAME_TYPE_ARCADE:
-            Game_HandleWeaponSwitch();
-            HUD_DisplayArcade(health, magic, score);
-            break;
-        }
+        Game_HandlePause();
+        Game_DrawHud();
         if (!paused) {
             Sprite_ClearList();
             RNG_Get(); // update RNG once per frame
@@ -412,7 +391,6 @@ initRoom:
             Game_HandleRoomChange();
         }
         Map_Draw();
-
         // if we're paused or an odd number of frames, draw the hud over the game sprites
         if (paused || (gameFrames & 1)) {
             Sprite_Display();
@@ -515,6 +493,28 @@ void Game_AddScore(Uint32 points) {
     score = MIN(score, 99999999);
 }
 
+static void Game_DrawHud(void) {
+    switch (gameType) {
+    case GAME_TYPE_ORIGINAL:
+        HUD_DisplayOriginal(health, magic);
+        if (paused) {
+            Game_HandleWeaponSwitch();
+            HUD_Weapon((SCREEN_WIDTH / 2) - (16 / 2), 32);
+        }
+        break;
+
+    case GAME_TYPE_PLUS:
+        Game_HandleWeaponSwitch();
+        HUD_DisplayPlus(health, magic);
+        break;
+
+    case GAME_TYPE_ARCADE:
+        Game_HandleWeaponSwitch();
+        HUD_DisplayArcade(health, magic, score);
+        break;
+    }
+}
+
 static void Game_HandleWeaponSwitch(void) {
     if (joyEdge & JOY_SELECT) {
         Sound_Play(SFX_SELECT);
@@ -532,13 +532,9 @@ static void Game_HandleWeaponSwitch(void) {
 }
 
 static void Game_HandlePause(void) {
-    // if the player chose the quit option in the pause menu, quit to the title screen
-    if (paused && PauseMenu_Run()) {
-        Task_Switch(Title_Run);
-    }
-
-    if (joyEdge & JOY_START) {
-        if (paused) {
+    if (paused) {
+        switch (PauseMenu_Run()) {
+        case PAUSE_EXIT_RESUME:
             if (gameType == GAME_TYPE_ORIGINAL) {
                 Game_PlayRoomSong();
             }
@@ -547,14 +543,22 @@ static void Game_HandlePause(void) {
             }
             Sound_Play(SFX_PAUSE);
             paused = 0;
+            break;
+
+        case PAUSE_EXIT_QUIT:
+            Task_Switch(Title_Run);
+            break;
+
+        default:
+            break;
         }
-        else {
-            Sound_SaveState();
-            Sound_Reset();
-            Sound_Play(SFX_PAUSE);
-            paused = 1;
-            PauseMenu_Init();
-        }
+    }
+    else if (joyEdge & JOY_START) {
+        Sound_SaveState();
+        Sound_Reset();
+        Sound_Play(SFX_PAUSE);
+        paused = 1;
+        PauseMenu_Init();
     }
 }
 

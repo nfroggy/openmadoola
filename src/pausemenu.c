@@ -23,7 +23,6 @@
 #include "sound.h"
 #include "sprite.h"
 #include "task.h"
-#include "title.h"
 
 #define TEXT_BASE (0x800)
 static const Uint8 palette[] = {
@@ -91,8 +90,15 @@ int PauseMenu_Run(void) {
     spr.tile = 0xee;
     Sprite_DrawOverlay(&spr);
 
-    if (cursor && (joyEdge & JOY_START)) {
-        return 1;
+    // always unpause if the user presses start
+    if (joyEdge & JOY_START) {
+        return PAUSE_EXIT_RESUME;
     }
-    return 0;
+    // if the user presses a, quit if the quit option is selected
+    if (joyEdge & JOY_A) {
+        // make sure the button press doesn't interfere with gameplay
+        joyEdge &= ~JOY_A;
+        return cursor ? PAUSE_EXIT_QUIT : PAUSE_EXIT_RESUME;
+    }
+    return PAUSE_EXIT_NONE;
 }

@@ -19,5 +19,17 @@
 
 #pragma once
 
+/**
+ * @brief Initializes pause menu. Must be run when the player hits start to pause the game.
+ */
 void PauseMenu_Init(void);
+
+#define PAUSE_EXIT_NONE 0
+#define PAUSE_EXIT_RESUME 1
+#define PAUSE_EXIT_QUIT 2
+/**
+ * @brief Runs the pause menu. Must be run every frame the game is paused.
+ * @returns PAUSE_EXIT_NONE if the player didn't do anything, PAUSE_EXIT_RESUME if the player
+ * chose to resume the game, PAUSE_EXIT_QUIT if the player chose to quit.
+ */
 int PauseMenu_Run(void);
