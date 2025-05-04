@@ -31,7 +31,8 @@
 static Sprite sprites[200];
 static Sprite overlaySprites[200];
 
-static int addOrder = 0;
+static int spriteCursor;
+static int overlayCursor;
 
 void Sprite_SetPalette(int palnum, const Uint8 *palette) {
     memcpy(&colorPalette[(palnum + 4) * PALETTE_SIZE], palette, PALETTE_SIZE);
@@ -68,31 +69,24 @@ static void Sprite_16x16(int x, int y, int tilenum, int palnum, int mirror) {
 }
 
 void Sprite_ClearList(void) {
-    for (int i = 0; i < ARRAY_LEN(sprites); i++) {
-        sprites[i].size = SPRITE_NONE;
-    }
+    spriteCursor = 0;
 }
 
 void Sprite_ClearOverlayList(void) {
-    for (int i = 0; i < ARRAY_LEN(overlaySprites); i++) {
-        overlaySprites[i].size = SPRITE_NONE;
-    }
+    overlayCursor = 0;
 }
 
 Sprite *Sprite_Get(void) {
-    for (int i = 0; i < ARRAY_LEN(sprites); i++) {
-        if (sprites[i].size == SPRITE_NONE) {
-            // set size so sequential Sprite_Get calls don't return pointers to
-            // the same sprite
-            sprites[i].size = SPRITE_8X16;
-            // initialize the sprite to be offscreen
-            sprites[i].y = 0xffe0;
-            return &sprites[i];
-        }
+    if (spriteCursor >= ARRAY_LEN(sprites)) {
+        Platform_ShowError("Not enough sprites, increase size of sprites array in sprite.c");
+        return NULL;
     }
 
-    Platform_ShowError("Not enough sprites, increase size of sprites arrayin sprite.c");
-    return NULL;
+    Sprite *spr = sprites + spriteCursor;
+    spriteCursor++;
+    // initialize the sprite to be offscreen
+    spr->y = 0xffe0;
+    return spr;
 }
 
 int Sprite_SetPos(Sprite *s, Object *o, Sint16 xOffset, Sint16 yOffset) {
@@ -128,23 +122,12 @@ void Sprite_Draw(Sprite *s, Object *o) {
         }
     }
 
-    if (addOrder) {
-        for (int i = 0; i < ARRAY_LEN(sprites); i++) {
-            if (sprites[i].size == SPRITE_NONE) {
-                sprites[i] = *s;
-                return;
-            }
-        }
+    if (spriteCursor < ARRAY_LEN(sprites)) {
+        sprites[spriteCursor++] = *s;
     }
     else {
-        for (int i = ARRAY_LEN(sprites) - 1; i >= 0; i--) {
-            if (sprites[i].size == SPRITE_NONE) {
-                sprites[i] = *s;
-                return;
-            }
-        }
+        Platform_ShowError("Not enough sprites, increase size of sprites array in sprite.c");
     }
-    Platform_ShowError("Not enough sprites, increase size of sprites array in sprite.c");
 }
 
 void Sprite_DrawDir(Sprite *s, Object *o) {
@@ -219,42 +202,52 @@ void Sprite_SetDrawLargeAbs(Sprite *s, Object *o, Uint16 *tiles, Sint8 *offsets)
 }
 
 void Sprite_DrawOverlay(Sprite *s) {
-    for (int i = 0; i < ARRAY_LEN(overlaySprites); i++) {
-        if (overlaySprites[i].size == SPRITE_NONE) {
-            overlaySprites[i] = *s;
-            return;
-        }
+    if (overlayCursor < ARRAY_LEN(overlaySprites)) {
+        overlaySprites[overlayCursor++] = *s;
     }
-    Platform_ShowError("Not enough sprites, increase size of overlaySprites array in sprite.c");
+    else {
+        Platform_ShowError("Not enough sprites, increase size of overlaySprites array in sprite.c");
+    }
 }
 
-static void Sprite_DisplayInternal(Sprite *spriteList, int len) {
-    for (int i = 0; i < len; i++) {
-        // NOTE: I add 1 to the y positions because the NES draws sprites one line lower than the coordinate you provide
-        switch (spriteList[i].size) {
-        case SPRITE_8X8:
-            Sprite_8x8(spriteList[i].x, spriteList[i].y + 1, spriteList[i].tile, spriteList[i].palette, spriteList[i].mirror);
-            break;
+static void Sprite_DisplayInternal(Sprite *spr) {
+    // NOTE: I add 1 to the y positions because the NES draws sprites one line lower than the coordinate you provide
+    switch (spr->size) {
+    case SPRITE_8X8:
+        Sprite_8x8(spr->x, spr->y + 1, spr->tile, spr->palette, spr->mirror);
+        break;
 
-        case SPRITE_8X16:
-            // NOTE: The original code subtracts 4 from the x position when drawing 8x16 sprites. I don't know why but I'll do it too
-            Sprite_8x16(spriteList[i].x - 4, spriteList[i].y + 1, spriteList[i].tile, spriteList[i].palette, spriteList[i].mirror);
-            break;
+    case SPRITE_8X16:
+        // NOTE: The original code subtracts 4 from the x position when drawing 8x16 sprites. I don't know why but I'll do it too
+        Sprite_8x16(spr->x - 4, spr->y + 1, spr->tile, spr->palette, spr->mirror);
+        break;
 
-        case SPRITE_16X16:
-            Sprite_16x16(spriteList[i].x, spriteList[i].y + 1, spriteList[i].tile, spriteList[i].palette, spriteList[i].mirror);
-            break;
-        }
+    case SPRITE_16X16:
+        Sprite_16x16(spr->x, spr->y + 1, spr->tile, spr->palette, spr->mirror);
+        break;
     }
 }
 
 void Sprite_Display(void) {
-    Sprite_DisplayInternal(sprites, ARRAY_LEN(sprites));
-    // alternate sprite add order every frame (this makes sprites "transparent" if
+    static int drawOrder = 0;
+
+    if (drawOrder) {
+        for (int i = (spriteCursor - 1); i >= 0; i--) {
+            Sprite_DisplayInternal(sprites + i);
+        }
+    }
+    else {
+        for (int i = 0; i < spriteCursor; i++) {
+            Sprite_DisplayInternal(sprites + i);
+        }
+    }
+    // alternate sprite draw order every frame (this makes sprites "transparent" if
     // there's sprites on top of each other)
-    addOrder ^= 1;
+    drawOrder ^= 1;
 }
 
 void Sprite_DisplayOverlay(void) {
-    Sprite_DisplayInternal(overlaySprites, ARRAY_LEN(overlaySprites));
+    for (int i = 0; i < overlayCursor; i++) {
+        Sprite_DisplayInternal(overlaySprites + i);
+    }
 }
