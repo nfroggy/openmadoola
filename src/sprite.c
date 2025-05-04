@@ -59,12 +59,12 @@ static void Sprite_8x16(int x, int y, int tilenum, int palnum, int mirror) {
 
 static void Sprite_16x16(int x, int y, int tilenum, int palnum, int mirror) {
     if (mirror & H_MIRROR) {
-        Sprite_8x16(x - 8, y, tilenum + 16, palnum, mirror);
-        Sprite_8x16(x, y, tilenum, palnum, mirror);
+        Sprite_8x16(x, y, tilenum + 16, palnum, mirror);
+        Sprite_8x16(x + 8, y, tilenum, palnum, mirror);
     }
     else {
-        Sprite_8x16(x - 8, y, tilenum, palnum, mirror);
-        Sprite_8x16(x, y, tilenum + 16, palnum, mirror);
+        Sprite_8x16(x, y, tilenum, palnum, mirror);
+        Sprite_8x16(x + 8, y, tilenum + 16, palnum, mirror);
     }
 }
 
@@ -217,13 +217,13 @@ static void Sprite_DisplayInternal(Sprite *spr) {
         Sprite_8x8(spr->x, spr->y + 1, spr->tile, spr->palette, spr->mirror);
         break;
 
+    // 8x16 and 16x16 sprites are drawn such that the x pos is the center of the sprite
     case SPRITE_8X16:
-        // NOTE: The original code subtracts 4 from the x position when drawing 8x16 sprites. I don't know why but I'll do it too
         Sprite_8x16(spr->x - 4, spr->y + 1, spr->tile, spr->palette, spr->mirror);
         break;
 
     case SPRITE_16X16:
-        Sprite_16x16(spr->x, spr->y + 1, spr->tile, spr->palette, spr->mirror);
+        Sprite_16x16(spr->x - 8, spr->y + 1, spr->tile, spr->palette, spr->mirror);
         break;
     }
 }
