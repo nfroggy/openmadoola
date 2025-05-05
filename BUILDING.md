@@ -4,16 +4,18 @@
 
 ### UNIX-like platforms (GNU/Linux, Mac OS X, etc)
 
+**Note:** Some fast-moving distros like Arch and Fedora have replaced their SDL2 packages with sdl2-compat, a compatibility wrapper that uses SDL3 as a backend to provide the SDL2 API. If your distro packages SDL3, make sure you build OpenMadoola for SDL3 instead of SDL2 to avoid any bugs introduced by the sdl2-compat wrapper.
+
 Install GCC or Clang, make, cmake, and the SDL2 development libraries from your package manager.
 
 Generate the build files with
 ```
-cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake -B build -DACTIVE_PLATFORM=SDL2
 ```
 
-Next, compile the executable with this command:
+Next, compile the executable:
 ```
-cmake --build build --config Release
+cmake --build build
 ```
 
 ### Windows
@@ -34,14 +36,14 @@ Note that I don't check if the project builds with Visual Studio in between rele
 
 Install GCC or Clang, make, cmake, and the SDL3 development libraries from your package manager.
 
-Generate the build files with
+Generate the build files:
 ```
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DACTIVE_PLATFORM=SDL3
+cmake -B build -DACTIVE_PLATFORM=SDL3
 ```
 
-Next, compile the executable with this command:
+Next, compile the executable:
 ```
-cmake --build build --config Release
+cmake --build build
 ```
 
 ### Windows
