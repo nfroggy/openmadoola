@@ -53,6 +53,7 @@
 #define SOFT_RESET (JOY_A | JOY_B | JOY_START | JOY_SELECT)
 
 Uint8 gameType = GAME_TYPE_PLUS;
+Uint8 arcadeDifficulty = ARCADE_DIFF_NORMAL;
 Uint8 paused;
 Uint8 stage;
 Uint8 highestReachedStage;
@@ -99,12 +100,9 @@ static int Game_RunStage(void);
 void Game_LoadSettings(void) {
     // initialize game type
     DBEntry *entry = DB_Find("gametype");
-    if (entry) {
-        gameType = entry->data[0];
-    }
-    else {
-        gameType = GAME_TYPE_PLUS;
-    }
+    gameType = entry ? entry->data[0] : GAME_TYPE_PLUS;
+    entry = DB_Find("arcadediff");
+    arcadeDifficulty = entry ? entry->data[0] : ARCADE_DIFF_NORMAL;
 }
 
 void Game_NewGame(void) {
@@ -341,7 +339,15 @@ static int Game_RunStage(void) {
     Uint16 lastRoom = 0xffff;
 
     Object_ListInit();
-    magic = maxMagic;
+    // on hard/crazy difficulty, magic only refills up to 1000 between stages
+    if ((gameType == GAME_TYPE_ARCADE) &&
+        ((arcadeDifficulty == ARCADE_DIFF_HARD) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)))
+    {
+        magic = MAX(magic, 1000);
+    }
+    else {
+        magic = maxMagic;
+    }
     fountainUsed = 0;
 
     Sound_Reset();
@@ -489,8 +495,19 @@ void Game_PlayRoomSong(void) {
 }
 
 void Game_AddScore(Uint32 points) {
+    Uint32 oldScore = score;
     score += points;
-    score = MIN(score, 99999999);
+    // on arcade hard/crazy modes, Lucia's MP refils when she scores a multiple of 10000 points
+    if ((gameType == GAME_TYPE_ARCADE) &&
+        ((arcadeDifficulty == ARCADE_DIFF_HARD) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)) &&
+        ((score / 10000) > (oldScore / 10000)))
+    {
+        magic = maxMagic;
+    }
+    // keep score inside 8 numbers
+    if (score >= 100000000) {
+        score -= 100000000;
+    }
 }
 
 static void Game_DrawHud(void) {

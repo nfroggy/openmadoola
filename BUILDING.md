@@ -8,7 +8,7 @@
 
 Install GCC or Clang, make, cmake, and the SDL2 development libraries from your package manager.
 
-Generate the build files with
+Generate the build files:
 ```
 cmake -B build -DACTIVE_PLATFORM=SDL2
 ```

@@ -180,6 +180,19 @@ static int gameTypeCB(int num) {
     return num;
 }
 
+static char *arcadeDiffOptions[] = {"Normal", "Hard", "Crazy"};
+
+static int arcadeDiffInit(void) { return arcadeDifficulty; }
+
+static int arcadeDiffCB(int num) {
+    if (num < 0) { num = ARRAY_LEN(arcadeDiffOptions) - 1; }
+    if (num >= ARRAY_LEN(arcadeDiffOptions)) { num = 0; }
+    arcadeDifficulty = num;
+    DB_Set("arcadediff", &arcadeDifficulty, 1);
+    DB_Save();
+    return num;
+}
+
 static void doHighScoreReset(void) {
     HighScore_ResetScores();
     Task_Switch(Options_Run);
@@ -207,6 +220,7 @@ static MenuItem optionsItems[] = {
     MENU_TASK("Keyboard controls", keyboardTask),
     MENU_TASK("Gamepad controls", gamepadTask),
     MENU_LIST("Game type", gameTypeOptions, gameTypeInit, gameTypeCB),
+    MENU_LIST("Arcade difficulty", arcadeDiffOptions, arcadeDiffInit, arcadeDiffCB),
     MENU_TASK("Reset high scores", highScoreResetTask),
     MENU_TASK("Back", MainMenu_Run),
 };
@@ -218,5 +232,5 @@ void Options_Draw(void) {
 void Options_Run(void) {
     BG_SetAllPalettes(palette);
     Sprite_SetAllPalettes(palette + 16);
-    Menu_Run(6, 6, 2, optionsItems, ARRAY_LEN(optionsItems), Options_Draw);
+    Menu_Run(3, 6, 2, optionsItems, ARRAY_LEN(optionsItems), Options_Draw);
 }

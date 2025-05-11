@@ -82,19 +82,22 @@ Also in the options menu, you'll find a "game type" setting. The "Original" game
 
 #### Arcade-exclusive changes
 For a list of the all the changes I'm aware of between the console and arcade versions, see [here](https://www.infochunk.com/madoola/arcade.html). Here's a list of the changes between the real arcade version and the OpenMadoola version:
-- The Plus changes (see above) are included
+- The Plus changes (see above) are included.
 - Anything related to inserting coins isn't here. The continue system is the same as the other game types.
 - The "Press Start" text on the title screen blinks slower than the original because I think it looks nicer.
-- Lucia's health gets decremented by 1 point every 32 frames, but the changed MP mechanics aren't ported over.
+- The "Arcade difficulty" option in the settings controls the game's difficulty like this:
+   - **Normal**: Lucia's health gets decremented by 1 every 32 frames.
+   - **Hard**: There's no HP timer, but Lucia's MP only refills up to 1000 when she dies or between levels. You can refill her MP by scoring a multiple of 10,000 points. This mode matches [this](https://www.youtube.com/watch?v=C9T8ad12eO8) gameplay video.
+   - **Crazy**: This is a combination of the HP timer from Normal difficulty and the MP refill mechanic from Hard difficulty. This mode matches [this](https://www.youtube.com/watch?v=FKKC1KHHi4Q) gameplay video.
 - There's enemy collision in the attract mode. I added a couple other stages besides Stage 1 to the attract mode to add some variety.
 - Lucia starts with 3 lives instead of 2. This may have originally been a DIP switch though.
 - Because OpenMadoola has start/select buttons, none of the control changes have been ported over.
 - I didn't add the Stage 4 change because it seems like a mistake.
 - I didn't add the camera change because I like the camera from the console version (which centers Lucia when she's on solid ground) more than the arcade version (which only moves up/down when Lucia is at the edge of the screen).
 - The high score entry screen is made up because there's no public footage of it.
-- There's no "hard mode" option for increased enemy damage.
-- The game over screen doesn't play after you beat the game.
-- Lucia can only use the fountain once per life, per stage. Otherwise you can get stay in a stage indefinitely and kill enemies over and over, which breaks the scoring system.
+- There's no option for increased enemy damage.
+- The game over screen doesn't play after you beat the game (kind of a buzz-kill IMO).
+- Lucia can only use the fountain once per life, per stage. Otherwise you can get stay in a stage indefinitely and kill enemies over and over, which breaks the scoring system. I don't think any of the footage of the game shows Lucia using the fountain multiple times in one life, so I don't know if the real game has the same restriction.
 - All the default high scores are now 10x lower. In my opinion, the default high scores should be relatively easy to beat.
 
 ## Used Software
