@@ -137,8 +137,10 @@ int PauseMenu_Run(void) {
     }
 
     PauseMenu_DrawBG(PAUSE_MENU_X_POS, PAUSE_MENU_Y_POS, PAUSE_MENU_WIDTH, PAUSE_MENU_HEIGHT);
-    PauseMenu_PrintStr(PAUSE_MENU_X_POS + 13, PAUSE_MENU_Y_POS + 8, "Resume");
-    PauseMenu_PrintStr(PAUSE_MENU_X_POS + 13, PAUSE_MENU_Y_POS + 24, "Quit");
+    PauseMenu_PrintStr(PAUSE_MENU_X_POS + 13, PAUSE_MENU_Y_POS + 8,
+        (gameType == GAME_TYPE_ORIGINAL) ? "RESUME" : "Resume");
+    PauseMenu_PrintStr(PAUSE_MENU_X_POS + 13, PAUSE_MENU_Y_POS + 24,
+        (gameType == GAME_TYPE_ORIGINAL) ? "QUIT" : "Quit");
 
     Sprite spr = { 0 };
     spr.x = PAUSE_MENU_X_POS + 6;
