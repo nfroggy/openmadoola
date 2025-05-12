@@ -1,5 +1,5 @@
 /* save.h: Save file handler
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -18,8 +18,6 @@
  */
 
 #pragma once
-#include "buffer.h"
-#include "constants.h"
 
 /**
  * @brief Loads any save files from disk. Should be run at startup.
@@ -30,19 +28,6 @@ void Save_Init(void);
  * @brief Saves game state to disk.
  */
 void Save_SaveFile(void);
-
-/**
- * @brief Appends the current game state to the given Buffer.
- * @param buf Buffer to write to (must be initialized)
- */
-void Save_Serialize(Buffer *buf);
-
-/**
- * @brief Sets the current game state to the contents of the given byte array
- * @param data Data to set game state to (must have been created by Save_Serialize)
- * @returns number of bytes deserialized
- */
-int Save_Deserialize(Uint8 *data);
 
 #define SAVE_SCREEN_BACK 0
 #define SAVE_SCREEN_NEWGAME 1

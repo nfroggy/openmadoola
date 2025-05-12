@@ -1,5 +1,5 @@
 /* save.c: Save file handler
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -71,24 +71,34 @@ void Save_Serialize(Buffer *buf) {
     for (int i = 0; i < ARRAY_LEN(bossDefeated); i++) {
         Buffer_Add(buf, bossDefeated[i]);
     }
+    // at the end because this is a late addition and I want to keep compatibility with existing save files
+    Buffer_AddSint16(buf, magic);
 }
 
-int Save_Deserialize(Uint8 *data) {
+int Save_Deserialize(Buffer *buf) {
     int cursor = 0;
-    maxHealth = Util_LoadSint16(data + cursor);
+    maxHealth = Util_LoadSint16(buf->data + cursor);
     cursor += 2;
-    maxMagic = Util_LoadSint16(data + cursor);
+    maxMagic = Util_LoadSint16(buf->data + cursor);
     cursor += 2;
-    highestReachedStage = data[cursor++];
-    keywordDisplay = data[cursor++];
-    orbCollected = data[cursor++];
-    memcpy(weaponLevels, data + cursor, sizeof(weaponLevels));
+    highestReachedStage = buf->data[cursor++];
+    keywordDisplay = buf->data[cursor++];
+    orbCollected = buf->data[cursor++];
+    memcpy(weaponLevels, buf->data + cursor, sizeof(weaponLevels));
     cursor += sizeof(weaponLevels);
-    bootsLevel = data[cursor++];
-    memcpy(itemsCollected, data + cursor, sizeof(itemsCollected));
+    bootsLevel = buf->data[cursor++];
+    memcpy(itemsCollected, buf->data + cursor, sizeof(itemsCollected));
     cursor += sizeof(itemsCollected);
-    memcpy(bossDefeated, data + cursor, sizeof(bossDefeated));
+    memcpy(bossDefeated, buf->data + cursor, sizeof(bossDefeated));
     cursor += sizeof(bossDefeated);
+    if (buf->dataSize > cursor) {
+        magic = Util_LoadSint16(buf->data + cursor);
+        cursor += 2;
+    }
+    else {
+        // default value
+        magic = 1000;
+    }
     return cursor;
 }
 
@@ -185,7 +195,7 @@ void Save_Screen(void) {
     Sprite_SetAllPalettes(savePalette + 16);
     for (int i = 0; i < NUM_FILES; i++) {
         if (files[i]) {
-            Save_Deserialize(files[i]->data);
+            Save_Deserialize(files[i]);
             stages[i] = highestReachedStage;
             highestStages[i] = stages[i];
         }
@@ -315,7 +325,7 @@ void Save_Screen(void) {
             if (joyEdge & JOY_START) { break; }
         }
 
-        Save_Deserialize(files[cursor]->data);
+        Save_Deserialize(files[cursor]);
         stage = stages[cursor];
         Task_Switch(Game_LoadGame);
     }
