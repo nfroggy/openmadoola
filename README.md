@@ -100,6 +100,10 @@ For a list of the all the changes I'm aware of between the console and arcade ve
 - Lucia can only use the fountain once per life, per stage. Otherwise you can get stay in a stage indefinitely and kill enemies over and over, which breaks the scoring system. I don't think any of the footage of the game shows Lucia using the fountain multiple times in one life, so I don't know if the real game has the same restriction.
 - All the default high scores are now 10x lower. In my opinion, the default high scores should be relatively easy to beat.
 
+## Non-code contributions
+- [Kak](http://kak.bplaced.net/) - Program icons
+- Marklincadet - Sample MML files
+
 ## Used Software
 
 ### Blip_Buffer http://www.slack.net/~ant/libs/audio.html#Blip_Buffer

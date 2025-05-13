@@ -1,9 +1,6 @@
 REM used to generate icon files. ImageMagick must be installed on your computer for this to work.
 
-REM linux icon
-magick lucia.png -resize 512x512 com.infochunk.OpenMadoola.png
-
 REM windows icon
-magick lucia.png -background transparent -resize 256x256 -density 256x256 openmadoola.ico
+magick lucia_16.png lucia_48.png lucia_96.png lucia_128.png -background transparent openmadoola.ico
 
 pause

@@ -318,8 +318,25 @@ if(UNIX)
         install(FILES dist/com.infochunk.OpenMadoola.metainfo.xml
             DESTINATION share/metainfo
             PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-        install(FILES dist/com.infochunk.OpenMadoola.png
+        install(FILES dist/lucia_16.png
+            DESTINATION share/icons/hicolor/16x16/apps
+			RENAME com.infochunk.OpenMadoola.png
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+        install(FILES dist/lucia_48.png
+            DESTINATION share/icons/hicolor/48x48/apps
+			RENAME com.infochunk.OpenMadoola.png
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+        install(FILES dist/lucia_96.png
+            DESTINATION share/icons/hicolor/96x96/apps
+			RENAME com.infochunk.OpenMadoola.png
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+        install(FILES dist/lucia_128.png
+            DESTINATION share/icons/hicolor/128x128/apps
+			RENAME com.infochunk.OpenMadoola.png
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+        install(FILES dist/lucia_512.png
             DESTINATION share/icons/hicolor/512x512/apps
+			RENAME com.infochunk.OpenMadoola.png
             PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
     endif()
 endif()
