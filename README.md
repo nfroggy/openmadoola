@@ -52,8 +52,6 @@ Enter | Start | Start
 
 You can change the controls in the options menu.
 
-**Pressing A+B+Select+Start while in-game will exit to the title screen.**
-
 ### Game types
 
 Also in the options menu, you'll find a "game type" setting. The "Original" game type tries to simulate the original NES game but with important bugfixes. The "Plus" game type (the default) includes additional fixes for more minor bugs as well as tweaks that I think improve the game. The "Arcade" game type is a recreation of the VS. System port.

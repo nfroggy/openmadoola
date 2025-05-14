@@ -15,6 +15,7 @@
     <launchable type="desktop-id">com.infochunk.OpenMadoola.desktop</launchable>
 
     <content_rating type="oars-1.1">
+        <content_attribute id="violence-cartoon">mild</content_attribute>
         <content_attribute id="violence-fantasy">mild</content_attribute>
     </content_rating>
 
@@ -32,15 +33,15 @@
     <screenshots>
         <screenshot type="default">
             <image>https://www.infochunk.com/madoola/metainfo_imgs/1.png</image>
-            <caption>Lucia runs through the mountainous Stage 2</caption>
+            <caption>Lucia runs through the mountainous Stage 2.</caption>
         </screenshot>
         <screenshot>
             <image>https://www.infochunk.com/madoola/metainfo_imgs/2.png</image>
-            <caption>Lucia attacks an enemy in Stage 3 (screenshot taken in Arcade mode)</caption>
+            <caption>Lucia attacks an enemy in Stage 3 (screenshot taken in Arcade mode).</caption>
         </screenshot>
         <screenshot>
             <image>https://www.infochunk.com/madoola/metainfo_imgs/3.png</image>
-            <caption>Lucia explores the Stage 5 castle</caption>
+            <caption>Lucia explores the Stage 5 castle.</caption>
         </screenshot>
         <screenshot>
             <image>https://www.infochunk.com/madoola/metainfo_imgs/4.png</image>
@@ -72,6 +73,17 @@
     <url type="bugtracker">https://github.com/nfroggy/openmadoola/issues</url>
 
     <releases>
+        <release version="1.16" date="2025-05-18">
+            <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.16</url>
+            <description>
+                <ul>
+                    <li>New program icons courtesy of Kak</li>
+                    <li>Added a pause menu to allow users to quit the game more easily</li>
+                    <li>Added the "Arcade difficulty" option</li>
+                    <li>Fixed input mapping on Steam Deck desktop mode</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.14" date="2025-04-12">
             <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.14</url>
             <description>
