@@ -40,6 +40,7 @@ Uint8 luciaHurtPoints;
 
 Sint16 health;
 Sint16 maxHealth;
+Sint8 healthTimer;
 Sint16 magic;
 Sint16 maxMagic;
 Sint8 lives;
@@ -402,7 +403,6 @@ static void Lucia_AddHPMP(Uint8 val) {
 }
 
 // TODO refactor
-#define TIMER_TICK_FRAMES 32
 static void Lucia_Draw(Object *o, int frame) {
     Sprite spr = { 0 };
     spr.size = SPRITE_16X16;
@@ -423,8 +423,9 @@ static void Lucia_Draw(Object *o, int frame) {
     // arcade mode drains 1 hp every 32 frames in normal or crazy difficulty
     if ((gameType == GAME_TYPE_ARCADE) &&
         ((arcadeDifficulty == ARCADE_DIFF_NORMAL) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)) &&
-        !(gameFrames & 0x1f))
+        (++healthTimer >= 32))
     {
+        healthTimer = 0;
         health--;
     }
 

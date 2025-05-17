@@ -348,7 +348,6 @@ static int Game_RunStage(void) {
     else {
         magic = maxMagic;
     }
-    fountainUsed = 0;
 
     Sound_Reset();
     Sound_Play(MUS_START);
@@ -367,6 +366,8 @@ static int Game_RunStage(void) {
     lucia->x = mapData->stages[stage].xPos;
     lucia->y = mapData->stages[stage].yPos;
     Game_SetRoom(mapData->stages[stage].roomNum);
+    healthTimer = 0;
+    fountainUsed = 0;
     hasWing = 0;
     darutosKilled = 0;
 
@@ -421,8 +422,8 @@ initRoom:
 
         // --- handle doors ---
         if (roomChangeTimer == 1) {
-            if (objects[0].type == OBJ_LUCIA_WARP_DOOR) {
-                int switchRoom = Map_Door(&objects[0]);
+            if (lucia->type == OBJ_LUCIA_WARP_DOOR) {
+                int switchRoom = Map_Door(lucia);
                 if (switchRoom == DOOR_ENDING) {
                     if (darutosKilled) {
                         return STAGE_EXIT_WON;
@@ -441,7 +442,7 @@ initRoom:
                 }
                 goto initRoom;
             }
-            else if (objects[0].type == OBJ_LUCIA_LVL_END_DOOR) {
+            else if (lucia->type == OBJ_LUCIA_LVL_END_DOOR) {
                 return STAGE_EXIT_NEXTSTAGE;
             }
             else {
