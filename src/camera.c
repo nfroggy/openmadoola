@@ -1,5 +1,5 @@
 /* camera.c: Camera handling
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -19,6 +19,7 @@
 
 #include "camera.h"
 #include "constants.h"
+#include "game.h"
 #include "lucia.h"
 #include "map.h"
 #include "object.h"
@@ -30,6 +31,10 @@ Fixed16 cameraY;
 #define SCROLL_MODE_X (1)
 #define SCROLL_MODE_LOCKED (2)
 
+#define SCROLL_OFFSET_X ((SCREEN_WIDTH / 2) << 4)
+#define ARCADE_L_BOUND (SCROLL_OFFSET_X - 0x100)
+#define ARCADE_R_BOUND (SCROLL_OFFSET_X + 0x100)
+#define SCROLL_OFFSET_Y ((SCREEN_HEIGHT * 2 / 3) << 4)
 #define SCROLL_MAX_X ((MAP_WIDTH_PIXELS - SCREEN_WIDTH) << 4)
 #define SCROLL_MAX_Y ((MAP_HEIGHT_PIXELS - SCREEN_HEIGHT) << 4)
 
@@ -40,8 +45,17 @@ void Camera_SetX(Object *o) {
         return;
     }
 
-    // center the camera around the object (0x800 here means 128 pixels)
-    cameraX.v = o->x.v - SCROLL_OFFSET_X;
+    if (gameType == GAME_TYPE_ARCADE) {
+        if ((o->x.v - cameraX.v) < ARCADE_L_BOUND) {
+            cameraX.v = o->x.v - ARCADE_L_BOUND;
+        }
+        else if ((o->x.v - cameraX.v) > ARCADE_R_BOUND) {
+            cameraX.v = o->x.v - ARCADE_R_BOUND;
+        }
+    }
+    else {
+        cameraX.v = o->x.v - SCROLL_OFFSET_X;
+    }
 
     // min camera x threshold
     if (cameraX.v < 0) {
@@ -59,7 +73,17 @@ void Camera_SetY(Object *o) {
         return;
     }
 
-    cameraY.v = o->y.v - SCROLL_OFFSET_Y;
+    if (gameType == GAME_TYPE_ARCADE) {
+        if ((o->y.v - cameraY.v) < 0x500) {
+            cameraY.v = o->y.v - 0x500;
+        }
+        else if ((o->y.v - cameraY.v) > SCROLL_OFFSET_Y) {
+            cameraY.v = o->y.v - SCROLL_OFFSET_Y;
+        }
+    }
+    else {
+        cameraY.v = o->y.v - SCROLL_OFFSET_Y;
+    }
 
     // min camera y threshold
     if (cameraY.v < 0) {
@@ -78,8 +102,6 @@ void Camera_SetXY(Object *o) {
 }
 
 void Camera_LuciaScroll(Object *o) {
-    Fixed16 cameraYBound;
-
     if (scrollMode == SCROLL_MODE_LOCKED) {
         return;
     }
@@ -88,14 +110,15 @@ void Camera_LuciaScroll(Object *o) {
 
     // only worry about y scrolling if we are able to scroll the y axis
     if (scrollMode == SCROLL_MODE_FREE) {
-        // if we should scroll the screen vertically (at a scroll boundary or using the wing of madoola)
-        if (((o->y.v - cameraY.v) < 0x300) || 
-            ((o->y.v - cameraY.v) >= SCROLL_OFFSET_Y) || 
-            usingWing || 
-            // NOTE: the arcade version has this condition removed, I keep it because
-            // removing it makes the camera movement worse IMO
-            !((o->type == OBJ_LUCIA_AIR) || (o->type == OBJ_LUCIA_AIR_LOCKED)))
+        if (gameType == GAME_TYPE_ARCADE) {
+            Camera_SetY(o);
+        }
+        else if (((o->y.v - cameraY.v) < 0x300) ||
+                    ((o->y.v - cameraY.v) >= SCROLL_OFFSET_Y) ||
+                    usingWing ||
+                    !((o->type == OBJ_LUCIA_AIR) || (o->type == OBJ_LUCIA_AIR_LOCKED)))
         {
+            Fixed16 cameraYBound;
             cameraYBound.v = o->y.v - SCROLL_OFFSET_Y;
 
             if (cameraY.v < cameraYBound.v) {

@@ -91,7 +91,6 @@ For a list of the all the changes I'm aware of between the console and arcade ve
 - Lucia starts with 3 lives instead of 2. This may have originally been a DIP switch though.
 - Because OpenMadoola has start/select buttons, none of the control changes have been ported over.
 - I didn't add the Stage 4 change because it seems like a mistake.
-- I didn't add the camera change because I like the camera from the console version (which centers Lucia when she's on solid ground) more than the arcade version (which only moves up/down when Lucia is at the edge of the screen).
 - The high score entry screen is made up because there's no public footage of it.
 - There's no option for increased enemy damage.
 - The game over screen doesn't play after you beat the game (kind of a buzz-kill IMO).

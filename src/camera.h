@@ -27,8 +27,6 @@ extern Fixed16 cameraY;
 #define SCROLL_MODE_FREE (0)
 #define SCROLL_MODE_X (1)
 #define SCROLL_MODE_LOCKED (2)
-#define SCROLL_OFFSET_X ((SCREEN_WIDTH / 2) << 4)
-#define SCROLL_OFFSET_Y ((SCREEN_HEIGHT * 2 / 3) << 4)
 extern Uint8 scrollMode;
 
 /**
