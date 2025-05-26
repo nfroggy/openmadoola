@@ -370,15 +370,12 @@ static void Lucia_AddHPMP(Uint8 val) {
     case 0:
         health += increase;
         break;
-
     case 1:
         maxHealth += increase;
         break;
-
     case 2:
         magic += increase;
         break;
-
     case 3:
         maxMagic += increase;
         break;
@@ -388,15 +385,12 @@ static void Lucia_AddHPMP(Uint8 val) {
     if (maxHealth > 5000) {
         maxHealth = 5000;
     }
-
     if (maxMagic > 5000) {
         maxMagic = 5000;
     }
-
     if (health > maxHealth) {
         health = maxHealth;
     }
-
     if (magic > maxMagic) {
         magic = maxMagic;
     }
@@ -416,24 +410,37 @@ static void Lucia_Draw(Object *o, int frame) {
     }
 
     luciaMetatile = Object_GetMetatile(o);
-    if ((!bossActive) && (luciaMetatile >= 0x9e) && (luciaMetatile < 0xa4)) {
-        goto onDoorMetatile;
+    if (!bossActive && !luciaDoorFlag && (luciaMetatile >= 0x9e) && (luciaMetatile < 0xa4)) {
+        luciaDoorFlag = 0xff;
+
+        // at warp door
+        if (luciaMetatile >= 0xA0) {
+            roomChangeTimer = 30;
+            o->type = OBJ_LUCIA_WARP_DOOR;
+        }
+        // at end of level door
+        else if ((stage < highestReachedStage) || orbCollected) {
+            Sound_Reset();
+            Sound_Play(MUS_CLEAR);
+            roomChangeTimer = 210;
+            o->type = OBJ_LUCIA_LVL_END_DOOR;
+        }
+    }
+    else if (luciaDoorFlag && ((luciaMetatile < 0x9e) || (luciaMetatile >= 0xa4))) {
+        luciaDoorFlag = 0;
     }
 
-    // arcade mode drains 1 hp every 32 frames in normal or crazy difficulty
+    // arcade mode drains 1 hp every 32 frames in normal or crazy difficulty when not standing at a door
     if ((gameType == GAME_TYPE_ARCADE) &&
         ((arcadeDifficulty == ARCADE_DIFF_NORMAL) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)) &&
+        (o->type != OBJ_LUCIA_WARP_DOOR) && (o->type != OBJ_LUCIA_LVL_END_DOOR) &&
         (++healthTimer >= 32))
     {
         healthTimer = 0;
         health--;
     }
 
-    if (health > 0) {
-        luciaDoorFlag = 0;
-        goto checkDamage;
-    }
-    else {
+    if ((health <= 0) && (o->type != OBJ_LUCIA_LVL_END_DOOR)) {
         health = 0;
         o->stunnedTimer = 0;
         roomChangeTimer = 150;
@@ -446,43 +453,16 @@ static void Lucia_Draw(Object *o, int frame) {
             Sound_Play(MUS_GAME_OVER);
             Sound_Play(SFX_LUCIA_HIT);
         }
-        goto lockScroll;
     }
 
-onDoorMetatile:
-    if (luciaDoorFlag) {
-        goto checkDamage;
-    }
-    luciaDoorFlag = 0xff;
-
-    // at warp door
-    if (luciaMetatile >= 0xA0) {
-        roomChangeTimer = 30;
-        o->type = OBJ_LUCIA_WARP_DOOR;
-    }
-    // at end of level door
-    else {
-        // don't go through end of level door if we haven't beaten this stage
-        // yet and lucia didn't collect the orb
-        if ((stage >= highestReachedStage) && !orbCollected) {
-            goto checkDamage;
-        }
-        else {
-            Sound_Reset();
-            Sound_Play(MUS_CLEAR);
-            roomChangeTimer = 210;
-            o->type = OBJ_LUCIA_LVL_END_DOOR;
-        }
+    if (roomChangeTimer) {
+        o->x.f.l = 0x80;
+        o->y.f.l = 0x80;
+        scrollMode = SCROLL_MODE_LOCKED;
+        Object_DeleteAllAfterLucia();
+        goto updatePos;
     }
 
-lockScroll:
-    o->x.f.l = 0x80;
-    o->y.f.l = 0x80;
-    scrollMode = SCROLL_MODE_LOCKED;
-    Object_DeleteAllAfterLucia();
-    goto updatePos;
-
-checkDamage:
     if (luciaHurtPoints) {
         // 0xff is yokko-chan's collision value when not in arcade mode
         if ((luciaHurtPoints == 0xff) && !keywordDisplay) {
