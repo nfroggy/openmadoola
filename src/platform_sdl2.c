@@ -278,7 +278,7 @@ int Platform_GetVideoScale(void) {
 }
 
 int Platform_SetVideoScale(int requested) {
-    if ((requested > 0) && !fullscreen) {
+    if ((requested != scale) && (requested > 0) && !fullscreen) {
         scale = requested;
         // resize window
         int windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
@@ -287,15 +287,7 @@ int Platform_SetVideoScale(int requested) {
         SDL_SetWindowPosition(window,
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED);
-        // resize scale framebuffer to fit window
-        SDL_DestroyTexture(scaleTexture);
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-        int scaledWidth = SCREEN_WIDTH * scale;
-        int scaledHeight = SCREEN_HEIGHT * scale;
-        scaleTexture = SDL_CreateTexture(renderer,
-                                         SDL_PIXELFORMAT_ARGB8888,
-                                         SDL_TEXTUREACCESS_TARGET,
-                                         scaledWidth, scaledHeight);
+        Platform_SetupRenderer();
         DB_Set("scale", &scale, 1);
         DB_Save();
     }
@@ -305,8 +297,25 @@ int Platform_SetVideoScale(int requested) {
 int Platform_SetFullscreen(int requested) {
     if (requested != fullscreen) {
         fullscreen = requested;
-        Platform_DestroyVideo();
-        Platform_InitVideo();
+        if (fullscreen) {
+            SDL_DisplayMode displayMode;
+            SDL_GetDesktopDisplayMode(display, &displayMode);
+            SDL_SetWindowSize(window, displayMode.w, displayMode.h);
+            SDL_SetWindowPosition(window,
+                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
+            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+        }
+        else {
+            int windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
+            int windowHeight = SCREEN_HEIGHT * scale;
+            SDL_SetWindowSize(window, windowWidth, windowHeight);
+            SDL_SetWindowFullscreen(window, 0);
+            SDL_SetWindowPosition(window,
+                                  SDL_WINDOWPOS_CENTERED,
+                                  SDL_WINDOWPOS_CENTERED);
+        }
+        Platform_SetupRenderer();
         DB_Set("fullscreen", &fullscreen, 1);
         if (fullscreen) {
             Uint8 data[4];
@@ -335,24 +344,7 @@ static void Platform_InitNTSC(void) {
 int Platform_SetNTSC(int requested) {
     if (requested != ntscEnabled) {
         ntscEnabled = requested;
-        SDL_DestroyTexture(drawTexture);
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-        int drawWidth;
-        if (ntscEnabled) {
-            drawWidth = NES_NTSC_OUT_WIDTH(SCREEN_WIDTH);
-        }
-        else {
-            drawWidth = SCREEN_WIDTH;
-        }
-        drawTexture = SDL_CreateTexture(renderer,
-            SDL_PIXELFORMAT_ARGB8888,
-            SDL_TEXTUREACCESS_STREAMING,
-            drawWidth, SCREEN_HEIGHT);
-        if (!drawTexture) {
-            Platform_ShowError("Error recreating drawTexture: %s", SDL_GetError());
-            abort();
-            return requested;
-        }
+        Platform_SetupRenderer();
         DB_Set("ntsc", &ntscEnabled, 1);
         DB_Save();
     }
