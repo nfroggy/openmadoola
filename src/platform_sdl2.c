@@ -305,6 +305,7 @@ int Platform_SetFullscreen(int requested) {
                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
             SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+            SDL_ShowCursor(SDL_DISABLE);
         }
         else {
             int windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
@@ -312,8 +313,9 @@ int Platform_SetFullscreen(int requested) {
             SDL_SetWindowFullscreen(window, 0);
             SDL_SetWindowSize(window, windowWidth, windowHeight);
             SDL_SetWindowPosition(window,
-                                  SDL_WINDOWPOS_CENTERED,
-                                  SDL_WINDOWPOS_CENTERED);
+                                  SDL_WINDOWPOS_CENTERED_DISPLAY(display),
+                                  SDL_WINDOWPOS_CENTERED_DISPLAY(display));
+            SDL_ShowCursor(SDL_ENABLE);
         }
         Platform_SetupRenderer();
         DB_Set("fullscreen", &fullscreen, 1);
