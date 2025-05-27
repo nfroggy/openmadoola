@@ -304,7 +304,7 @@ int Platform_SetFullscreen(int requested) {
             SDL_SetWindowPosition(window,
                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
                       SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
-            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
             SDL_ShowCursor(SDL_DISABLE);
         }
         else {
