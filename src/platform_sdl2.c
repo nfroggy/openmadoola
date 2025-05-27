@@ -309,8 +309,8 @@ int Platform_SetFullscreen(int requested) {
         else {
             int windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
             int windowHeight = SCREEN_HEIGHT * scale;
-            SDL_SetWindowSize(window, windowWidth, windowHeight);
             SDL_SetWindowFullscreen(window, 0);
+            SDL_SetWindowSize(window, windowWidth, windowHeight);
             SDL_SetWindowPosition(window,
                                   SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED);
