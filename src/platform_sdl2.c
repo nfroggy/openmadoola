@@ -394,7 +394,7 @@ int Platform_GamepadConnected(void) {
     return !!controller;
 }
 
-static int Platform_LoadPalette(char *filename, Uint32 *out, Uint8 *outNtsc) {
+static int Platform_LoadPalette(char *filename, const double (*matrix)[3][3], Uint32 *out, Uint8 *outNtsc) {
     FILE *fp = File_OpenResource(filename, "rb");
     if (!fp) {
         Platform_ShowError("Couldn't open %s", filename);
@@ -406,20 +406,54 @@ static int Platform_LoadPalette(char *filename, Uint32 *out, Uint8 *outNtsc) {
         Uint8 g = fgetc(fp);
         Uint8 b = fgetc(fp);
 
+        Uint8 rawR = r;
+        Uint8 rawG = g;
+        Uint8 rawB = b;
+
+        if (matrix) {
+            double rd = (double)r / 255.0;
+            double gd = (double)g / 255.0;
+            double bd = (double)b / 255.0;
+            // rec. 709 non-linear decoding formula
+            double R = (rd >= 0.0812) ? pow((rd + 0.099) / 1.099, 1.0 / 0.45) : rd / 4.500;
+            double G = (gd >= 0.0812) ? pow((gd + 0.099) / 1.099, 1.0 / 0.45) : gd / 4.500;
+            double B = (bd >= 0.0812) ? pow((bd + 0.099) / 1.099, 1.0 / 0.45) : bd / 4.500;
+            // apply transformation matrix
+            double newR = (*matrix)[0][0] * R + (*matrix)[0][1] * G + (*matrix)[0][2] * B;
+            double newG = (*matrix)[1][0] * R + (*matrix)[1][1] * G + (*matrix)[1][2] * B;
+            double newB = (*matrix)[2][0] * R + (*matrix)[2][1] * G + (*matrix)[2][2] * B;
+            CLAMP(newR, 0.0, 1.0);
+            CLAMP(newG, 0.0, 1.0);
+            CLAMP(newB, 0.0, 1.0);
+            // rec. 709 non-linear encoding formula
+            rd = (newR >= 0.018) ? 1.099 * pow(newR, 0.45) - 0.099 : 4.5 * newR;
+            gd = (newG >= 0.018) ? 1.099 * pow(newG, 0.45) - 0.099 : 4.5 * newG;
+            bd = (newB >= 0.018) ? 1.099 * pow(newB, 0.45) - 0.099 : 4.5 * newB;
+            r = (Uint8)(rd * 255.0);
+            g = (Uint8)(gd * 255.0);
+            b = (Uint8)(bd * 255.0);
+        }
         out[i] = ((Uint32)0xFF << 24) | ((Uint32)r << 16) | ((Uint32)g << 8) | (Uint32)b;
+
         if (outNtsc) {
-            outNtsc[(i * 3) + 0] = r;
-            outNtsc[(i * 3) + 1] = g;
-            outNtsc[(i * 3) + 2] = b;
+            outNtsc[(i * 3) + 0] = rawR;
+            outNtsc[(i * 3) + 1] = rawG;
+            outNtsc[(i * 3) + 2] = rawB;
         }
     }
     fclose(fp);
     return 1;
 }
 
+static const double deMarsh1980sReceiver_Rec709[3][3] = {
+    {0.7669,  0.2178,  0.0153},
+    {0.0171,  0.9890, -0.0061},
+    {0.0041, -0.0388,  1.0346},
+};
+
 static int Platform_InitPalettes(void) {
-    if (!Platform_LoadPalette("nes.pal", nesPalette, NULL)) { return 0; }
-    if (!Platform_LoadPalette("2c04.pal", arcadePalette, arcadePaletteNTSC)) { return 0; }
+    if (!Platform_LoadPalette("nes.pal", NULL, nesPalette, NULL)) { return 0; }
+    if (!Platform_LoadPalette("2c04.pal", &deMarsh1980sReceiver_Rec709, arcadePalette, arcadePaletteNTSC)) { return 0; }
     return 1;
 }
 
