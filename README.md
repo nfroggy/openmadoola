@@ -65,6 +65,7 @@ Also in the options menu, you'll find a "game type" setting. The "Original" game
 - Fixed a bug where sound effects would sometimes get stuck on, glitch out, etc.
 - Fixed a bug where pausing and then unpausing on a castle level would cause the noise channel to drop out of the music.
 - Fixed a bug where the mirroring on the fireball that some enemies throw wasn't initialized.
+- Fixed a bug where Lucia couldn't die if she stood in front of a door.
 
 #### Plus-exclusive changes
 - Added the opening/ending text from the arcade version of the game.
