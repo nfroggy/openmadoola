@@ -463,6 +463,7 @@ static int Platform_LoadPalette(char *filename, const double (*matrix)[3][3], Ui
     return 1;
 }
 
+// color correction table from NintendulatorNRS by NewRisingSun
 static const double deMarsh1980sReceiver_Rec709[3][3] = {
     {0.7669,  0.2178,  0.0153},
     {0.0171,  0.9890, -0.0061},
