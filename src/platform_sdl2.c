@@ -455,9 +455,9 @@ static int Platform_LoadPalette(char *filename, const double (*matrix)[3][3], do
             bd = (newB >= 0.018) ? 1.099 * pow(newB, 0.45) - 0.099 : 4.5 * newB;
 
             if (gamma) {
-                rd = pow(rd, (1.0 / 2.2) / (1.0 / gamma));
-                gd = pow(gd, (1.0 / 2.2) / (1.0 / gamma));
-                bd = pow(bd, (1.0 / 2.2) / (1.0 / gamma));
+                rd = pow(rd, gamma / 2.2);
+                gd = pow(gd, gamma / 2.2);
+                bd = pow(bd, gamma / 2.2);
             }
 
             r = (Uint8)(rd * 255.0);
