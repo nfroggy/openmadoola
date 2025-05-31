@@ -54,7 +54,7 @@ static int vsync;
 static nanotime_step_data stepData;
 static nes_ntsc_t ntsc;
 static nes_ntsc_setup_t ntscSetup;
-static Uint8 ntscEnabled = 0;
+static Uint8 ntscEnabled;
 
 // --- audio stuff ---
 static SDL_AudioStream *audioStream;
@@ -64,9 +64,11 @@ static SDL_AudioStream *audioStream;
 // these are in ARGB 32bpp format that SDL likes
 static Uint32 nesPalette[NUM_COLORS];
 static Uint32 arcadePalette[NUM_COLORS];
+static Uint32 correctedArcadePalette[NUM_COLORS];
 // this is in RGB format that nes_ntsc likes
 static Uint8 arcadePaletteNTSC[NUM_COLORS * 3];
 static Uint8 paletteType;
+static Uint8 arcadeColor;
 
 // --- controller stuff ---
 static const int gamepadMap[] = {
@@ -248,7 +250,16 @@ void Platform_EndFrame(void) {
         // skip past buffer around framebuffer
         int srcOffset = (TILE_HEIGHT * FRAMEBUFFER_WIDTH) + TILE_WIDTH;
         int dstOffset = 0;
-        Uint32 *rgbPalette = (paletteType == PALETTE_TYPE_NES) ? nesPalette : arcadePalette;
+        Uint32 *rgbPalette;
+        if (paletteType == PALETTE_TYPE_NES) {
+            rgbPalette = nesPalette;
+        }
+        else if (arcadeColor) {
+            rgbPalette = correctedArcadePalette;
+        }
+        else {
+            rgbPalette = arcadePalette;
+        }
         for (int y = 0; y < SCREEN_HEIGHT; y++) {
             for (int x = 0; x < SCREEN_WIDTH; x++) {
                 rgbFramebuffer[dstOffset++] = rgbPalette[framebuffer[srcOffset++]];
@@ -382,6 +393,19 @@ void Platform_SetPaletteType(Uint8 type) {
     }
 }
 
+int Platform_GetArcadeColor(void) {
+    return arcadeColor;
+}
+
+int Platform_SetArcadeColor(int requested) {
+    if (requested != arcadeColor) {
+        arcadeColor = requested;
+        DB_Set("arcadeColor", &arcadeColor, 1);
+        DB_Save();
+    }
+    return arcadeColor;
+}
+
 static int Platform_InitAudio(void) {
     SDL_AudioSpec spec = { 0 };
     spec.freq = 44100;
@@ -412,7 +436,7 @@ int Platform_GamepadConnected(void) {
     return !!gamepad;
 }
 
-static int Platform_LoadPalette(char *filename, const double (*matrix)[3][3], Uint32 *out, Uint8 *outNtsc) {
+static int Platform_LoadPalette(char *filename, const double (*matrix)[3][3], double gamma, Uint32 *out, Uint8 *outNtsc) {
     FILE *fp = File_OpenResource(filename, "rb");
     if (!fp) {
         Platform_ShowError("Couldn't open %s", filename);
@@ -447,10 +471,18 @@ static int Platform_LoadPalette(char *filename, const double (*matrix)[3][3], Ui
             rd = (newR >= 0.018) ? 1.099 * pow(newR, 0.45) - 0.099 : 4.5 * newR;
             gd = (newG >= 0.018) ? 1.099 * pow(newG, 0.45) - 0.099 : 4.5 * newG;
             bd = (newB >= 0.018) ? 1.099 * pow(newB, 0.45) - 0.099 : 4.5 * newB;
+
+            if (gamma) {
+                rd = pow(rd, (1.0 / 2.2) / (1.0 / gamma));
+                gd = pow(gd, (1.0 / 2.2) / (1.0 / gamma));
+                bd = pow(bd, (1.0 / 2.2) / (1.0 / gamma));
+            }
+
             r = (Uint8)(rd * 255.0);
             g = (Uint8)(gd * 255.0);
             b = (Uint8)(bd * 255.0);
         }
+
         out[i] = ((Uint32)0xFF << 24) | ((Uint32)r << 16) | ((Uint32)g << 8) | (Uint32)b;
 
         if (outNtsc) {
@@ -471,8 +503,9 @@ static const double deMarsh1980sReceiver_Rec709[3][3] = {
 };
 
 static int Platform_InitPalettes(void) {
-    if (!Platform_LoadPalette("nes.pal", NULL, nesPalette, NULL)) { return 0; }
-    if (!Platform_LoadPalette("2c04.pal", &deMarsh1980sReceiver_Rec709, arcadePalette, arcadePaletteNTSC)) { return 0; }
+    if (!Platform_LoadPalette("nes.pal", NULL, 0, nesPalette, NULL)) { return 0; }
+    if (!Platform_LoadPalette("2c04.pal", NULL, 0, arcadePalette, arcadePaletteNTSC)) { return 0; }
+    if (!Platform_LoadPalette("2c04.pal", &deMarsh1980sReceiver_Rec709, 2.75, correctedArcadePalette, NULL)) { return 0; }
     return 1;
 }
 
@@ -522,6 +555,8 @@ int Platform_Init(void) {
     else {
         display = SDL_GetPrimaryDisplay();
     }
+    entry = DB_Find("arcadeColor");
+    if (entry) { arcadeColor = entry->data[0]; }
 
     if (!Platform_InitPalettes()) { return 0; }
     Platform_InitNTSC();

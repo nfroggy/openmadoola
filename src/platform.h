@@ -111,6 +111,19 @@ int Platform_GetNTSC(void);
 void Platform_SetPaletteType(Uint8 type);
 
 /**
+ * Gets arcade color correction state
+ * @returns nonzero = color correction enabled, zero = color correction disabled
+ */
+int Platform_GetArcadeColor(void);
+
+/**
+ * @brief Sets arcade color correction state.
+ * @param requested nonzero = color correction enabled, zero = color correction disabled
+ * @return the set arcade color correction mode
+ */
+int Platform_SetArcadeColor(int requested);
+
+/**
  * @brief Queues the given audio samples to play
  * @param samples The buffer of samples to queue
  * @param count The number of samples in the buffer

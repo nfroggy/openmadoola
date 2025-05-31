@@ -193,6 +193,13 @@ static int arcadeDiffCB(int num) {
     return num;
 }
 
+static char *arcadeColorOptions[] = {"Raw RGB", "Corrected"};
+
+static int arcadeColorCB(int num) {
+    num &= 1;
+    return Platform_SetArcadeColor(num);
+}
+
 static void doHighScoreReset(void) {
     HighScore_ResetScores();
     Task_Switch(Options_Run);
@@ -221,16 +228,17 @@ static MenuItem optionsItems[] = {
     MENU_TASK("Gamepad controls", gamepadTask),
     MENU_LIST("Game type", gameTypeOptions, gameTypeInit, gameTypeCB),
     MENU_LIST("Arcade difficulty", arcadeDiffOptions, arcadeDiffInit, arcadeDiffCB),
+    MENU_LIST("Arcade color", arcadeColorOptions, Platform_GetArcadeColor, arcadeColorCB),
     MENU_TASK("Reset high scores", highScoreResetTask),
     MENU_TASK("Back", MainMenu_Run),
 };
 
 void Options_Draw(void) {
-    BG_Print(12, 2, 0, "Options");
+    BG_Print(12, 1, 0, "Options");
 }
 
 void Options_Run(void) {
     BG_SetAllPalettes(palette);
     Sprite_SetAllPalettes(palette + 16);
-    Menu_Run(3, 6, 2, optionsItems, ARRAY_LEN(optionsItems), Options_Draw);
+    Menu_Run(3, 4, 2, optionsItems, ARRAY_LEN(optionsItems), Options_Draw);
 }
