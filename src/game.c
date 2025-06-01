@@ -339,6 +339,10 @@ static int Game_RunStage(void) {
     Uint16 lastRoom = 0xffff;
 
     Object_ListInit();
+    // in arcade mode, health refills up to 1000 between stages
+    if (gameType == GAME_TYPE_ARCADE) {
+        health = MAX(health, 1000);
+    }
     // on hard/crazy difficulty, magic only refills up to 1000 between stages
     if ((gameType == GAME_TYPE_ARCADE) &&
         ((arcadeDifficulty == ARCADE_DIFF_HARD) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)))
