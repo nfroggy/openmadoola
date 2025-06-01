@@ -146,6 +146,11 @@ static int fullscreenCB(int num) {
     return Platform_SetFullscreen(num);
 }
 
+static int overscanCB(int num) {
+    num &= 1;
+    return Platform_SetOverscan(num);
+}
+
 static int ntscCB(int num) {
     num &= 1;
     return Platform_SetNTSC(num);
@@ -222,6 +227,7 @@ static void highScoreResetTask(void) {
 static MenuItem optionsItems[] = {
     MENU_LIST("Fullscreen", boolOptions, Platform_GetFullscreen, fullscreenCB),
     MENU_NUM("Window scale", Platform_GetVideoScale, Platform_SetVideoScale, 1),
+    MENU_LIST("Overscan", boolOptions, Platform_GetOverscan, overscanCB),
     MENU_LIST("NTSC filter", boolOptions, Platform_GetNTSC, ntscCB),
     MENU_NUM("Volume", Sound_GetVolume, Sound_SetVolume, 5),
     MENU_TASK("Keyboard controls", keyboardTask),
@@ -234,11 +240,11 @@ static MenuItem optionsItems[] = {
 };
 
 void Options_Draw(void) {
-    BG_Print(12, 1, 0, "Options");
+    BG_Print(12, 2, 0, "Options");
 }
 
 void Options_Run(void) {
     BG_SetAllPalettes(palette);
     Sprite_SetAllPalettes(palette + 16);
-    Menu_Run(3, 4, 2, optionsItems, ARRAY_LEN(optionsItems), Options_Draw);
+    Menu_Run(3, 5, 2, optionsItems, ARRAY_LEN(optionsItems), Options_Draw);
 }

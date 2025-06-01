@@ -36,6 +36,7 @@
 static Uint8 frameStarted = 0;
 static Uint8 scale = 3;
 static Uint8 fullscreen = 0;
+static Uint8 overscan = 0;
 static int display = 0;
 // NES framebuffer
 static Uint8 framebuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
@@ -45,6 +46,13 @@ static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 // texture that the game engine draws to
 static SDL_Texture *drawTexture = NULL;
+// where to read from drawTexture when in overscan mode
+static SDL_Rect overscanSrcRect = {
+    .x = 0,
+    .y = 8,
+    .w = SCREEN_WIDTH,
+    .h = SCREEN_HEIGHT - 16,
+};
 // texture that gets nearest-neighbor scaled
 static SDL_Texture *scaleTexture = NULL;
 static int vsync;
@@ -104,6 +112,7 @@ static int Platform_InitVideo(void) {
     else {
         windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
         windowHeight = SCREEN_HEIGHT * scale;
+        if (overscan) { windowHeight -= (16 * scale); }
     }
     window = SDL_CreateWindow(
         "OpenMadoola",
@@ -147,13 +156,7 @@ static int Platform_SetupRenderer(void) {
 
     // set up textures
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-    int drawWidth;
-    if (ntscEnabled) {
-        drawWidth = NES_NTSC_OUT_WIDTH(SCREEN_WIDTH);
-    }
-    else {
-        drawWidth = SCREEN_WIDTH;
-    }
+    int drawWidth = ntscEnabled ? NES_NTSC_OUT_WIDTH(SCREEN_WIDTH) : SCREEN_WIDTH;
     drawTexture = SDL_CreateTexture(renderer,
                                     SDL_PIXELFORMAT_ARGB8888,
                                     SDL_TEXTUREACCESS_STREAMING,
@@ -162,21 +165,23 @@ static int Platform_SetupRenderer(void) {
         Platform_ShowError("Error creating drawTexture: %s", SDL_GetError());
         return 0;
     }
+    overscanSrcRect.w = drawWidth;
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     int scaledWidth, scaledHeight;
     if (fullscreen) {
-        int fullscreenScale = displayMode.h / SCREEN_HEIGHT;
-        float fractionalScale = (float)displayMode.h / SCREEN_HEIGHT;
+        int height = overscan ? SCREEN_HEIGHT - 16 : SCREEN_HEIGHT;
+        int fullscreenScale = displayMode.h / height;
+        float fractionalScale = (float)displayMode.h / (float)height;
         scaledWidth = fullscreenScale * SCREEN_WIDTH;
-        scaledHeight = fullscreenScale * SCREEN_HEIGHT;
+        scaledHeight = fullscreenScale * height;
         fullscreenRect.w = (int)(fractionalScale * SCREEN_WIDTH * PIXEL_ASPECT_RATIO);
-        fullscreenRect.h = (int)(fractionalScale * SCREEN_HEIGHT);
+        fullscreenRect.h = displayMode.h;
         fullscreenRect.x = (displayMode.w / 2) - (fullscreenRect.w / 2);
-        fullscreenRect.y = (displayMode.h / 2) - (fullscreenRect.h / 2);
+        fullscreenRect.y = 0;
     }
     else {
         scaledWidth = scale * SCREEN_WIDTH;
-        scaledHeight = scale * SCREEN_HEIGHT;
+        scaledHeight = scale * (overscan ? SCREEN_HEIGHT - 16 : SCREEN_HEIGHT);
     }
     scaleTexture = SDL_CreateTexture(renderer,
                                      SDL_PIXELFORMAT_ARGB8888,
@@ -194,6 +199,30 @@ static void Platform_DestroyVideo(void) {
     SDL_DestroyTexture(scaleTexture); scaleTexture = NULL;
     SDL_DestroyRenderer(renderer);    renderer = NULL;
     SDL_DestroyWindow(window);        window = NULL;
+}
+
+static void Platform_ResizeWindow(void) {
+    if (fullscreen) {
+        SDL_DisplayMode displayMode;
+        SDL_GetDesktopDisplayMode(display, &displayMode);
+        SDL_SetWindowSize(window, displayMode.w, displayMode.h);
+        SDL_SetWindowPosition(window,
+                  SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
+                  SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+        SDL_ShowCursor(SDL_DISABLE);
+    }
+    else {
+        int windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
+        int windowHeight = SCREEN_HEIGHT * scale;
+        if (overscan) { windowHeight -= (16 * scale); }
+        SDL_SetWindowFullscreen(window, 0);
+        SDL_SetWindowSize(window, windowWidth, windowHeight);
+        SDL_SetWindowPosition(window,
+                              SDL_WINDOWPOS_CENTERED_DISPLAY(display),
+                              SDL_WINDOWPOS_CENTERED_DISPLAY(display));
+        SDL_ShowCursor(SDL_ENABLE);
+    }
 }
 
 void Platform_StartFrame(void) {
@@ -250,7 +279,7 @@ void Platform_EndFrame(void) {
     SDL_UnlockTexture(drawTexture);
     SDL_SetRenderTarget(renderer, scaleTexture);
     // stretch framebuffer horizontally w/ bilinear so the pixel aspect ratio is correct
-    SDL_RenderCopy(renderer, drawTexture, NULL, NULL);
+    SDL_RenderCopy(renderer, drawTexture, overscan ? &overscanSrcRect : NULL, NULL);
     SDL_SetRenderTarget(renderer, NULL);
 
     // monitor framerate isn't a multiple of 60, so wait in software
@@ -291,13 +320,7 @@ int Platform_GetVideoScale(void) {
 int Platform_SetVideoScale(int requested) {
     if ((requested != scale) && (requested > 0) && !fullscreen) {
         scale = requested;
-        // resize window
-        int windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
-        int windowHeight = SCREEN_HEIGHT * scale;
-        SDL_SetWindowSize(window, windowWidth, windowHeight);
-        SDL_SetWindowPosition(window,
-                              SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED);
+        Platform_ResizeWindow();
         Platform_SetupRenderer();
         DB_Set("scale", &scale, 1);
         DB_Save();
@@ -308,26 +331,7 @@ int Platform_SetVideoScale(int requested) {
 int Platform_SetFullscreen(int requested) {
     if (requested != fullscreen) {
         fullscreen = requested;
-        if (fullscreen) {
-            SDL_DisplayMode displayMode;
-            SDL_GetDesktopDisplayMode(display, &displayMode);
-            SDL_SetWindowSize(window, displayMode.w, displayMode.h);
-            SDL_SetWindowPosition(window,
-                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
-                      SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
-            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-            SDL_ShowCursor(SDL_DISABLE);
-        }
-        else {
-            int windowWidth = ((int)(SCREEN_WIDTH * scale * PIXEL_ASPECT_RATIO));
-            int windowHeight = SCREEN_HEIGHT * scale;
-            SDL_SetWindowFullscreen(window, 0);
-            SDL_SetWindowSize(window, windowWidth, windowHeight);
-            SDL_SetWindowPosition(window,
-                                  SDL_WINDOWPOS_CENTERED_DISPLAY(display),
-                                  SDL_WINDOWPOS_CENTERED_DISPLAY(display));
-            SDL_ShowCursor(SDL_ENABLE);
-        }
+        Platform_ResizeWindow();
         Platform_SetupRenderer();
         DB_Set("fullscreen", &fullscreen, 1);
         if (fullscreen) {
@@ -342,6 +346,21 @@ int Platform_SetFullscreen(int requested) {
 
 int Platform_GetFullscreen(void) {
     return fullscreen;
+}
+
+int Platform_SetOverscan(int requested) {
+    if (requested != overscan) {
+        overscan = requested;
+        Platform_ResizeWindow();
+        Platform_SetupRenderer();
+        DB_Set("overscan", &overscan, 1);
+        DB_Save();
+    }
+    return overscan;
+}
+
+int Platform_GetOverscan(void) {
+    return overscan;
 }
 
 static void Platform_InitNTSC(void) {
@@ -528,6 +547,8 @@ int Platform_Init(void) {
             display = 0;
         }
     }
+    entry = DB_Find("overscan");
+    if (entry) { overscan = entry->data[0]; }
     entry = DB_Find("arcadeColor");
     if (entry) { arcadeColor = entry->data[0]; }
 

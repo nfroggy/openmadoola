@@ -89,6 +89,19 @@ int Platform_SetFullscreen(int requested);
 int Platform_GetFullscreen(void);
 
 /**
+ * @brief Enables/disables overscan (cutting off top/bottom 8px of the image)
+ * @param requested nonzero = enabled, zero = disabled
+ * @returns the set overscan mode
+ */
+int Platform_SetOverscan(int requested);
+
+/**
+ * @brief Gets the overscan mode
+ * @returns nonzero = enabled, zero = disabled
+ */
+int Platform_GetOverscan(void);
+
+/**
  * @brief Requests enabling or disabling the NTSC filter.
  * @param requested nonzero = filter enabled, zero = filter disabled
  * @returns the set filter mode
