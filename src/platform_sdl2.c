@@ -119,7 +119,7 @@ static int Platform_InitVideo(void) {
         SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
         SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
         windowWidth, windowHeight,
-        fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN);
+        fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN);
     if (!window) {
         Platform_ShowError("Error creating window: %s", SDL_GetError());
         return 0;
@@ -209,7 +209,7 @@ static void Platform_ResizeWindow(void) {
         SDL_SetWindowPosition(window,
                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(display),
                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(display));
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_DISABLE);
     }
     else {
