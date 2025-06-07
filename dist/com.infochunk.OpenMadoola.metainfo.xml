@@ -73,6 +73,19 @@
     <url type="bugtracker">https://github.com/nfroggy/openmadoola/issues</url>
 
     <releases>
+        <release version="1.18" date="2025-06-07">
+            <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.18</url>
+            <description>
+                <ul>
+                    <li>Added an overscan option to slightly crop video output like on an old TV</li>
+                    <li>Added a color correction option for arcade mode so the colors look closer to a real arcade monitor</li>
+                    <li>Fixed fullscreen behavior on GNOME</li>
+                    <li>Fixed camera behavior in arcade mode to match the original arcade game</li>
+                    <li>Fixed HP refill behavior in arcade mode to match the original arcade game</li>
+                    <li>Fixed a bug from the original game where Lucia couldn't die when standing in front of a door</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.16" date="2025-05-18">
             <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.16</url>
             <description>
