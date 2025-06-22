@@ -73,6 +73,15 @@
     <url type="bugtracker">https://github.com/nfroggy/openmadoola/issues</url>
 
     <releases>
+        <release version="1.20" date="2025-06-22">
+            <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.20</url>
+            <description>
+                <ul>
+                    <li>Fixed Stage 15's color palette in arcade mode</li>
+                    <li>Don't install 48x48 and 96x96 icons on Linux because scaling works properly and the larger icons look nicer</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.18" date="2025-06-07">
             <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.18</url>
             <description>
