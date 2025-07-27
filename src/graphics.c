@@ -22,10 +22,9 @@
 #include <immintrin.h>
 #endif
 #if defined(_MSC_VER)
+#include <intrin.h>
 #include <isa_availability.h>
 #endif
-
-#include <stdio.h>
 #include <string.h>
 
 #include "alloc.h"
@@ -47,6 +46,7 @@ static Uint8 *screen;
 void (*Graphics_DrawBGTile)(int x, int y, int tilenum, int palnum);
 #if defined(OM_AMD64)
 static void Graphics_DrawBGTileAVX2(int x, int y, int tilenum, int palnum);
+static void Graphics_DrawBGTileSSSE3(int x, int y, int tilenum, int palnum);
 #endif
 static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum);
 
@@ -82,6 +82,9 @@ int Graphics_Init(void) {
     if (__builtin_cpu_supports("avx2")) {
         Graphics_DrawBGTile = Graphics_DrawBGTileAVX2;
     }
+    else if (__builtin_cpu_supports("ssse3")) {
+        Graphics_DrawBGTile = Graphics_DrawBGTileSSSE3;
+    }
     else {
         Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
     }
@@ -90,7 +93,15 @@ int Graphics_Init(void) {
         Graphics_DrawBGTile = Graphics_DrawBGTileAVX2;
     }
     else {
-        Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
+        // SSSE3 support is at CPUID page 1, ECX bit 9
+        Uint32 cpuInfo[4];
+        __cpuid(cpuInfo, 1);
+        if (cpuInfo[2] & (1 << 9)) {
+            Graphics_DrawBGTile = Graphics_DrawBGTileSSSE3;
+        }
+        else {
+            Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
+        }
     }
 #else
     Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
@@ -211,6 +222,52 @@ static void Graphics_DrawBGTileAVX2(int x, int y, int tilenum, int palnum) {
     *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half2, 1); dst += FRAMEBUFFER_WIDTH;
     *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half2, 2); dst += FRAMEBUFFER_WIDTH;
     *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half2, 3);
+}
+
+#if defined(__GNUC__)
+__attribute__((target("ssse3")))
+#endif // defined(__GNUC__)
+static void Graphics_DrawBGTileSSSE3(int x, int y, int tilenum, int palnum) {
+    // don't draw the tile at all if it's entirely offscreen
+    if ((x < -TILE_WIDTH) || (x >= SCREEN_WIDTH) || (y < -TILE_HEIGHT) || (y >= SCREEN_HEIGHT)) {
+        return;
+    }
+    // the framebuffer has an extra tile row/column around it to allow for drawing to it without
+    // checking the tile bounds
+    x += TILE_WIDTH;
+    y += TILE_HEIGHT;
+    int tileOffset = tilenum * TILE_SIZE;
+
+    // load the 4 palette bytes into an __m128i
+    __m128i palette = _mm_cvtsi32_si128(*(Uint32 *)(drawPalette + (palnum * PALETTE_SIZE)));
+    // load the 8x8 tile into 4 __m128i's
+    __m128i row12 = _mm_load_si128((const __m128i *)(chrData + tileOffset));
+    __m128i row34 = _mm_load_si128((const __m128i *)(chrData + tileOffset + (TILE_WIDTH * 2)));
+    __m128i row56 = _mm_load_si128((const __m128i *)(chrData + tileOffset + (TILE_WIDTH * 4)));
+    __m128i row78 = _mm_load_si128((const __m128i *)(chrData + tileOffset + (TILE_WIDTH * 6)));
+    // use the tile data as a shuffle mask to convert palette indices to NES color data
+    row12 = _mm_shuffle_epi8(palette, row12);
+    row34 = _mm_shuffle_epi8(palette, row34);
+    row56 = _mm_shuffle_epi8(palette, row56);
+    row78 = _mm_shuffle_epi8(palette, row78);
+
+    // write the tile data line by line to the framebuffer
+    Uint8 *dst = screen + (y * FRAMEBUFFER_WIDTH + x);
+    _mm_storel_epi64((__m128i *)dst, row12); dst += FRAMEBUFFER_WIDTH;
+    row12 = _mm_unpackhi_epi64(row12, row12);
+    _mm_storel_epi64((__m128i *)dst, row12); dst += FRAMEBUFFER_WIDTH;
+
+    _mm_storel_epi64((__m128i *)dst, row34); dst += FRAMEBUFFER_WIDTH;
+    row34 = _mm_unpackhi_epi64(row34, row34);
+    _mm_storel_epi64((__m128i *)dst, row34); dst += FRAMEBUFFER_WIDTH;
+
+    _mm_storel_epi64((__m128i *)dst, row56); dst += FRAMEBUFFER_WIDTH;
+    row56 = _mm_unpackhi_epi64(row56, row56);
+    _mm_storel_epi64((__m128i *)dst, row56); dst += FRAMEBUFFER_WIDTH;
+
+    _mm_storel_epi64((__m128i *)dst, row78); dst += FRAMEBUFFER_WIDTH;
+    row78 = _mm_unpackhi_epi64(row78, row78);
+    _mm_storel_epi64((__m128i *)dst, row78);
 }
 #endif // defined(OM_AMD64)
 
