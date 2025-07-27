@@ -44,7 +44,18 @@ void Graphics_StartFrame(void);
  * @param x tile x pos
  * @param y tile y pos
  * @param tilenum tile number
- * @param palette 4 byte palette array
+ * @param palnum palette number
  * @param mirror V_MIRROR, H_MIRROR, or both
 */
 void Graphics_DrawTile(int x, int y, int tilenum, int palnum, int mirror);
+
+/**
+ * @brief Like Graphics_DrawTile but doesn't respect transparency or support mirroring.
+ * It's a function pointer so Graphics_Init can set it to the correct function at runtime
+ * depending on the computer's SIMD support.
+ * @param x tile x pos
+ * @param y tile y pos
+ * @param tilenum tile number
+ * @param palnum palette number
+ */
+extern void (*Graphics_DrawBGTile)(int x, int y, int tilenum, int palnum);

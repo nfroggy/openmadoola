@@ -294,10 +294,10 @@ void Map_Draw(void) {
             int yTile = (((y + scrollY) / METATILE_SIZE) % MAP_WIDTH_METATILES);
 
             Metatile *metatile = &mapData->tilesets[tileset].metatiles[mapMetatiles[yTile * MAP_WIDTH_METATILES + xTile]];
-            Graphics_DrawTile(xPos + 0, yPos + 0, metatile->tiles[0], metatile->palnum, 0);
-            Graphics_DrawTile(xPos + 8, yPos + 0, metatile->tiles[1], metatile->palnum, 0);
-            Graphics_DrawTile(xPos + 0, yPos + 8, metatile->tiles[2], metatile->palnum, 0);
-            Graphics_DrawTile(xPos + 8, yPos + 8, metatile->tiles[3], metatile->palnum, 0);
+            Graphics_DrawBGTile(xPos + 0, yPos + 0, metatile->tiles[0], metatile->palnum);
+            Graphics_DrawBGTile(xPos + 8, yPos + 0, metatile->tiles[1], metatile->palnum);
+            Graphics_DrawBGTile(xPos + 0, yPos + 8, metatile->tiles[2], metatile->palnum);
+            Graphics_DrawBGTile(xPos + 8, yPos + 8, metatile->tiles[3], metatile->palnum);
         }
     }
 }

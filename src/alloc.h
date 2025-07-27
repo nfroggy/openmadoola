@@ -28,6 +28,14 @@
 void *ommalloc(size_t size);
 
 /**
+ * @brief aligned_alloc wrapper that aborts on out of memory or invalid alignment
+ * @param alignment memory alignment
+ * @param size allocation size
+ * @returns pointer to allocated memory
+ */
+void *omaligned_alloc(size_t alignment, size_t size);
+
+/**
  * @brief realloc wrapper that aborts on out of memory
  * @param ptr pointer to allocated buffer
  * @param new_size size to change buffer to

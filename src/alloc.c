@@ -27,6 +27,17 @@ void *ommalloc(size_t size) {
     return ptr;
 }
 
+void *omaligned_alloc(size_t alignment, size_t size) {
+    if (size % alignment) {
+        abort();
+    }
+    void *ptr = aligned_alloc(alignment, size);
+    if (!ptr) {
+        abort();
+    }
+    return ptr;
+}
+
 void *omrealloc(void *ptr, size_t new_size) {
     ptr = realloc(ptr, new_size);
     if (!ptr) {

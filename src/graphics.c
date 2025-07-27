@@ -16,12 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenMadoola. If not, see <https://www.gnu.org/licenses/>.
  */
+#include "constants.h"
+
+#if defined(OM_AMD64)
+#include <immintrin.h>
+#endif
+#if defined(_MSC_VER)
+#include <isa_availability.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
 
 #include "alloc.h"
-#include "constants.h"
 #include "graphics.h"
 #include "palette.h"
 #include "platform.h"
@@ -37,9 +44,15 @@ static Uint8 *drawPalette;
 // where we're drawing to
 static Uint8 *screen;
 
+void (*Graphics_DrawBGTile)(int x, int y, int tilenum, int palnum);
+#if defined(OM_AMD64)
+static void Graphics_DrawBGTileAVX2(int x, int y, int tilenum, int palnum);
+#endif
+static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum);
+
 int Graphics_Init(void) {
     // convert planar 2bpp to chunky 8bpp
-    chrData = ommalloc(chrRomSize * 4);
+    chrData = omaligned_alloc(32, chrRomSize * 4);
     int chrCursor = 0;
     for (int i = 0; i < (chrRomSize / TILE_PACKED_SIZE); i++) {
         int tilePos = i * TILE_PACKED_SIZE;
@@ -63,6 +76,28 @@ int Graphics_Init(void) {
             }
         }
     }
+
+#if defined(OM_AMD64)
+#if defined(__GNUC__)
+    if (__builtin_cpu_supports("avx2")) {
+        Graphics_DrawBGTile = Graphics_DrawBGTileAVX2;
+    }
+    else {
+        Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
+    }
+#elif defined(_MSC_VER)
+    if (__check_isa_support(__IA_SUPPORT_VECTOR256)) {
+        Graphics_DrawBGTile = Graphics_DrawBGTileAVX2;
+    }
+    else {
+        Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
+    }
+#else
+    Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
+#endif // defined(OM_AMD64)
+#else
+    Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
+#endif
     return 1;
 }
 
@@ -138,5 +173,63 @@ void Graphics_DrawTile(int x, int y, int tilenum, int palnum, int mirror) {
             }
         }
         break;
+    }
+}
+
+#if defined(OM_AMD64)
+// GCC/clang need to be told they're allowed to use AVX2, MSVC doesn't
+#if defined(__GNUC__)
+__attribute__((target("avx2")))
+#endif // defined(__GNUC__)
+static void Graphics_DrawBGTileAVX2(int x, int y, int tilenum, int palnum) {
+    // don't draw the tile at all if it's entirely offscreen
+    if ((x < -TILE_WIDTH) || (x >= SCREEN_WIDTH) || (y < -TILE_HEIGHT) || (y >= SCREEN_HEIGHT)) {
+        return;
+    }
+    // the framebuffer has an extra tile row/column around it to allow for drawing to it without
+    // checking the tile bounds
+    x += TILE_WIDTH;
+    y += TILE_HEIGHT;
+    int tileOffset = tilenum * TILE_SIZE;
+
+    // broadcast load the 4 palette bytes into an __m256i
+    __m256i palette = _mm256_set1_epi32(*(Uint32 *)(drawPalette + (palnum * PALETTE_SIZE)));
+    // load the 8x8 tile into 2 __m256i's
+    __m256i half1 = _mm256_load_si256((const __m256i *)(chrData + tileOffset));
+    __m256i half2 = _mm256_load_si256((const __m256i *)(chrData + tileOffset + (TILE_WIDTH * 4)));
+    // use the tile data as a shuffle mask to convert palette indices to NES color data
+    half1 = _mm256_shuffle_epi8(palette, half1);
+    half2 = _mm256_shuffle_epi8(palette, half2);
+
+    // write the tile data line by line to the framebuffer
+    Uint8 *dst = screen + (y * FRAMEBUFFER_WIDTH + x);
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half1, 0); dst += FRAMEBUFFER_WIDTH;
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half1, 1); dst += FRAMEBUFFER_WIDTH;
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half1, 2); dst += FRAMEBUFFER_WIDTH;
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half1, 3); dst += FRAMEBUFFER_WIDTH;
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half2, 0); dst += FRAMEBUFFER_WIDTH;
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half2, 1); dst += FRAMEBUFFER_WIDTH;
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half2, 2); dst += FRAMEBUFFER_WIDTH;
+    *((Uint64 *)dst) = (Uint64)_mm256_extract_epi64(half2, 3);
+}
+#endif // defined(OM_AMD64)
+
+static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum) {
+    // don't draw the tile at all if it's entirely offscreen
+    if ((x < -TILE_WIDTH) || (x >= SCREEN_WIDTH) || (y < -TILE_HEIGHT) || (y >= SCREEN_HEIGHT)) {
+        return;
+    }
+    // the framebuffer has an extra tile row/column around it to allow for drawing to it without
+    // checking the tile bounds
+    x += TILE_WIDTH;
+    y += TILE_HEIGHT;
+    int tileOffset = tilenum * TILE_SIZE;
+    Uint8 *palette = drawPalette + (palnum * PALETTE_SIZE);
+
+    for (int yOffset = 0; yOffset < TILE_HEIGHT; yOffset++) {
+        int fbOffset = ((y + yOffset) * FRAMEBUFFER_WIDTH) + x;
+        for (int xOffset = 0; xOffset < TILE_WIDTH; xOffset++) {
+            screen[fbOffset++] = palette[chrData[tileOffset++]];
+        }
     }
 }

@@ -44,6 +44,10 @@ typedef uint64_t Uint64;
 #define OM_WINDOWS
 #endif
 
+#if defined(__x86_64__) || defined(_M_X64)
+#define OM_AMD64
+#endif
+
 #define ARRAY_LEN(x) (sizeof(x) / sizeof(x[0]))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))

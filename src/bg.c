@@ -119,7 +119,7 @@ void BG_Display(void) {
             int xTile = (((x + xScroll) / TILE_WIDTH) % BG_WIDTH);
             int yTile = (((y + yScroll) / TILE_HEIGHT) % BG_HEIGHT);
 
-            Graphics_DrawTile(xPos, yPos, bgTiles[yTile][xTile].tile, bgTiles[yTile][xTile].palnum, 0);
+            Graphics_DrawBGTile(xPos, yPos, bgTiles[yTile][xTile].tile, bgTiles[yTile][xTile].palnum);
         }
     }
 }
