@@ -86,7 +86,7 @@ int Graphics_Init(void) {
         Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
     }
 #elif defined(_MSC_VER)
-    if (__check_isa_support(__IA_SUPPORT_VECTOR256)) {
+    if (__check_isa_support(__IA_SUPPORT_VECTOR256, 0)) {
         Graphics_DrawBGTile = Graphics_DrawBGTileAVX2;
     }
     else {

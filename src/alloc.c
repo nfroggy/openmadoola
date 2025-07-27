@@ -31,11 +31,23 @@ void *omaligned_alloc(size_t alignment, size_t size) {
     if (size % alignment) {
         abort();
     }
+#if defined(_MSC_VER)
+    void *ptr = _aligned_malloc(size, alignment);
+#else
     void *ptr = aligned_alloc(alignment, size);
+#endif
     if (!ptr) {
         abort();
     }
     return ptr;
+}
+
+void omaligned_free(void *mem) {
+#if defined(_MSC_VER)
+    _aligned_free(mem);
+#else
+    free(mem);
+#endif
 }
 
 void *omrealloc(void *ptr, size_t new_size) {
