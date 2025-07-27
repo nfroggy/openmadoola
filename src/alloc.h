@@ -36,6 +36,14 @@ void *ommalloc(size_t size);
 void *omaligned_alloc(size_t alignment, size_t size);
 
 /**
+ * @brief Workaround for Windows memory allocator stupidity. Needs to be called to
+ * free memory allocated by omaligned_alloc, if you call regular free you'll get weird
+ * bugs on Windows.
+ * @param mem memory to free
+ */
+void omaligned_free(void *mem);
+
+/**
  * @brief realloc wrapper that aborts on out of memory
  * @param ptr pointer to allocated buffer
  * @param new_size size to change buffer to
