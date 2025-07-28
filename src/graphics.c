@@ -1,5 +1,5 @@
 /* graphics.c: Graphics primitives
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -18,6 +18,7 @@
  */
 #include "constants.h"
 
+#include <assert.h>
 #if defined(OM_AMD64)
 #include <immintrin.h>
 #endif
@@ -186,6 +187,12 @@ void Graphics_DrawTile(int x, int y, int tilenum, int palnum, int mirror) {
         break;
     }
 }
+
+// you need to change the below functions if any of these fail
+static_assert(TILE_WIDTH == 8);
+static_assert(TILE_HEIGHT == 8);
+static_assert(TILE_SIZE == 64);
+static_assert(PALETTE_SIZE == 4);
 
 #if defined(OM_AMD64)
 // GCC/clang need to be told they're allowed to use AVX2, MSVC doesn't
