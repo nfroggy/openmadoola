@@ -298,7 +298,7 @@ int Weapon_SetCollisionCoords(Sint16 x, Sint16 y) {
 
 void Weapon_EraseCollisionCoords(void) {
     // set weapon pos off the map
-    Weapon_SetCollisionCoords(0, MAP_HEIGHT_PIXELS);
+    Weapon_SetCollisionCoords(0, roomHeightMetatiles * METATILE_SIZE);
     int index = (currObjectIndex - 1) & 7;
     weaponCoords[index].spawned = 0;
 }

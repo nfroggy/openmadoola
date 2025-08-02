@@ -45,7 +45,7 @@ static int Enemy_InitLocation(Object *o) {
     o->y.f.h = (gameFrames & 0xf) + cameraY.f.h;
     Object_InitCollision(o);
     // don't allow spawning enemies off the bottom of the map
-    if (o->collision >= (MAP_WIDTH_METATILES * MAP_HEIGHT_METATILES)) { 
+    if (o->collision >= (roomWidthMetatiles * roomHeightMetatiles)) {
         return 0;
     }
     else {

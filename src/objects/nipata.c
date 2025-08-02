@@ -30,7 +30,7 @@ void Nipata_InitObj(Object *o) {
     // It looks like the original code had something similar to this but they
     // commented it out, we need it because unlike on the NES, doing an out of
     // bounds access on the collision array will make the game crash.
-    if (o->collision >= (MAP_WIDTH_METATILES * MAP_HEIGHT_METATILES)) {
+    if (Object_CollisionOutOfBounds(o)) {
         o->type = OBJ_NONE;
         return;
     }

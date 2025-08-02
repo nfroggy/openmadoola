@@ -610,8 +610,8 @@ static Uint16 *Game_GetDoorMetatiles(void) {
 
     // get Lucia's collision offset
     Uint16 offset = objects[0].collision;
-    Uint16 yOffset = offset / MAP_WIDTH_METATILES;
-    Uint16 xOffset = offset % MAP_WIDTH_METATILES;
+    Uint16 yOffset = offset / roomWidthMetatiles;
+    Uint16 xOffset = offset % roomWidthMetatiles;
 
     // chunk align offset numbers
     xOffset &= 0xFC;
@@ -622,17 +622,17 @@ static Uint16 *Game_GetDoorMetatiles(void) {
     yOffset += 1;
 
     // get door's metatile offset
-    offset = yOffset * MAP_WIDTH_METATILES + xOffset;
+    offset = yOffset * roomWidthMetatiles + xOffset;
 
     // 3 left door metatiles
     metatiles[0] = mapMetatiles[offset];
-    metatiles[1] = mapMetatiles[offset + MAP_WIDTH_METATILES];
-    metatiles[2] = mapMetatiles[offset + MAP_WIDTH_METATILES * 2];
+    metatiles[1] = mapMetatiles[offset + roomWidthMetatiles];
+    metatiles[2] = mapMetatiles[offset + roomWidthMetatiles * 2];
 
     // 3 right door metatiles
     metatiles[3] = mapMetatiles[offset + 1];
-    metatiles[4] = mapMetatiles[offset + MAP_WIDTH_METATILES + 1];
-    metatiles[5] = mapMetatiles[offset + MAP_WIDTH_METATILES * 2 + 1];
+    metatiles[4] = mapMetatiles[offset + roomWidthMetatiles + 1];
+    metatiles[5] = mapMetatiles[offset + roomWidthMetatiles * 2 + 1];
 
     return metatiles;
 }

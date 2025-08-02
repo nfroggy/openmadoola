@@ -40,6 +40,14 @@ Fixed16 cameraY;
 
 Uint8 scrollMode;
 
+static inline Sint16 Camera_MaxX(void) {
+    return ((roomWidthMetatiles * METATILE_SIZE) - SCREEN_WIDTH) << 4;
+}
+
+static inline Sint16 Camera_MaxY(void) {
+    return ((roomHeightMetatiles * METATILE_SIZE) - SCREEN_HEIGHT) << 4;
+}
+
 void Camera_SetX(Object *o) {
     if (scrollMode == SCROLL_MODE_LOCKED) {
         return;
@@ -63,9 +71,7 @@ void Camera_SetX(Object *o) {
     }
 
     // don't scroll past the end of the level (minus a screen width)
-    if (cameraX.v > SCROLL_MAX_X) {
-        cameraX.v = SCROLL_MAX_X;
-    }
+    cameraX.v = MIN(cameraX.v, Camera_MaxX());
 }
 
 void Camera_SetY(Object *o) {
@@ -91,9 +97,7 @@ void Camera_SetY(Object *o) {
     }
 
     // don't scroll past the end of the level
-    if (cameraY.v > SCROLL_MAX_Y) {
-        cameraY.v = SCROLL_MAX_Y;
-    }
+    cameraY.v = MIN(cameraY.v, Camera_MaxY());
 }
 
 void Camera_SetXY(Object *o) {
@@ -142,9 +146,7 @@ void Camera_LuciaScroll(Object *o) {
             }
 
             // don't scroll past the end of the level
-            if (cameraY.v > SCROLL_MAX_Y) {
-                cameraY.v = SCROLL_MAX_Y;
-            }
+            cameraY.v = MIN(cameraY.v, Camera_MaxY());
         }
     }
 }

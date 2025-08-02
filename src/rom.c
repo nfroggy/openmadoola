@@ -206,6 +206,10 @@ MapData *Rom_GetMapData(void) {
             data->rooms[i].palette[j] = prgRom[palette_offset];
         }
 
+        // dimensions
+        data->rooms[i].width = 8;
+        data->rooms[i].height = 8;
+
         // copy room data
         for (int j = 0; j < ARRAY_LEN(data->rooms[0].screenNums); j++) {
             data->rooms[i].screenNums[j] = (Uint16)prgRom[cursor++];

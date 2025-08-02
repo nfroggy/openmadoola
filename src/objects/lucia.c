@@ -128,9 +128,9 @@ void Lucia_NormalObj(Object *o) {
     if ((o->xSpeed == 0) && o->ySpeed) {
         Uint16 collisionCheck = o->collision;
         // if moving down, check the below metatile
-        if (o->ySpeed < 0) { collisionCheck -= MAP_WIDTH_METATILES; }
+        if (o->ySpeed < 0) { collisionCheck -= roomWidthMetatiles; }
         // otherwise, check the above metatile
-        else { collisionCheck += MAP_WIDTH_METATILES; }
+        else { collisionCheck += roomWidthMetatiles; }
 
         Uint16 currMetatile = mapMetatiles[collisionCheck];
         // lucia shouldn't climb on solid metatiles or scenery
@@ -230,7 +230,7 @@ void Lucia_ClimbObj(Object *o) {
 
     // handle walking off the ladder
     if (o->xSpeed && (o->y.f.l >= 0x80)) {
-        if (Map_GetMetatile(o) >= MAP_LADDER) {
+        if (Object_GetMetatile(o) >= MAP_LADDER) {
             goto make_normal;
         }
     }
@@ -245,7 +245,7 @@ void Lucia_ClimbObj(Object *o) {
             goto make_climb;
         }
 
-        collision += MAP_WIDTH_METATILES;
+        collision += roomWidthMetatiles;
         if (mapMetatiles[collision] < MAP_LADDER) {
             goto make_climb;
         }
@@ -268,7 +268,7 @@ void Lucia_ClimbObj(Object *o) {
             goto make_climb;
         }
 
-        collision -= MAP_WIDTH_METATILES;
+        collision -= roomWidthMetatiles;
         if (mapMetatiles[collision] < MAP_LADDER) {
             goto make_climb;
         }

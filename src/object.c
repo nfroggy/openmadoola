@@ -210,7 +210,7 @@ void Object_DeleteAllAfterLucia(void) {
 }
 
 void Object_InitCollision(Object *o) {
-    o->collision = o->y.f.h * MAP_WIDTH_METATILES + o->x.f.h;
+    o->collision = o->y.f.h * roomWidthMetatiles + o->x.f.h;
 }
 
 void Object_DecCollisionX(Object *o) {
@@ -222,11 +222,15 @@ void Object_IncCollisionX(Object *o) {
 }
 
 void Object_DecCollisionY(Object *o) {
-    o->collision -= MAP_WIDTH_METATILES;
+    o->collision -= roomWidthMetatiles;
 }
 
 void Object_IncCollisionY(Object *o) {
-    o->collision += MAP_WIDTH_METATILES;
+    o->collision += roomWidthMetatiles;
+}
+
+int Object_CollisionOutOfBounds(Object *o) {
+    return o->collision >= roomWidthMetatiles * roomHeightMetatiles;
 }
 
 void Object_SetDirection(Object *o) {
@@ -248,7 +252,7 @@ Uint16 Object_GetMetatile(Object *o) {
 }
 
 Uint16 Object_GetMetatileBelow(Object *o) {
-    return mapMetatiles[o->collision + MAP_WIDTH_METATILES];
+    return mapMetatiles[o->collision + roomWidthMetatiles];
 }
 
 void Object_MetatileAlignX(Object *o) {
@@ -302,7 +306,7 @@ void Object_CheckForWall(Object *o) {
 void Object_CheckForDrop(Object *o) {
     // if the metatile below the object isn't either solid ground or a ladder,
     // make the object turn around
-    if (mapMetatiles[o->collision + MAP_WIDTH_METATILES] >= MAP_LADDER) {
+    if (Object_GetMetatileBelow(o) >= MAP_LADDER) {
         Object_TurnAround(o);
     }
 }
@@ -410,7 +414,7 @@ void Object_MoveTowardsLucia(Object *o) {
 int Object_PutOnGround(Object *o) {
     for (int i = 0; i < 16; i++) {
         // if we've gone past the bounds of the level array, bail out
-        if (o->collision >= (MAP_WIDTH_METATILES * MAP_HEIGHT_METATILES)) {
+        if (o->collision >= (roomWidthMetatiles * roomHeightMetatiles)) {
             o->type = OBJ_NONE;
             return 0;
         }

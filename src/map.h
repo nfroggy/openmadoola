@@ -51,7 +51,9 @@ typedef struct {
     Uint8 song;
     // palette data to use
     Uint8 palette[16];
-    // rooms are 8x8 arrays of screens (2048x2048px)
+    Uint8 width; // in screens (256px)
+    Uint8 height;
+    // a room can have up to 64 screens
     Uint16 screenNums[64];
     // which enemy (object number) should go to each screen
     SpawnInfo spawns[64];
@@ -97,20 +99,20 @@ typedef struct {
 // map data
 extern MapData *mapData;
 
+#define METATILE_SIZE 16
+#define SCREEN_WIDTH_METATILES 16
+#define SCREEN_HEIGHT_METATILES 16
+
 // current room number
 extern Uint8 currRoom;
-
-#define METATILE_SIZE (16)
-#define MAP_WIDTH_METATILES (128)
-#define MAP_WIDTH_PIXELS (MAP_WIDTH_METATILES * METATILE_SIZE)
-#define MAP_HEIGHT_METATILES (128)
-#define MAP_HEIGHT_PIXELS (MAP_HEIGHT_METATILES * METATILE_SIZE)
+extern Uint8 roomWidthMetatiles;
+extern Uint8 roomHeightMetatiles;
 
 // anything below this is solid ground
 #define MAP_SOLID (0x1f)
 // anything below this is either solid ground or a ladder
 #define MAP_LADDER (0x24)
-extern Uint16 mapMetatiles[MAP_HEIGHT_METATILES * MAP_WIDTH_METATILES];
+extern Uint16 *mapMetatiles;
 
 /**
  * @brief Frees a heap-allocated MapData struct
@@ -129,8 +131,6 @@ void Map_Init(Uint8 roomNum);
  * @param roomNum the room to load the palette for
 */
 void Map_LoadPalettes(Uint8 roomNum);
-
-Uint16 Map_GetMetatile(Object *o);
 
 /**
  * @brief Gets the spawn information for the screen an object is located in

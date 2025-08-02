@@ -160,6 +160,13 @@ void Object_DeleteAllAfterLucia(void);
 void Object_InitCollision(Object *o);
 
 /**
+ * @brief Checks if an object's collision variable is pointing off the map
+ * @param o object to check
+ * @returns nonzero if the object's collision is out of the map bounds, zero otherwise
+ */
+int Object_CollisionOutOfBounds(Object *o);
+
+/**
  * @brief Sets an object's direction variable from its x speed.
 */
 void Object_SetDirection(Object *o);

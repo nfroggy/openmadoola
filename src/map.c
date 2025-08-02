@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "alloc.h"
 #include "constants.h"
 #include "graphics.h"
 #include "map.h"
@@ -27,8 +28,9 @@
 #include "palette.h"
 
 MapData *mapData;
-Uint16 mapMetatiles[MAP_HEIGHT_METATILES * MAP_WIDTH_METATILES];
+Uint16 *mapMetatiles;
 Uint8 currRoom = 0xff;
+Uint8 roomWidthMetatiles, roomHeightMetatiles;
 static Uint16 scrollX;
 static Uint16 scrollY;
 
@@ -48,11 +50,17 @@ void Map_Init(Uint8 roomNum) {
     if (roomNum == currRoom) { return; }
 
     currRoom = roomNum;
+    Uint8 roomWidthScreens = mapData->rooms[currRoom].width;
+    Uint8 roomHeightScreens = mapData->rooms[currRoom].height;
+    roomWidthMetatiles = roomWidthScreens * SCREEN_WIDTH_METATILES;
+    roomHeightMetatiles = roomHeightScreens * SCREEN_HEIGHT_METATILES;
+    if (mapMetatiles) { free(mapMetatiles); }
+    mapMetatiles = ommalloc(roomWidthMetatiles * roomHeightMetatiles * sizeof(Uint16));
 
     // decompress the room's metatiles
-    for (int screenY = 0; screenY < 8; screenY++) {
-        for (int screenX = 0; screenX < 8; screenX++) {
-            int screenNum = mapData->rooms[roomNum].screenNums[(screenY) * 8 + screenX];
+    for (int screenY = 0; screenY < roomHeightScreens; screenY++) {
+        for (int screenX = 0; screenX < roomWidthScreens; screenX++) {
+            int screenNum = mapData->rooms[roomNum].screenNums[screenY * roomWidthScreens + screenX];
             for (int chunkY = 0; chunkY < 4; chunkY++) {
                 for (int chunkX = 0; chunkX < 4; chunkX++) {
                     int chunkNum = mapData->screens[screenNum][chunkY * 4 + chunkX];
@@ -61,7 +69,7 @@ void Map_Init(Uint8 roomNum) {
                             Uint16 metatileNum = mapData->chunks[chunkNum][metatileY * 4 + metatileX];
                             int xPos = (screenX * 16) + (chunkX * 4) + metatileX;
                             int yPos = (screenY * 16) + (chunkY * 4) + metatileY;
-                            mapMetatiles[yPos * 128 + xPos] = metatileNum;
+                            mapMetatiles[yPos * roomWidthMetatiles + xPos] = metatileNum;
                         }
                     }
                 }
@@ -75,10 +83,6 @@ void Map_Init(Uint8 roomNum) {
 
 void Map_LoadPalettes(Uint8 roomNum) {
     memcpy(colorPalette, mapData->rooms[roomNum].palette, sizeof(mapData->rooms[roomNum].palette));
-}
-
-Uint16 Map_GetMetatile(Object *o) {
-    return mapMetatiles[o->collision];
 }
 
 void Map_GetSpawnInfo(Object *o, SpawnInfo *info) {
@@ -119,11 +123,11 @@ Uint16 Map_CheckX(Object *o) {
 
     // if we didn't find any solid tiles and are in the upper half of the metatile, check up a metatile
     if (o->y.f.l < 0x80) {
-        collision -= MAP_WIDTH_METATILES;
+        collision -= roomWidthMetatiles;
     }
     // if we're in the lower ~1/4 of the metatile, check down a metatile
     else if (o->y.f.l >= 0xa0) {
-        collision += MAP_WIDTH_METATILES;
+        collision += roomWidthMetatiles;
     }
     // otherwise, give up
     else {
@@ -153,7 +157,7 @@ Uint16 Map_CheckY(Object *o) {
         }
 
         // look in the previous metatile
-        collision -= MAP_WIDTH_METATILES;
+        collision -= roomWidthMetatiles;
     }
 
     else {
@@ -163,7 +167,7 @@ Uint16 Map_CheckY(Object *o) {
         }
 
         // look in the next metatile
-        collision += MAP_WIDTH_METATILES;
+        collision += roomWidthMetatiles;
     }
 
     if (mapMetatiles[collision] < MAP_SOLID) {
@@ -197,13 +201,14 @@ found_tile:
 }
 
 Uint16 Map_SolidTileBelow(Uint16 offset) {
-    if (offset >= ARRAY_LEN(mapMetatiles)) { return 1; }
+    Uint16 mapBound = roomWidthMetatiles * roomHeightMetatiles;
+    if (offset >= mapBound) { return 1; }
     Uint16 metatile = mapMetatiles[offset];
     // are we on top of a solid tile or a ladder?
     if (metatile < MAP_LADDER) {
         // look down a metatile
-        offset += MAP_WIDTH_METATILES;
-        if (offset >= ARRAY_LEN(mapMetatiles)) { return 1; }
+        offset += roomWidthMetatiles;
+        if (offset >= mapBound) { return 1; }
         metatile = mapMetatiles[offset];
         // are we on top of a solid tile (not a ladder)?
         if (metatile < MAP_SOLID) {
@@ -211,8 +216,8 @@ Uint16 Map_SolidTileBelow(Uint16 offset) {
         }
     }
     else {
-        offset += MAP_WIDTH_METATILES;
-        if (offset >= ARRAY_LEN(mapMetatiles)) { return 1; }
+        offset += roomWidthMetatiles;
+        if (offset >= mapBound) { return 1; }
         metatile = mapMetatiles[offset];
         // are we on top of a solid block or ladder? ladders are solid from the
         // top
@@ -224,13 +229,14 @@ Uint16 Map_SolidTileBelow(Uint16 offset) {
 }
 
   Uint16 Map_SolidTileAbove(Uint16 offset) {
-      if (offset >= ARRAY_LEN(mapMetatiles)) { return 1; }
+    Uint16 mapBound = roomWidthMetatiles * roomHeightMetatiles;
+      if (offset >= mapBound) { return 1; }
       Uint16 metatile = mapMetatiles[offset];
       // are we on top of a solid tile or a ladder?
       if (metatile < MAP_LADDER) {
           // look up a metatile
-          offset -= MAP_WIDTH_METATILES;
-          if (offset >= ARRAY_LEN(mapMetatiles)) { return 1; }
+          offset -= roomWidthMetatiles;
+          if (offset >= mapBound) { return 1; }
           metatile = mapMetatiles[offset];
           // are we on top of a solid tile (not a ladder)?
           if (metatile < MAP_SOLID) {
@@ -238,8 +244,8 @@ Uint16 Map_SolidTileBelow(Uint16 offset) {
           }
       }
       else {
-          offset -= MAP_WIDTH_METATILES;
-          if (offset >= ARRAY_LEN(mapMetatiles)) { return 1; }
+          offset -= roomWidthMetatiles;
+          if (offset >= mapBound) { return 1; }
           metatile = mapMetatiles[offset];
           // are we on top of a solid block or ladder? ladders are solid from the
           // top
@@ -290,10 +296,10 @@ void Map_Draw(void) {
             int xPos = x - (scrollX % METATILE_SIZE);
             int yPos = y - (scrollY % METATILE_SIZE);
 
-            int xTile = (((x + scrollX) / METATILE_SIZE) % MAP_WIDTH_METATILES);
-            int yTile = (((y + scrollY) / METATILE_SIZE) % MAP_WIDTH_METATILES);
+            int xTile = (((x + scrollX) / METATILE_SIZE) % roomWidthMetatiles);
+            int yTile = (((y + scrollY) / METATILE_SIZE) % roomWidthMetatiles);
 
-            Metatile *metatile = &mapData->tilesets[tileset].metatiles[mapMetatiles[yTile * MAP_WIDTH_METATILES + xTile]];
+            Metatile *metatile = &mapData->tilesets[tileset].metatiles[mapMetatiles[yTile * roomWidthMetatiles + xTile]];
             Graphics_DrawBGTile(xPos + 0, yPos + 0, metatile->tiles[0], metatile->palnum);
             Graphics_DrawBGTile(xPos + 8, yPos + 0, metatile->tiles[1], metatile->palnum);
             Graphics_DrawBGTile(xPos + 0, yPos + 8, metatile->tiles[2], metatile->palnum);
