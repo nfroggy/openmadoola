@@ -188,6 +188,8 @@ MapData *Rom_GetMapData(void) {
     }
 
     // there are 16 rooms
+    data->numRooms = 16;
+    data->rooms = ommalloc(data->numRooms * sizeof(Room));
     for (int i = 0; i < 16; i++) {
         // get tileset
         #define ROOM_BANK_TBL (0x44bf)
@@ -209,9 +211,11 @@ MapData *Rom_GetMapData(void) {
         // dimensions
         data->rooms[i].width = 8;
         data->rooms[i].height = 8;
+        data->rooms[i].screenNums = ommalloc(data->rooms[i].width * data->rooms[i].height * sizeof(Uint16));
 
         // copy room data
-        for (int j = 0; j < ARRAY_LEN(data->rooms[0].screenNums); j++) {
+        int numScreens = data->rooms[i].width * data->rooms[i].height;
+        for (int j = 0; j < numScreens; j++) {
             data->rooms[i].screenNums[j] = (Uint16)prgRom[cursor++];
         }
         // in the original game, enemies were stored as offsets from a base

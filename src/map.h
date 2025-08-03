@@ -53,8 +53,7 @@ typedef struct {
     Uint8 palette[16];
     Uint8 width; // in screens (256px)
     Uint8 height;
-    // a room can have up to 64 screens
-    Uint16 screenNums[64];
+    Uint16 *screenNums;
     // which enemy (object number) should go to each screen
     SpawnInfo spawns[64];
 } Room;
@@ -90,7 +89,8 @@ typedef struct {
     Uint16 (*chunks)[16]; // chunks are 4x4 arrays of metatiles (64x64px)
     Uint16 numScreens;
     Uint16 (*screens)[16]; // screens are 4x4 arrays of chunks (256x256px)
-    Room rooms[16];
+    Uint16 numRooms;
+    Room *rooms;
     StageInfo stages[16];
     Uint16 numWarpDoors;
     WarpDoor *warpDoors;

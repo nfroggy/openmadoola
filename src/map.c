@@ -42,6 +42,10 @@ void Map_FreeData(MapData *data) {
     free(data->chunks);
     free(data->screens);
     free(data->warpDoors);
+    for (int i = 0; i < data->numRooms; i++) {
+        free(data->rooms[i].screenNums);
+    }
+    free(data->rooms);
     free(data);
 }
 
