@@ -44,8 +44,8 @@ extern "C" {
 
 static Simple_Apu apus[2];
 
-static constexpr std::array<char *, NUM_SOUNDS> initSoundFilenames(void) {
-    std::array<char *, NUM_SOUNDS> arr = {};
+static constexpr std::array<const char *, NUM_SOUNDS> initSoundFilenames(void) {
+    std::array<const char *, NUM_SOUNDS> arr = {};
     arr[MUS_TITLE]       = "mml/mus_title.mml";
     arr[MUS_ENDING]      = "mml/mus_ending.mml";
     arr[MUS_START]       = "mml/mus_start.mml";
