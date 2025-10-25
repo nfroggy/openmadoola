@@ -36,7 +36,7 @@ extern "C" {
 #include "Simple_Apu.h"
 
 // audio settings
-#define SOUND_FREQ 96000
+#define SOUND_FREQ 48000
 #define SAMPLES_PER_FRAME (SOUND_FREQ / 60)
 // how many frames of audio to store in the sound buffer (increase if your sound skips)
 #define BUFFERED_FRAMES 2

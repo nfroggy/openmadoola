@@ -409,7 +409,7 @@ int Platform_SetArcadeColor(int requested) {
 
 static int Platform_InitAudio(void) {
     SDL_AudioSpec spec = { 0 };
-    spec.freq = 96000;
+    spec.freq = 48000;
     spec.format = AUDIO_S16;
     spec.channels = 1;
     audioDevice = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
