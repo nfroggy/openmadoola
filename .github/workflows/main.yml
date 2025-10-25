@@ -23,7 +23,9 @@ jobs:
             - name: "Download sdl2"
               run: Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-devel-2.32.10-VC.zip" -OutFile ".\sdl2.zip"
             - name: "Extract sdl2"
-              run: Expand-Archive -Path ".\sdl2.zip" -DestinationPath ".\libs\SDL2" -Force
+              run: Expand-Archive -Path ".\sdl2.zip" -DestinationPath "." -Force
+            - name: "Copy sdl2"
+              run: Copy-Item -Path ".\SDL2-2.32.10\*" -Destination ".\libs\SDL2" -Recurse
             - name: "cmake configure"
               run: cmake -S . -B build -G "Visual Studio 17 2022" -DACTIVE_PLATFORM=SDL2
             - name: "cmake build"
