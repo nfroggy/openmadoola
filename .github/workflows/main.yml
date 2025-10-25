@@ -6,7 +6,7 @@ jobs:
     build-linux-sdl2:
         runs-on: ubuntu-24.04
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v5
             - name: "apt update"
               run: sudo apt update
             - name: "Install dependencies"
@@ -19,7 +19,7 @@ jobs:
     build-windows-sdl2:
         runs-on: windows-2025
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v5
             - name: "Download SDL2"
               run: Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-devel-2.32.10-VC.zip" -OutFile ".\sdl2.zip"
             - name: "Extract SDL2"
@@ -34,7 +34,7 @@ jobs:
     build-windows-sdl3:
         runs-on: windows-2025
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v5
             - name: "Download SDL3"
               run: Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.2.24/SDL3-devel-3.2.24-VC.zip" -OutFile ".\sdl3.zip"
             - name: "Extract SDL3"
