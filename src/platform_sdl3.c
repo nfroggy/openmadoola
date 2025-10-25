@@ -319,7 +319,7 @@ void Platform_EndFrame(void) {
     }
 }
 
-void Platform_ShowError(char *fmt, ...) {
+void Platform_ShowError(const char *fmt, ...) {
     char buff[256];
     va_list args;
     va_start(args, fmt);

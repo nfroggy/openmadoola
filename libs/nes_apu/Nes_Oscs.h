@@ -1,12 +1,5 @@
-
 // Private oscillators used by Nes_Apu
-
-// Nes_Snd_Emu 0.1.7. Copyright (C) 2003-2005 Shay Green. GNU LGPL license.
-// 11/9/2023 - Modified by Nathan Misner to fix compiler warnings & 64-bit
-// compatibility
-
-#ifndef NES_OSCS_H
-#define NES_OSCS_H
+#pragma once
 
 #include "Blip_Buffer.h"
 
@@ -14,6 +7,8 @@ class Nes_Apu;
 
 struct Nes_Osc
 {
+	typedef int nes_time_t;
+	
 	unsigned char regs [4];
 	bool reg_written [4];
 	Blip_Buffer* output;
@@ -23,7 +18,7 @@ struct Nes_Osc
 	
 	void clock_length( int halt_mask );
 	int period() const {
-		return (regs [3] & 7) * 0x100 + (regs [2] & 0xff);
+		return (regs [3] & 7) * 0x100 + (regs [2] & 0xFF);
 	}
 	void reset() {
 		delay = 0;
@@ -59,15 +54,20 @@ struct Nes_Square : Nes_Envelope
 	int phase;
 	int sweep_delay;
 	
-	typedef Blip_Synth<blip_good_quality,15> Synth;
-	const Synth* synth; // shared between squares
+	typedef Blip_Synth_Norm Synth;
+	Synth const& synth; // shared between squares
+	const int min_period;
+	
+	Nes_Square(Synth const* s, int minimumPeriod=8) : synth( *s ), min_period(minimumPeriod) { }
 	
 	void clock_sweep( int adjust );
-	void run( cpu_time_t, cpu_time_t );
+	void run( nes_time_t, nes_time_t );
 	void reset() {
 		sweep_delay = 0;
 		Nes_Envelope::reset();
 	}
+	nes_time_t maintain_phase( nes_time_t time, nes_time_t end_time,
+			nes_time_t timer_period );
 };
 
 // Nes_Triangle
@@ -76,25 +76,27 @@ struct Nes_Triangle : Nes_Osc
 	enum { phase_range = 16 };
 	int phase;
 	int linear_counter;
-	Blip_Synth<blip_good_quality,15> synth;
+	Blip_Synth_Fast synth;
 	
 	int calc_amp() const;
-	void run( cpu_time_t, cpu_time_t );
+	void run( nes_time_t, nes_time_t );
 	void clock_linear_counter();
 	void reset() {
 		linear_counter = 0;
-		phase = phase_range;
+		phase = 1;
 		Nes_Osc::reset();
 	}
+	nes_time_t maintain_phase( nes_time_t time, nes_time_t end_time,
+			nes_time_t timer_period );
 };
 
 // Nes_Noise
 struct Nes_Noise : Nes_Envelope
 {
 	int noise;
-	Blip_Synth<blip_med_quality,15> synth;
+	Blip_Synth_Fast synth;
 	
-	void run( cpu_time_t, cpu_time_t );
+	void run( nes_time_t, nes_time_t );
 	void reset() {
 		noise = 1 << 14;
 		Nes_Envelope::reset();
@@ -110,35 +112,31 @@ struct Nes_Dmc : Nes_Osc
 	int buf;
 	int bits_remain;
 	int bits;
-	bool buf_empty;
+	bool buf_full;
 	bool silence;
 	
 	enum { loop_flag = 0x40 };
 	
 	int dac;
 	
-	cpu_time_t next_irq;
+	nes_time_t next_irq;
 	bool irq_enabled;
 	bool irq_flag;
 	bool pal_mode;
 	bool nonlinear;
 	
-	int (*rom_reader)( void*, cpu_addr_t ); // needs to be initialized to rom read function
-	void* rom_reader_data;
-	
 	Nes_Apu* apu;
 	
-	Blip_Synth<blip_med_quality,127> synth;
+	Blip_Synth_Fast synth;
 	
+	int  update_amp_nonlinear( int dac_in );
 	void start();
 	void write_register( int, int );
-	void run( cpu_time_t, cpu_time_t );
+	void run( nes_time_t, nes_time_t );
 	void recalc_irq();
 	void fill_buffer();
 	void reload_sample();
 	void reset();
-	int count_reads( cpu_time_t, cpu_time_t* ) const;
+	int count_reads( nes_time_t, nes_time_t* ) const;
+	nes_time_t next_read_time() const;
 };
-
-#endif
-

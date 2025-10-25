@@ -94,41 +94,6 @@ static void dispOpenMadoolaLicense(void) {
     displayLicense("OpenMadoola", openMadoolaLicense, ARRAY_LEN(openMadoolaLicense));
 }
 
-static void dispBlipBufferLicense(void) {
-    const static char *blipBufferLicense[] = {
-        "Copyright @ 2003-2006\n\n"
-        "Shay Green.\n\n\n\n"
-        "This module is free software;\n\n"
-        "you can redistribute it and/or\n\n"
-        "modify it under the terms of\n\n"
-        "the GNU Lesser General Public\n\n"
-        "License as published by the\n\n"
-        "Free Software Foundation;\n\n"
-        "either version 2.1 of the\n\n"
-        "License, or (at your option)\n\n"
-        "any later version.",
-
-        "This module is distributed\n\n"
-        "in the hope that it will be\n\n"
-        "useful, but WITHOUT ANY\n\n"
-        "WARRANTY; without even the\n\n"
-        "implied warranty of\n\n"
-        "MERCHANTABILITY or FITNESS\n\n"
-        "FOR A PARTICULAR PURPOSE. See\n\n"
-        "the GNU Lesser General Public\n\n"
-        "License for more details.\n\n\n\n"
-        "You should have received a\n\n"
-        "copy of the GNU Lesser General\n\n"
-        "Public License along with this",
-
-        "module; if not, write to the\n\n"
-        "Free Software Foundation,\n\n"
-        "Inc., 59 Temple Place, Suite\n\n"
-        "330, Boston, MA 02111-1307 USA"
-    };
-    displayLicense("Blip_Buffer", blipBufferLicense, ARRAY_LEN(blipBufferLicense));
-}
-
 void dispLibcoLicense(void) {
     const static char *libcoLicense[] = {
         "Copyright byuu and the higan\n\n"
@@ -262,6 +227,8 @@ void dispNesNtscLicense(void) {
 
 void dispNesSndEmuLicense(void) {
     const static char *nesSndEmuLicense[] = {
+        "Copyright @ 2018-2025\n\n"
+        "James Athey.\n\n"
         "Copyright @ 2003-2005\n\n"
         "Shay Green.\n\n\n\n"
         "This module is free software;\n\n"
@@ -271,9 +238,9 @@ void dispNesSndEmuLicense(void) {
         "License as published by the\n\n"
         "Free Software Foundation;\n\n"
         "either version 2.1 of the\n\n"
-        "License, or (at your option)\n\n"
-        "any later version.",
+        "License, or (at your option)",
 
+        "any later version.\n\n\n\n"
         "This module is distributed\n\n"
         "in the hope that it will be\n\n"
         "useful, but WITHOUT ANY\n\n"
@@ -282,11 +249,11 @@ void dispNesSndEmuLicense(void) {
         "MERCHANTABILITY or FITNESS\n\n"
         "FOR A PARTICULAR PURPOSE. See\n\n"
         "the GNU Lesser General Public\n\n"
-        "License for more details.\n\n\n\n"
+        "License for more details.",
+
         "You should have received a\n\n"
         "copy of the GNU Lesser General\n\n"
-        "Public License along with this",
-
+        "Public License along with this"
         "module; if not, write to the\n\n"
         "Free Software Foundation,\n\n"
         "Inc., 59 Temple Place, Suite\n\n"
@@ -397,7 +364,6 @@ void Licenses_Run(void) {
 
     static MenuItem items[] = {
         MENU_LINK("OpenMadoola", dispOpenMadoolaLicense),
-        MENU_LINK("Blip_Buffer", dispBlipBufferLicense),
         MENU_LINK("libco", dispLibcoLicense),
         MENU_LINK("nanotime", dispNanotimeLicense),
         MENU_LINK("nes_ntsc", dispNesNtscLicense),

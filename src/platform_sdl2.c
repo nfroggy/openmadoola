@@ -299,7 +299,7 @@ void Platform_EndFrame(void) {
     }
 }
 
-void Platform_ShowError(char *fmt, ...) {
+void Platform_ShowError(const char *fmt, ...) {
     char buff[256];
     va_list args;
     va_start(args, fmt);
@@ -409,7 +409,7 @@ int Platform_SetArcadeColor(int requested) {
 
 static int Platform_InitAudio(void) {
     SDL_AudioSpec spec = { 0 };
-    spec.freq = 44100;
+    spec.freq = 96000;
     spec.format = AUDIO_S16;
     spec.channels = 1;
     audioDevice = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);

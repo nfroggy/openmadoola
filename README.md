@@ -104,20 +104,6 @@ For a list of the all the changes I'm aware of between the console and arcade ve
 
 ## Used Software
 
-### Blip_Buffer http://www.slack.net/~ant/libs/audio.html#Blip_Buffer
-```
-Copyright (C) 2003-2006 Shay Green. This module is free software; you
-can redistribute it and/or modify it under the terms of the GNU Lesser
-General Public License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version. This
-module is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for
-more details. You should have received a copy of the GNU Lesser General
-Public License along with this module; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-```
-
 ### libco https://github.com/higan-emu/libco
 ```
 ISC License (ISC)
@@ -180,8 +166,9 @@ License along with this module; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 ```
 
-### Nes_Snd_Emu http://www.slack.net/~ant/libs/audio.html#Nes_Snd_Emu
+### Nes_Snd_Emu https://github.com/jamesathey/Nes_Snd_Emu
 ```
+Copyright (C) 2018-2025 James Athey.
 Copyright (C) 2003-2005 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
 General Public License as published by the Free Software Foundation; either

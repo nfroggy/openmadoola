@@ -39,7 +39,7 @@ void Platform_Quit(void);
 #ifdef __GNUC__
 __attribute__((__format__(__printf__, 1, 2)))
 #endif
-void Platform_ShowError(char *fmt, ...);
+void Platform_ShowError(const char *fmt, ...);
 
 /**
  * @brief Should be run at the start of each frame.

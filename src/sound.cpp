@@ -17,26 +17,31 @@
  * along with OpenMadoola. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
-#include "alloc.h"
-#include "blargg_apu.h"
-#include "buffer.h"
-#include "constants.h"
-#include "db.h"
-#include "game.h"
-#include "mml.h"
-#include "platform.h"
-#include "rom.h"
-#include "sound.h"
-#include "util.h"
+extern "C" {
+    #include "alloc.h"
+    #include "buffer.h"
+    #include "constants.h"
+    #include "db.h"
+    #include "game.h"
+    #include "mml.h"
+    #include "platform.h"
+    #include "rom.h"
+    #include "sound.h"
+    #include "util.h"
+}
+
+#include "Simple_Apu.h"
 
 // audio settings
-#define SOUND_FREQ 44100
+#define SOUND_FREQ 96000
 #define SAMPLES_PER_FRAME (SOUND_FREQ / 60)
 // how many frames of audio to store in the sound buffer (increase if your sound skips)
-#define BUFFERED_FRAMES 3
+#define BUFFERED_FRAMES 2
+
+static Simple_Apu apus[2];
 
 static const char *soundFilenames[NUM_SOUNDS] = {
     [MUS_TITLE]       = "mml/mus_title.mml",
@@ -122,7 +127,7 @@ static Uint8 *Sound_ConvertData(Uint8 *instData) {
 static Uint8 *Sound_LoadData(Uint8 *romData, Sound *out) {
     int cursor = 0;
     out->count = romData[cursor++];
-    out->data = ommalloc(out->count * sizeof(Instrument));
+    out->data = static_cast<Instrument *>(ommalloc(out->count * sizeof(Instrument)));
     for (int i = 0; i < out->count; i++) {
         out->data[i].num = romData[cursor++];
         Uint16 addr = romData[cursor] | (romData[cursor + 1] << 8);
@@ -151,12 +156,16 @@ static Uint8 *Sound_LoadData(Uint8 *romData, Sound *out) {
 }
 
 void Sound_Init(void) {
-    Blargg_Apu_Init(SOUND_FREQ);
+    apus[0].sample_rate(SOUND_FREQ);
+    apus[1].sample_rate(SOUND_FREQ);
+
     DBEntry *entry = DB_Find("volume");
     if (entry) {
         volume = (int)entry->data[0];
     }
-    Blargg_Apu_Volume(volume);
+
+    apus[0].volume(volume);
+    apus[1].volume(volume);
     muted = 0;
 }
 
@@ -210,7 +219,8 @@ int Sound_LoadGameSounds(void) {
 int Sound_SetVolume(int vol) {
     volume = vol;
     CLAMP(volume, 0, 100);
-    Blargg_Apu_Volume(volume);
+    apus[0].volume(volume);
+    apus[1].volume(volume);
     Uint8 volumeByte = (Uint8)volume;
     DB_Set("volume", &volumeByte, 1);
     DB_Save();
@@ -264,9 +274,12 @@ void Sound_Reset(void) {
     }
     apuStatusCopy[0] = 0;
     apuStatusCopy[1] = 0;
-    Blargg_Apu_Write(0, 0x4015, apuStatusCopy[0]);
-    Blargg_Apu_Write(1, 0x4015, apuStatusCopy[1]);
-    Blargg_Apu_ClearBuffer();
+    apus[0].write_register(0x4015, apuStatusCopy[0]);
+    apus[1].write_register(0x4015, apuStatusCopy[1]);
+    /*
+    blip_bufs[0].clear();
+    blip_bufs[1].clear();
+    */
 }
 
 void Sound_Play(int num) {
@@ -329,10 +342,11 @@ void Sound_Run(void) {
 
     for (Sint32 i = 0; i < neededSamples; i += SAMPLES_PER_FRAME) {
         Sound_RunEngine();
-        Blargg_Apu_EndFrame();
+        apus[0].end_frame();
+        apus[1].end_frame();
     }
-    Blargg_Apu_Samples(0, buff0, SAMPLES_PER_FRAME * BUFFERED_FRAMES);
-    Sint32 outputSamples = Blargg_Apu_Samples(1, buff1, SAMPLES_PER_FRAME * BUFFERED_FRAMES);
+    apus[0].read_samples(buff0, SAMPLES_PER_FRAME * BUFFERED_FRAMES);
+    Sint32 outputSamples = apus[1].read_samples(buff1, SAMPLES_PER_FRAME * BUFFERED_FRAMES);
     if (muted) {
         memset(buff0, 0, sizeof(buff0));
     }
@@ -362,6 +376,10 @@ static Uint16 freqTbl[] = {
 
 static void Sound_RunInstrument(int apu, Instrument *inst) {
     Uint8 reg2, reg3;
+    Uint8 *read;
+    Uint8 cmd;
+    Uint16 param;
+    int regOffset;
 
     // "instrument not playing" flag
     if (inst->cursor == 0xffff) {
@@ -373,8 +391,8 @@ static void Sound_RunInstrument(int apu, Instrument *inst) {
         reg2 = 0x6F;
     }
     else {
-        setReadPtr:;
-        Uint8 *read = inst->data + (inst->cursor * 3);
+        setReadPtr:
+        read = inst->data + (inst->cursor * 3);
         getCmd:
         if (*read == 0xff) {
             inst->cursor = 0xffff;
@@ -384,8 +402,8 @@ static void Sound_RunInstrument(int apu, Instrument *inst) {
             goto lostChannel;
         }
 
-        Uint8 cmd = *read++;
-        Uint16 param = Util_LoadUint16(read);
+        cmd = *read++;
+        param = Util_LoadUint16(read);
         read += 2;
 
         // a0-af: APU register setting
@@ -462,13 +480,13 @@ static void Sound_RunInstrument(int apu, Instrument *inst) {
         return;
     }
     Sound_EnableChannel(apu, inst->channel);
-    Uint32 regOffset = inst->channel * 4;
+    regOffset = inst->channel * 4;
     if (inst->ctrlRegsSet) {
-        Blargg_Apu_Write(apu, 0x4001 + regOffset, inst->reg1);
-        Blargg_Apu_Write(apu, 0x4000 + regOffset, inst->reg0);
+        apus[apu].write_register(0x4001 + regOffset, inst->reg1);
+        apus[apu].write_register(0x4000 + regOffset, inst->reg0);
     }
-    Blargg_Apu_Write(apu, 0x4002 + regOffset, reg2);
-    Blargg_Apu_Write(apu, 0x4003 + regOffset, reg3);
+    apus[apu].write_register(0x4002 + regOffset, reg2);
+    apus[apu].write_register(0x4003 + regOffset, reg3);
     inst->ctrlRegsSet = 0;
     return;
 
@@ -480,10 +498,10 @@ static void Sound_RunInstrument(int apu, Instrument *inst) {
 
 static void Sound_DisableChannel(int apu, Uint8 channel) {
     apuStatusCopy[apu] &= ~(1 << channel);
-    Blargg_Apu_Write(apu, 0x4015, apuStatusCopy[apu]);
+    apus[apu].write_register(0x4015, apuStatusCopy[apu]);
 }
 
 static void Sound_EnableChannel(int apu, Uint8 channel) {
     apuStatusCopy[apu] |= (1 << channel);
-    Blargg_Apu_Write(apu, 0x4015, apuStatusCopy[apu]);
+    apus[apu].write_register(0x4015, apuStatusCopy[apu]);
 }

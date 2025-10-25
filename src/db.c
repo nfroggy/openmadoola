@@ -41,7 +41,7 @@ static int numEntries;
 static int allocedEntries;
 static DBEntry *entries;
 
-Uint8 *DB_Add(char *name, Uint32 dataLen) {
+Uint8 *DB_Add(const char *name, Uint32 dataLen) {
     if (numEntries >= allocedEntries) {
         allocedEntries *= 2;
         entries = omrealloc(entries, allocedEntries * sizeof(DBEntry));
@@ -54,7 +54,7 @@ Uint8 *DB_Add(char *name, Uint32 dataLen) {
     return entries[numEntries++].data;
 }
 
-DBEntry *DB_Find(char *name) {
+DBEntry *DB_Find(const char *name) {
     // probably should change this if we ever go above ~50 entries (aka never)
     for (int i = 0; i < numEntries; i++) {
         if (strcmp(entries[i].name, name) == 0) {
@@ -64,7 +64,7 @@ DBEntry *DB_Find(char *name) {
     return NULL;
 }
 
-void DB_Set(char *name, Uint8 *data, Uint32 dataLen) {
+void DB_Set(const char *name, Uint8 *data, Uint32 dataLen) {
     DBEntry *entry = DB_Find(name);
     if (entry) {
         entry->dataLen = dataLen;

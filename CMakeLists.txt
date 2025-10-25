@@ -42,7 +42,7 @@ set(OM_SOURCES
     "src/rom.c"
     "src/save.c"
     "src/screen.c"
-    "src/sound.c"
+    "src/sound.cpp"
     "src/soundtest.c"
     "src/sprite.c"
     "src/system.c"
@@ -90,10 +90,10 @@ set(OM_SOURCES
     "src/objects/zadofly.c"
 
     # vendored libraries
-    "libs/blargg_apu/Blip_Buffer.cpp"
-    "libs/blargg_apu/Nes_Apu.cpp"
-    "libs/blargg_apu/Nes_Oscs.cpp"
-    "libs/blargg_apu/blargg_apu.cpp"
+    "libs/nes_apu/Blip_Buffer.cpp"
+    "libs/nes_apu/Nes_Apu.cpp"
+    "libs/nes_apu/Nes_Oscs.cpp"
+    "libs/nes_apu/Simple_Apu.cpp"
 
     "libs/libco/libco.c"
 
@@ -180,12 +180,10 @@ set(OM_SOURCES
     "src/objects/zadofly.h"
     
     # vendored library headers
-    "libs/blargg_apu/blargg_apu.h"
-    "libs/blargg_apu/blargg_common.h"
-    "libs/blargg_apu/blargg_source.h"
-    "libs/blargg_apu/Blip_Buffer.h"
-    "libs/blargg_apu/Nes_Apu.h"
-    "libs/blargg_apu/Nes_Oscs.h"
+    "libs/nes_apu/Blip_Buffer.h"
+    "libs/nes_apu/Nes_Apu.h"
+    "libs/nes_apu/Nes_Oscs.h"
+    "libs/nes_apu/Simple_Apu.h"
 
     "libs/libco/libco.h"
 
@@ -204,9 +202,9 @@ endif()
 target_include_directories(openmadoola PRIVATE
     "src"
     "src/objects"
-    "libs/blargg_apu"
     "libs/libco"
     "libs/nanotime"
+    "libs/nes_apu"
     "libs/nes_ntsc"
 )
 
