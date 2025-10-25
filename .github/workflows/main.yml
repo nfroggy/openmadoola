@@ -1,0 +1,47 @@
+name: Build
+
+on: [push]
+
+jobs:
+    build-linux-sdl2:
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v2
+            - name: "apt update"
+              run: sudo apt update
+            - name: "Install dependencies"
+              run: sudo apt install -y libsdl2-dev ninja-build
+            - name: "cmake configure"
+              run: cmake -S . -B build -G "Ninja" -DACTIVE_PLATFORM=SDL2
+            - name: "cmake build"
+              run: cmake --build build --config Release
+
+    build-windows-sdl2:
+        runs-on: windows-2025
+        steps:
+            - uses: actions/checkout@v2
+            - name: "Download SDL2"
+              run: Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-devel-2.32.10-VC.zip" -OutFile ".\sdl2.zip"
+            - name: "Extract SDL2"
+              run: Expand-Archive -Path ".\sdl2.zip" -DestinationPath "." -Force
+            - name: "Copy SDL2"
+              run: Copy-Item -Path ".\SDL2-2.32.10\*" -Destination ".\libs\SDL2" -Recurse
+            - name: "cmake configure"
+              run: cmake -S . -B build -G "Visual Studio 17 2022" -DACTIVE_PLATFORM=SDL2
+            - name: "cmake build"
+              run: cmake --build build --config Release
+
+    build-windows-sdl3:
+        runs-on: windows-2025
+        steps:
+            - uses: actions/checkout@v2
+            - name: "Download SDL3"
+              run: Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.2.24/SDL3-devel-3.2.24-VC.zip" -OutFile ".\sdl3.zip"
+            - name: "Extract SDL3"
+              run: Expand-Archive -Path ".\sdl3.zip" -DestinationPath "." -Force
+            - name: "Copy SDL3"
+              run: Copy-Item -Path ".\SDL3-3.2.24\*" -Destination ".\libs\SDL3" -Recurse
+            - name: "cmake configure"
+              run: cmake -S . -B build -G "Visual Studio 17 2022" -DACTIVE_PLATFORM=SDL3
+            - name: "cmake build"
+              run: cmake --build build --config Release

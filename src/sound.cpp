@@ -17,6 +17,7 @@
  * along with OpenMadoola. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <array>
 #include <cstdio>
 #include <cstring>
 
@@ -36,48 +37,51 @@ extern "C" {
 #include "Simple_Apu.h"
 
 // audio settings
-#define SOUND_FREQ 48000
+#define SOUND_FREQ 44100
 #define SAMPLES_PER_FRAME (SOUND_FREQ / 60)
 // how many frames of audio to store in the sound buffer (increase if your sound skips)
-#define BUFFERED_FRAMES 2
+#define BUFFERED_FRAMES 3
 
 static Simple_Apu apus[2];
 
-static const char *soundFilenames[NUM_SOUNDS] = {
-    [MUS_TITLE]       = "mml/mus_title.mml",
-    [MUS_ENDING]      = "mml/mus_ending.mml",
-    [MUS_START]       = "mml/mus_start.mml",
-    [MUS_CLEAR]       = "mml/mus_clear.mml",
-    [MUS_BOSS]        = "mml/mus_boss.mml",
-    [MUS_ITEM]        = "mml/mus_item.mml",
-    [MUS_GAME_OVER]   = "mml/mus_game_over.mml",
-    [MUS_CAVE]        = "mml/mus_cave.mml",
-    [MUS_FOREST]      = "mml/mus_forest.mml",
-    [SFX_PERASKULL]   = "mml/sfx_peraskull.mml",
-    [SFX_FIREBALL]    = "mml/sfx_fireball.mml",
-    [MUS_CASTLE]      = "mml/mus_castle.mml",
-    [SFX_SWORD]       = "mml/sfx_sword.mml",
-    [SFX_MENU]        = "mml/sfx_menu.mml",
-    [SFX_LUCIA_HIT]   = "mml/sfx_lucia_hit.mml",
-    [SFX_BOMB]        = "mml/sfx_bomb.mml",
-    [SFX_JUMP]        = "mml/sfx_jump.mml",
-    [SFX_ENEMY_HIT]   = "mml/sfx_enemy_hit.mml",
-    [SFX_BOMB_SPLIT]  = "mml/sfx_bomb_split.mml",
-    [SFX_SHIELD_BALL] = "mml/sfx_shield_ball.mml",
-    [SFX_NOMAJI]      = "mml/sfx_nomaji.mml",
-    [SFX_BOUND_BALL]  = "mml/sfx_bound_ball.mml",
-    [SFX_YOKKO_CHAN]  = "mml/sfx_yokko_chan.mml",
-    [SFX_ENEMY_KILL]  = "mml/sfx_enemy_kill.mml",
-    [SFX_ITEM]        = "mml/sfx_item.mml",
-    [SFX_BOSS_KILL]   = "mml/sfx_boss_kill.mml",
-    [SFX_PAUSE]       = "mml/sfx_pause.mml",
-    [SFX_SELECT]      = "mml/sfx_select.mml",
-    [SFX_FLAME_SWORD] = "mml/sfx_flame_sword.mml",
-    [SFX_NYURU]       = "mml/sfx_nyuru.mml",
-    [SFX_JOYRAIMA]    = "mml/sfx_joyraima.mml",
-    [MUS_BOSS_ARCADE] = "mml/mus_boss_arcade.mml",
-    [SFX_LUCIA_DEAD]  = "mml/sfx_lucia_dead.mml"
-};
+static constexpr std::array<const char *, NUM_SOUNDS> initSoundFilenames(void) {
+    std::array<const char *, NUM_SOUNDS> arr = {};
+    arr[MUS_TITLE]       = "mml/mus_title.mml";
+    arr[MUS_ENDING]      = "mml/mus_ending.mml";
+    arr[MUS_START]       = "mml/mus_start.mml";
+    arr[MUS_CLEAR]       = "mml/mus_clear.mml";
+    arr[MUS_BOSS]        = "mml/mus_boss.mml";
+    arr[MUS_ITEM]        = "mml/mus_item.mml";
+    arr[MUS_GAME_OVER]   = "mml/mus_game_over.mml";
+    arr[MUS_CAVE]        = "mml/mus_cave.mml";
+    arr[MUS_FOREST]      = "mml/mus_forest.mml";
+    arr[SFX_PERASKULL]   = "mml/sfx_peraskull.mml";
+    arr[SFX_FIREBALL]    = "mml/sfx_fireball.mml";
+    arr[MUS_CASTLE]      = "mml/mus_castle.mml";
+    arr[SFX_SWORD]       = "mml/sfx_sword.mml";
+    arr[SFX_MENU]        = "mml/sfx_menu.mml";
+    arr[SFX_LUCIA_HIT]   = "mml/sfx_lucia_hit.mml";
+    arr[SFX_BOMB]        = "mml/sfx_bomb.mml";
+    arr[SFX_JUMP]        = "mml/sfx_jump.mml";
+    arr[SFX_ENEMY_HIT]   = "mml/sfx_enemy_hit.mml";
+    arr[SFX_BOMB_SPLIT]  = "mml/sfx_bomb_split.mml";
+    arr[SFX_SHIELD_BALL] = "mml/sfx_shield_ball.mml";
+    arr[SFX_NOMAJI]      = "mml/sfx_nomaji.mml";
+    arr[SFX_BOUND_BALL]  = "mml/sfx_bound_ball.mml";
+    arr[SFX_YOKKO_CHAN]  = "mml/sfx_yokko_chan.mml";
+    arr[SFX_ENEMY_KILL]  = "mml/sfx_enemy_kill.mml";
+    arr[SFX_ITEM]        = "mml/sfx_item.mml";
+    arr[SFX_BOSS_KILL]   = "mml/sfx_boss_kill.mml";
+    arr[SFX_PAUSE]       = "mml/sfx_pause.mml";
+    arr[SFX_SELECT]      = "mml/sfx_select.mml";
+    arr[SFX_FLAME_SWORD] = "mml/sfx_flame_sword.mml";
+    arr[SFX_NYURU]       = "mml/sfx_nyuru.mml";
+    arr[SFX_JOYRAIMA]    = "mml/sfx_joyraima.mml";
+    arr[MUS_BOSS_ARCADE] = "mml/mus_boss_arcade.mml";
+    arr[SFX_LUCIA_DEAD]  = "mml/sfx_lucia_dead.mml";
+    return arr;
+}
+static constexpr auto soundFilenames = initSoundFilenames();
 
 Sound sounds[NUM_SOUNDS];
 // where sound data is stored in CHR ROM
