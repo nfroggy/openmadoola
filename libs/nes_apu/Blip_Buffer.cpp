@@ -353,7 +353,7 @@ void blip_eq_t::generate( float out [], int count ) const
 	
 	gen_sinc( out, count, oversample * cutoff_adj, treble, cutoff );
 	
-	kaiser_window( out, count, kaiser );
+	kaiser_window( out, count, static_cast<float>(kaiser) );
 }
 
 void Blip_Synth_::treble_eq( blip_eq_t const& eq )

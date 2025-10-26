@@ -189,10 +189,10 @@ void Graphics_DrawTile(int x, int y, int tilenum, int palnum, int mirror) {
 }
 
 // you need to change the below functions if any of these fail
-static_assert(TILE_WIDTH == 8);
-static_assert(TILE_HEIGHT == 8);
-static_assert(TILE_SIZE == 64);
-static_assert(PALETTE_SIZE == 4);
+static_assert(TILE_WIDTH == 8, "invalid tile width");
+static_assert(TILE_HEIGHT == 8, "invalid tile height");
+static_assert(TILE_SIZE == 64, "invalid tile size");
+static_assert(PALETTE_SIZE == 4, "invalid palette size");
 
 #if defined(OM_AMD64)
 // GCC/clang need to be told they're allowed to use AVX2, MSVC doesn't
