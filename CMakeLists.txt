@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.24)
 
 project(openmadoola LANGUAGES C CXX)
 
@@ -7,6 +7,8 @@ set(ACTIVE_PLATFORM SDL2 CACHE STRING "Default platform is SDL2")
 set_property(CACHE ACTIVE_PLATFORM PROPERTY STRINGS ${PLATFORM_LIST})
 
 option(SANITIZE "Compile with asan/ubsan (gcc/clang only)" OFF)
+
+option(FAIL_ON_WARNING "Fail the build if there's a compiler warning" OFF)
 
 add_executable(openmadoola WIN32)
 
@@ -255,6 +257,10 @@ else()
         target_compile_options(openmadoola PRIVATE -fsanitize=address,undefined)
         target_link_options(openmadoola PRIVATE -fsanitize=address,undefined)
     endif()
+endif()
+
+if(FAIL_ON_WARNING)
+    set_property(TARGET openmadoola PROPERTY COMPILE_WARNING_AS_ERROR ON)
 endif()
 
 # language versions
