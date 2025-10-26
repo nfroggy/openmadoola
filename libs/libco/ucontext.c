@@ -42,7 +42,7 @@ cothread_t co_derive(void* memory, unsigned int heapsize, void (*coentry)(void))
       thread->uc_link = co_running;
       thread->uc_stack.ss_size = heapsize;
       makecontext(thread, coentry, 0);
-      VALGRIND_STACK_REGISTER(thread->uc_stack.ss_sp, thread->uc_stack.ss_sp + heapsize);
+      (void)VALGRIND_STACK_REGISTER(thread->uc_stack.ss_sp, thread->uc_stack.ss_sp + heapsize);
     } else {
       thread = 0;
     }
@@ -59,7 +59,7 @@ cothread_t co_create(unsigned int heapsize, void (*coentry)(void)) {
       thread->uc_link = co_running;
       thread->uc_stack.ss_size = heapsize;
       makecontext(thread, coentry, 0);
-      VALGRIND_STACK_REGISTER(thread->uc_stack.ss_sp, thread->uc_stack.ss_sp + heapsize);
+      (void)VALGRIND_STACK_REGISTER(thread->uc_stack.ss_sp, thread->uc_stack.ss_sp + heapsize);
     } else {
       co_delete((cothread_t)thread);
       thread = 0;

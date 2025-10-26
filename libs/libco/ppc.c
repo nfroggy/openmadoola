@@ -355,7 +355,7 @@ cothread_t co_create(unsigned int size, void (*entry_)(void)) {
     uintptr_t sp;
     int shift;
 
-    VALGRIND_STACK_REGISTER(t, (char*)t + size);
+    (void)VALGRIND_STACK_REGISTER(t, (char*)t + size);
 
     /* save current registers into new thread, so that any special ones will have proper values when thread is begun */
     CO_SWAP_ASM(t, t);

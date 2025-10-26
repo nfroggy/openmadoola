@@ -80,7 +80,7 @@ cothread_t co_derive(void* memory, unsigned int size, void (*coentry)(void)) {
       co_delete(thread);
       thread = 0;
     } else {
-      VALGRIND_STACK_REGISTER(stack.ss_sp, stack.ss_sp + size);
+      (void)VALGRIND_STACK_REGISTER(stack.ss_sp, stack.ss_sp + size);
     }
   }
 
@@ -123,7 +123,7 @@ cothread_t co_create(unsigned int size, void (*coentry)(void)) {
       co_delete(thread);
       thread = 0;
     } else {
-      VALGRIND_STACK_REGISTER(stack.ss_sp, stack.ss_sp + size);
+      (void)VALGRIND_STACK_REGISTER(stack.ss_sp, stack.ss_sp + size);
     }
   }
 

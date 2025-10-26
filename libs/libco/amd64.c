@@ -134,7 +134,7 @@ cothread_t co_derive(void* memory, unsigned int size, void (*entrypoint)(void)) 
   if(!co_active_handle) co_active_handle = &co_active_buffer;
 
   #if defined(__VALGRIND_MAJOR__)
-    VALGRIND_STACK_REGISTER(memory, memory + size);
+    (void)VALGRIND_STACK_REGISTER(memory, memory + size);
   #endif
 
   if((handle = (cothread_t)memory)) {

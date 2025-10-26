@@ -1,4 +1,4 @@
-/* sound.c: Sound engine and output code
+/* sound.cpp: Sound engine and output code
  * Copyright (c) 2023, 2024, 2025 Nathan Misner
  *
  * This file is part of OpenMadoola.

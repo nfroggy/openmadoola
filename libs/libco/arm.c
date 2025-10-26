@@ -49,7 +49,7 @@ cothread_t co_derive(void* memory, unsigned int size, void (*entrypoint)(void)) 
   }
   if(!co_active_handle) co_active_handle = &co_active_buffer;
 
-  VALGRIND_STACK_REGISTER(memory, memory + size);
+  (void)VALGRIND_STACK_REGISTER(memory, memory + size);
 
   if((handle = (unsigned long*)memory)) {
     unsigned long stack_top = (unsigned long)handle + size;
