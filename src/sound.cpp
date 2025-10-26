@@ -39,8 +39,6 @@ extern "C" {
 // audio settings
 #define SOUND_FREQ 44100
 #define SAMPLES_PER_FRAME (SOUND_FREQ / 60)
-// how many frames of audio to store in the sound buffer (increase if your sound skips)
-#define BUFFERED_FRAMES 3
 
 static Simple_Apu apus[2];
 
@@ -338,19 +336,30 @@ static void Sound_RunEngine(void) {
 }
 
 void Sound_Run(void) {
-    static Sint16 buff0[SAMPLES_PER_FRAME * BUFFERED_FRAMES];
-    static Sint16 buff1[SAMPLES_PER_FRAME * BUFFERED_FRAMES];
+    static Sint16 buff0[SAMPLES_PER_FRAME * 2];
+    static Sint16 buff1[SAMPLES_PER_FRAME * 2];
 
     // find the number of samples we need to fill up the audio buffer
-    Sint32 neededSamples = (SAMPLES_PER_FRAME * BUFFERED_FRAMES) - Platform_GetQueuedSamples();
+    Sint32 queuedSamples = Platform_GetQueuedSamples();
+    if (queuedSamples > (SAMPLES_PER_FRAME * 3)) {
+        // enough samples queued already
+        return;
+    }
 
-    for (Sint32 i = 0; i < neededSamples; i += SAMPLES_PER_FRAME) {
+    Sound_RunEngine();
+    apus[0].end_frame();
+    apus[1].end_frame();
+
+    // if there's not enough queued samples to safely prevent skips, run
+    // the sound engine for another frame
+    if (queuedSamples < SAMPLES_PER_FRAME) {
         Sound_RunEngine();
         apus[0].end_frame();
         apus[1].end_frame();
     }
-    apus[0].read_samples(buff0, SAMPLES_PER_FRAME * BUFFERED_FRAMES);
-    Sint32 outputSamples = apus[1].read_samples(buff1, SAMPLES_PER_FRAME * BUFFERED_FRAMES);
+
+    apus[0].read_samples(buff0, ARRAY_LEN(buff0));
+    Sint32 outputSamples = apus[1].read_samples(buff1, ARRAY_LEN(buff1));
     if (muted) {
         memset(buff0, 0, sizeof(buff0));
     }
