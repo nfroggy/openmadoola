@@ -10,7 +10,7 @@ jobs:
             - name: "apt update"
               run: sudo apt update
             - name: "Install dependencies"
-              run: sudo apt install -y libsdl2-dev ninja-build
+              run: sudo apt install -y libsdl2-dev
             - name: "cmake configure"
               run: cmake -S . -B build -G "Ninja" -DACTIVE_PLATFORM=SDL2
             - name: "cmake build"
@@ -43,5 +43,31 @@ jobs:
               run: Copy-Item -Path ".\SDL3-3.2.24\*" -Destination ".\libs\SDL3" -Recurse
             - name: "cmake configure"
               run: cmake -S . -B build -G "Visual Studio 17 2022" -DACTIVE_PLATFORM=SDL3
+            - name: "cmake build"
+              run: cmake --build build --config Release
+
+    build-macos-sdl2:
+        runs-on: macos-15
+        steps:
+            - uses: actions/checkout@v5
+            - name: "brew update"
+              run: brew update
+            - name: "Install SDL2"
+              run: brew install sdl2
+            - name: "cmake configure"
+              run: cmake -S . -B build -G "Ninja" -DACTIVE_PLATFORM=SDL2
+            - name: "cmake build"
+              run: cmake --build build --config Release
+
+    build-macos-sdl3:
+        runs-on: macos-15
+        steps:
+            - uses: actions/checkout@v5
+            - name: "brew update"
+              run: brew update
+            - name: "Install SDL3"
+              run: brew install sdl3
+            - name: "cmake configure"
+              run: cmake -S . -B build -G "Ninja" -DACTIVE_PLATFORM=SDL3
             - name: "cmake build"
               run: cmake --build build --config Release
