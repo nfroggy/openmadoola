@@ -53,6 +53,8 @@ typedef uint64_t Uint64;
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #define CLAMP(x, low, high) do { if ((x) < (low)) { (x) = (low); } if ((x) > (high)) { (x) = (high); } } while(0)
+#define OM_STRINGIFY(x) #x
+#define OM_TOSTR(x) OM_STRINGIFY(x)
 
 // this makes it easier to access the low/high bytes of the value
 typedef union {

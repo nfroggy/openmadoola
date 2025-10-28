@@ -149,6 +149,11 @@ void Platform_QueueSamples(Sint16 *samples, int count);
 int Platform_GetQueuedSamples(void);
 
 /**
+ * @returns the target number of audio samples we need to have in the queue each frame
+ */
+int Platform_GetTargetSamples(void);
+
+/**
  * @returns 1 if there's a gamepad connected, 0 otherwise
  */
 int Platform_GamepadConnected(void);
