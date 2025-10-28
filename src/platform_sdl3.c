@@ -428,7 +428,10 @@ int Platform_SetArcadeColor(int requested) {
     return arcadeColor;
 }
 
+#define TARGET_SAMPLES 1024
+
 static int Platform_InitAudio(void) {
+    SDL_SetHint(SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES, OM_TOSTR(TARGET_SAMPLES));
     SDL_AudioSpec spec = { 0 };
     spec.freq = 44100;
     spec.format = SDL_AUDIO_S16;
@@ -452,6 +455,10 @@ void Platform_QueueSamples(Sint16 *samples, int count) {
 
 int Platform_GetQueuedSamples(void) {
     return (int)SDL_GetAudioStreamQueued(audioStream) / sizeof(Sint16);
+}
+
+int Platform_GetTargetSamples(void) {
+    return TARGET_SAMPLES;
 }
 
 int Platform_GamepadConnected(void) {

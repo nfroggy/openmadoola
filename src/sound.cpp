@@ -341,7 +341,7 @@ void Sound_Run(void) {
 
     // find the number of samples we need to fill up the audio buffer
     Sint32 queuedSamples = Platform_GetQueuedSamples();
-    if (queuedSamples > (SAMPLES_PER_FRAME * 3)) {
+    if (queuedSamples > Platform_GetTargetSamples()) {
         // enough samples queued already
         return;
     }
@@ -352,7 +352,7 @@ void Sound_Run(void) {
 
     // if there's not enough queued samples to safely prevent skips, run
     // the sound engine for another frame
-    if (queuedSamples < SAMPLES_PER_FRAME) {
+    if ((queuedSamples + apus[0].samples_avail()) < Platform_GetTargetSamples()) {
         Sound_RunEngine();
         apus[0].end_frame();
         apus[1].end_frame();
