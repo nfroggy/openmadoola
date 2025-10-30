@@ -343,9 +343,9 @@ static int Game_RunStage(void) {
     if (gameType == GAME_TYPE_ARCADE) {
         health = MAX(health, 1000);
     }
-    // on hard/crazy difficulty, magic only refills up to 1000 between stages
+    // on normal/hard difficulty, magic only refills up to 1000 between stages
     if ((gameType == GAME_TYPE_ARCADE) &&
-        ((arcadeDifficulty == ARCADE_DIFF_HARD) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)))
+        ((arcadeDifficulty == ARCADE_DIFF_NORMAL) || (arcadeDifficulty == ARCADE_DIFF_HARD)))
     {
         magic = MAX(magic, 1000);
     }
@@ -502,9 +502,9 @@ void Game_PlayRoomSong(void) {
 void Game_AddScore(Uint32 points) {
     Uint32 oldScore = score;
     score += points;
-    // on arcade hard/crazy modes, Lucia's MP refils when she scores a multiple of 10000 points
+    // on arcade normal/hard modes, Lucia's MP refils when she scores a multiple of 10000 points
     if ((gameType == GAME_TYPE_ARCADE) &&
-        ((arcadeDifficulty == ARCADE_DIFF_HARD) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)) &&
+        ((arcadeDifficulty == ARCADE_DIFF_NORMAL) || (arcadeDifficulty == ARCADE_DIFF_HARD)) &&
         ((score / 10000) > (oldScore / 10000)))
     {
         magic = maxMagic;

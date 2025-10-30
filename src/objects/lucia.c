@@ -430,9 +430,9 @@ static void Lucia_Draw(Object *o, int frame) {
         luciaDoorFlag = 0;
     }
 
-    // arcade mode drains 1 hp every 32 frames in normal or crazy difficulty when not standing at a door
+    // arcade mode drains 1 hp every 32 frames in easy or hard difficulty when not standing at a door
     if ((gameType == GAME_TYPE_ARCADE) &&
-        ((arcadeDifficulty == ARCADE_DIFF_NORMAL) || (arcadeDifficulty == ARCADE_DIFF_CRAZY)) &&
+        ((arcadeDifficulty == ARCADE_DIFF_EASY) || (arcadeDifficulty == ARCADE_DIFF_HARD)) &&
         (o->type != OBJ_LUCIA_WARP_DOOR) && (o->type != OBJ_LUCIA_LVL_END_DOOR) &&
         (++healthTimer >= 32))
     {

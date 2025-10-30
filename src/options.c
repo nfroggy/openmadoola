@@ -185,7 +185,7 @@ static int gameTypeCB(int num) {
     return num;
 }
 
-static char *arcadeDiffOptions[] = {"Normal", "Hard", "Crazy"};
+static char *arcadeDiffOptions[] = {"Easy", "Normal", "Hard"};
 
 static int arcadeDiffInit(void) { return arcadeDifficulty; }
 

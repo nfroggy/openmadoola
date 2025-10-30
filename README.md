@@ -85,9 +85,9 @@ For a list of the all the changes I'm aware of between the console and arcade ve
 - Anything related to inserting coins isn't here. The continue system is the same as the other game types.
 - The "Press Start" text on the title screen blinks slower than the original because I think it looks nicer.
 - The "Arcade difficulty" option in the settings controls the game's difficulty like this:
-   - **Normal**: Lucia's health gets decremented by 1 every 32 frames.
-   - **Hard**: There's no HP timer, but Lucia's MP only refills up to 1000 when she dies or between levels. You can refill her MP by scoring a multiple of 10,000 points. This mode matches [this](https://www.youtube.com/watch?v=C9T8ad12eO8) gameplay video.
-   - **Crazy**: This is a combination of the HP timer from Normal difficulty and the MP refill mechanic from Hard difficulty. This mode matches [this](https://www.youtube.com/watch?v=FKKC1KHHi4Q) gameplay video.
+   - **Easy**: Lucia's health gets decremented by 1 every 32 frames.
+   - **Normal**: There's no HP timer, but Lucia's MP only refills up to 1000 when she dies or between levels. You can refill her MP by scoring a multiple of 10,000 points. This mode matches [this](https://www.youtube.com/watch?v=C9T8ad12eO8) gameplay video.
+   - **Hard**: This is a combination of the HP timer from Normal difficulty and the MP refill mechanic from Hard difficulty. This mode matches [this](https://www.youtube.com/watch?v=FKKC1KHHi4Q) gameplay video.
 - There's enemy collision in the attract mode. I added a couple other stages besides Stage 1 to the attract mode to add some variety.
 - Lucia starts with 3 lives instead of 2. This may have originally been a DIP switch though.
 - Because OpenMadoola has start/select buttons, none of the control changes have been ported over.

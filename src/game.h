@@ -25,9 +25,9 @@
 #define GAME_TYPE_ARCADE 2
 extern Uint8 gameType;
 
-#define ARCADE_DIFF_NORMAL 0
-#define ARCADE_DIFF_HARD 1
-#define ARCADE_DIFF_CRAZY 2
+#define ARCADE_DIFF_EASY 0
+#define ARCADE_DIFF_NORMAL 1
+#define ARCADE_DIFF_HARD 2
 extern Uint8 arcadeDifficulty;
 
 extern Uint8 spritePalettes[16];
