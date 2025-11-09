@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 project(openmadoola LANGUAGES C CXX)
 
 set(PLATFORM_LIST SDL2 SDL3)
-set(ACTIVE_PLATFORM SDL2 CACHE STRING "Default platform is SDL2")
+set(ACTIVE_PLATFORM SDL3 CACHE STRING "Default platform is SDL3")
 set_property(CACHE ACTIVE_PLATFORM PROPERTY STRINGS ${PLATFORM_LIST})
 
 option(SANITIZE "Compile with asan/ubsan (gcc/clang only)" OFF)

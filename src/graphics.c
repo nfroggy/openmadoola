@@ -198,6 +198,7 @@ static_assert(PALETTE_SIZE == 4, "invalid palette size");
 // GCC/clang need to be told they're allowed to use AVX2, MSVC doesn't
 #if defined(__GNUC__)
 __attribute__((target("avx2")))
+__attribute__((no_sanitize("alignment")))
 #endif // defined(__GNUC__)
 static void Graphics_DrawBGTileAVX2(int x, int y, int tilenum, int palnum) {
     // don't draw the tile at all if it's entirely offscreen
@@ -233,6 +234,7 @@ static void Graphics_DrawBGTileAVX2(int x, int y, int tilenum, int palnum) {
 
 #if defined(__GNUC__)
 __attribute__((target("ssse3")))
+__attribute__((no_sanitize("alignment")))
 #endif // defined(__GNUC__)
 static void Graphics_DrawBGTileSSSE3(int x, int y, int tilenum, int palnum) {
     // don't draw the tile at all if it's entirely offscreen
