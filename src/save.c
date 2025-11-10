@@ -115,11 +115,13 @@ void Save_SaveFile(void) {
 }
 
 void Save_EraseFile(int num) {
-    Buffer_Destroy(files[num]);
-    files[num] = NULL;
-    char filename[20];
-    snprintf(filename, sizeof(filename), "file%d.sav", num + 1);
-    File_Remove(filename);
+    if (files[num]) {
+        Buffer_Destroy(files[num]);
+        files[num] = NULL;
+        char filename[20];
+        snprintf(filename, sizeof(filename), "file%d.sav", num + 1);
+        File_Remove(filename);
+    }
 }
 
 void Save_Init(void) {
