@@ -73,6 +73,17 @@
     <url type="bugtracker">https://github.com/nfroggy/openmadoola/issues</url>
 
     <releases>
+        <release version="1.22" date="2025-11-09">
+            <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.22</url>
+            <description>
+                <ul>
+                    <li>Speed up graphics drawing with AVX2 or SSSE3 when available</li>
+                    <li>Reduced audio latency by 2 frames</li>
+                    <li>Changed default arcade difficulty</li>
+                    <li>Default platform is now SDL3</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.20" date="2025-06-22">
             <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.20</url>
             <description>
