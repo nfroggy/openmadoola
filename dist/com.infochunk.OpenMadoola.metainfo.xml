@@ -74,6 +74,7 @@
 
     <releases>
         <release version="1.24" date="2025-11-10">
+            <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.24</url>
             <description>
                 <ul>
                     <li>Fixed a crash when deleting an empty save file</li>
