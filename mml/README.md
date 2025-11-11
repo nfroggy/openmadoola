@@ -1,6 +1,6 @@
 ## How to play MML files
 OpenMadoola will look for MML files in its data directory (wherever you have the ROM image, font.bin, and nes.pal files).
-If the files are named correctly (search for "soundFilenames" [here](../src/sound.cpp)), they'll override the regular music or sound effects.
+If the files are named correctly (search for "initSoundFilenames" [here](../src/sound.cpp)), they'll override the regular music or sound effects.
 
 You can also play MML files outside of the game by launching OpenMadoola with the `-p file.mml` option.
 
