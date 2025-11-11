@@ -73,6 +73,14 @@
     <url type="bugtracker">https://github.com/nfroggy/openmadoola/issues</url>
 
     <releases>
+        <release version="1.24" date="2025-11-10">
+            <description>
+                <ul>
+                    <li>Fixed a crash when deleting an empty save file</li>
+                    <li>Switched to a different 48x48 icon</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.22" date="2025-11-09">
             <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.22</url>
             <description>
