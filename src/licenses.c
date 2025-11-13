@@ -253,7 +253,7 @@ void dispNesSndEmuLicense(void) {
 
         "You should have received a\n\n"
         "copy of the GNU Lesser General\n\n"
-        "Public License along with this"
+        "Public License along with this\n\n"
         "module; if not, write to the\n\n"
         "Free Software Foundation,\n\n"
         "Inc., 59 Temple Place, Suite\n\n"
