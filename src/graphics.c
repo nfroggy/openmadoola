@@ -55,7 +55,11 @@ static void Graphics_DrawBGTileSSSE3(int x, int y, int tilenum, int palnum);
 #if defined(OM_ARM64)
 static void Graphics_DrawBGTileNeon(int x, int y, int tilenum, int palnum);
 #endif
+
+// neon is mandatory on arm64
+#if !defined(OM_ARM64)
 static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum);
+#endif
 
 int Graphics_Init(void) {
     // convert planar 2bpp to chunky 8bpp
@@ -326,6 +330,7 @@ static void Graphics_DrawBGTileNeon(int x, int y, int tilenum, int palnum) {
 }
 #endif // defined(OM_ARM64)
 
+#if !defined(OM_ARM64)
 static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum) {
     // don't draw the tile at all if it's entirely offscreen
     if ((x < -TILE_WIDTH) || (x >= SCREEN_WIDTH) || (y < -TILE_HEIGHT) || (y >= SCREEN_HEIGHT)) {
@@ -345,3 +350,4 @@ static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum) {
         }
     }
 }
+#endif // !defined(OM_ARM64)
