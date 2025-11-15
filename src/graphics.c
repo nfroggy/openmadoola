@@ -22,6 +22,9 @@
 #if defined(OM_AMD64)
 #include <immintrin.h>
 #endif
+#if defined(OM_ARM64)
+#include <arm_neon.h>
+#endif
 #if defined(_MSC_VER)
 #include <intrin.h>
 #include <isa_availability.h>
@@ -48,6 +51,9 @@ void (*Graphics_DrawBGTile)(int x, int y, int tilenum, int palnum);
 #if defined(OM_AMD64)
 static void Graphics_DrawBGTileAVX2(int x, int y, int tilenum, int palnum);
 static void Graphics_DrawBGTileSSSE3(int x, int y, int tilenum, int palnum);
+#endif
+#if defined(OM_ARM64)
+static void Graphics_DrawBGTileNeon(int x, int y, int tilenum, int palnum);
 #endif
 static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum);
 
@@ -107,6 +113,8 @@ int Graphics_Init(void) {
 #else
     Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
 #endif // defined(OM_AMD64)
+#elif defined(OM_ARM64)
+    Graphics_DrawBGTile = Graphics_DrawBGTileNeon;
 #else
     Graphics_DrawBGTile = Graphics_DrawBGTileFallback;
 #endif
@@ -279,6 +287,44 @@ static void Graphics_DrawBGTileSSSE3(int x, int y, int tilenum, int palnum) {
     _mm_storel_epi64((__m128i *)dst, row78);
 }
 #endif // defined(OM_AMD64)
+
+#if defined(OM_ARM64)
+__attribute__((no_sanitize("alignment")))
+static void Graphics_DrawBGTileNeon(int x, int y, int tilenum, int palnum) {
+    // don't draw the tile at all if it's entirely offscreen
+    if ((x < -TILE_WIDTH) || (x >= SCREEN_WIDTH) || (y < -TILE_HEIGHT) || (y >= SCREEN_HEIGHT)) {
+        return;
+    }
+    // the framebuffer has an extra tile row/column around it to allow for drawing to it without
+    // checking the tile bounds
+    x += TILE_WIDTH;
+    y += TILE_HEIGHT;
+    int tileOffset = tilenum * TILE_SIZE;
+    // broadcast load palette
+    uint8x16_t palette = (uint8x16_t)vld1q_dup_u32((Uint32 *)(drawPalette + (palnum * PALETTE_SIZE)));
+    // load the 8x8 tile
+    uint8x16_t row12 = vld1q_u8(chrData + tileOffset);
+    uint8x16_t row34 = vld1q_u8(chrData + tileOffset + (TILE_WIDTH * 2));
+    uint8x16_t row56 = vld1q_u8(chrData + tileOffset + (TILE_WIDTH * 4));
+    uint8x16_t row78 = vld1q_u8(chrData + tileOffset + (TILE_WIDTH * 6));
+    // convert palette indices to nes colors
+    row12 = vqtbl1q_u8(palette, row12);
+    row34 = vqtbl1q_u8(palette, row34);
+    row56 = vqtbl1q_u8(palette, row56);
+    row78 = vqtbl1q_u8(palette, row78);
+
+    // write the tile to the framebuffer
+    Uint8 *dst = screen + (y * FRAMEBUFFER_WIDTH + x);
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row12, 0); dst += FRAMEBUFFER_WIDTH;
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row12, 1); dst += FRAMEBUFFER_WIDTH;
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row34, 0); dst += FRAMEBUFFER_WIDTH;
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row34, 1); dst += FRAMEBUFFER_WIDTH;
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row56, 0); dst += FRAMEBUFFER_WIDTH;
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row56, 1); dst += FRAMEBUFFER_WIDTH;
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row78, 0); dst += FRAMEBUFFER_WIDTH;
+    (*(Uint64 *)dst) = vgetq_lane_u64((uint64x2_t)row78, 1);
+}
+#endif // defined(OM_ARM64)
 
 static void Graphics_DrawBGTileFallback(int x, int y, int tilenum, int palnum) {
     // don't draw the tile at all if it's entirely offscreen
