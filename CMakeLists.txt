@@ -326,8 +326,8 @@ if(UNIX)
             DESTINATION share/icons/hicolor/16x16/apps
             RENAME com.infochunk.OpenMadoola.png
             PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
-        install(FILES dist/lucia_128.png
-            DESTINATION share/icons/hicolor/128x128/apps
+        install(FILES dist/lucia_144.png
+            DESTINATION share/icons/hicolor/144x144/apps
             RENAME com.infochunk.OpenMadoola.png
             PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
         install(FILES dist/lucia_512.png
