@@ -50,7 +50,7 @@ typedef enum {
     SFX_SELECT      = 27,
     SFX_FLAME_SWORD = 28,
     SFX_NYURU       = 29,
-    SFX_JOYRAIMA    = 30,
+    SFX_JOYLIMER    = 30,
     NUM_ROM_SOUNDS  = 31,
     MUS_BOSS_ARCADE = 31,
     SFX_LUCIA_DEAD,

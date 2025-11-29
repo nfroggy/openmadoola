@@ -1,4 +1,4 @@
-/* joyraima.h: Joyraima object code
+/* joylimer.h: Joylimer object code
  * Copyright (c) 2023 Nathan Misner
  *
  * This file is part of OpenMadoola.
@@ -20,5 +20,5 @@
 #pragma once
 #include "object.h"
 
-void Joyraima_InitObj(Object *o);
-void Joyraima_Obj(Object *o);
+void Joylimer_InitObj(Object *o);
+void Joylimer_Obj(Object *o);

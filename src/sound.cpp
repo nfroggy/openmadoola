@@ -74,7 +74,7 @@ static constexpr std::array<const char *, NUM_SOUNDS> initSoundFilenames(void) {
     arr[SFX_SELECT]      = "mml/sfx_select.mml";
     arr[SFX_FLAME_SWORD] = "mml/sfx_flame_sword.mml";
     arr[SFX_NYURU]       = "mml/sfx_nyuru.mml";
-    arr[SFX_JOYRAIMA]    = "mml/sfx_joyraima.mml";
+    arr[SFX_JOYLIMER]    = "mml/sfx_joylimer.mml";
     arr[MUS_BOSS_ARCADE] = "mml/mus_boss_arcade.mml";
     arr[SFX_LUCIA_DEAD]  = "mml/sfx_lucia_dead.mml";
     return arr;

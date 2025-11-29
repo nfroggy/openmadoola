@@ -36,7 +36,7 @@
 #include "game.h"
 #include "hopegg.h"
 #include "item.h"
-#include "joyraima.h"
+#include "joylimer.h"
 #include "kikura.h"
 #include "lucia.h"
 #include "magicbomb.h"
@@ -102,7 +102,7 @@ OBJECT_FUNCTION objectFunctions[] = {
     Hopegg_InitObj,
     Nigito_InitObj,
     Suneisa_InitObj,
-    Joyraima_InitObj,
+    Joylimer_InitObj,
     HyperEyemon_InitObj,
     Biforce_InitObj,
     Bospido_InitObj,
@@ -134,7 +134,7 @@ OBJECT_FUNCTION objectFunctions[] = {
     Hopegg_Obj,
     Nigito_Obj,
     Suneisa_Obj,
-    Joyraima_Obj,
+    Joylimer_Obj,
     NULL,
     Biforce_Obj,
     Bospido_Obj,

@@ -1,5 +1,5 @@
-/* joyraima.c: Joyraima object code
- * Copyright (c) 2023 Nathan Misner
+/* joylimer.c: Joylimer object code
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -18,15 +18,16 @@
  */
 
 #include "collision.h"
-#include "joyraima.h"
+#include "joylimer.h"
+
 #include "map.h"
 #include "object.h"
 #include "sound.h"
 #include "sprite.h"
 
-void Joyraima_InitObj(Object *o) {
+void Joylimer_InitObj(Object *o) {
     OBJECT_CHECK_SPAWN(o);
-    Sound_Play(SFX_JOYRAIMA);
+    Sound_Play(SFX_JOYLIMER);
     o->hp = 192;
     o->type += 0x20;
     o->timer = 0;
@@ -34,11 +35,11 @@ void Joyraima_InitObj(Object *o) {
     o->ySpeed = 0;
 }
 
-static Sint8 joyraimaXOffsets[] = {
-    0x10, 0xf0, 0xf0, 0x10
+static Sint8 joylimerXOffsets[] = {
+    0x10, -0x10, -0x10, 0x10
 };
 
-void Joyraima_Obj(Object *o) {
+void Joylimer_Obj(Object *o) {
     if (o->stunnedTimer) {
         o->stunnedTimer--;
     }
@@ -79,7 +80,7 @@ void Joyraima_Obj(Object *o) {
     spr.tile -= 2;
     Sprite_Draw(&spr, o);
     Uint8 xCursor = (o->direction == DIR_RIGHT) ? 2 : 0;
-    spr.x += joyraimaXOffsets[xCursor];
+    spr.x += joylimerXOffsets[xCursor];
     xCursor++;
     spr.tile += 0x20;
     Sprite_Draw(&spr, o);
@@ -87,6 +88,6 @@ void Joyraima_Obj(Object *o) {
     spr.tile += 2;
     Sprite_Draw(&spr, o);
     spr.y -= 0x10;
-    spr.x += joyraimaXOffsets[xCursor];
+    spr.x += joylimerXOffsets[xCursor];
     Collision_Handle(o, &spr, COLLISION_SIZE_16X32, 60);
 }
