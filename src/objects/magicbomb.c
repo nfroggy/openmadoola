@@ -1,5 +1,5 @@
 /* magicbomb.c: Magic bomb object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -27,7 +27,7 @@
 #include "weapon.h"
 
 static Sint8 bombSpeedTbl[] = {
-    0x90, 0xB0, 0xD0, 0xF0, 0x10, 0x30, 0x50,
+    -0x70, -0x50, -0x30, -0x10, 0x10, 0x30, 0x50,
 };
 
 void MagicBomb_Obj(Object *o) {
