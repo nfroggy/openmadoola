@@ -24,7 +24,7 @@
 #include "boundball.h"
 #include "bunyon.h"
 #include "constants.h"
-#include "darutos.h"
+#include "daltos.h"
 #include "dopipu.h"
 #include "explosion.h"
 #include "eyemon.h"
@@ -107,7 +107,7 @@ OBJECT_FUNCTION objectFunctions[] = {
     Biforce_InitObj,
     Bospido_InitObj,
     NULL,
-    Darutos_InitObj,
+    Daltos_InitObj,
     NULL,
     NULL,
     NULL,
@@ -139,7 +139,7 @@ OBJECT_FUNCTION objectFunctions[] = {
     Biforce_Obj,
     Bospido_Obj,
     NULL,
-    Darutos_Obj,
+    Daltos_Obj,
     NULL,
     NULL,
     NULL,

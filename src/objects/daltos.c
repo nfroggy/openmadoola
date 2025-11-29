@@ -1,4 +1,4 @@
-/* darutos.c: Darutos object code
+/* daltos.c: Daltos object code
  * Copyright (c) 2023, 2024 Nathan Misner
  *
  * This file is part of OpenMadoola.
@@ -19,7 +19,7 @@
 
 #include "camera.h"
 #include "collision.h"
-#include "darutos.h"
+#include "daltos.h"
 #include "fireball.h"
 #include "game.h"
 #include "rng.h"
@@ -27,7 +27,7 @@
 #include "sprite.h"
 #include "object.h"
 
-static Sint8 darutosOffsets1[] = {
+static Sint8 daltosOffsets1[] = {
     0xf0, 0x00,
     0x00, 0xf0,
     0x10, 0x00,
@@ -35,38 +35,38 @@ static Sint8 darutosOffsets1[] = {
 };
 
 // standing
-static Uint16 darutos1[] = {
+static Uint16 daltos1[] = {
     0x3a6, 0x386, 0x384, 0x3a4, 0x00, 0x3c6,
 };
 
 // jumping
-static Uint16 darutos2[] = {
+static Uint16 daltos2[] = {
     0x3be, 0x39e, 0x39c, 0x3bc, 0x00, 0x3dc,
 };
 
-static Sint8 darutosOffsets2[] = {
+static Sint8 daltosOffsets2[] = {
     0x10, 0x00, 
     0x00, 0x10, 
     0x0c, 0x00,
 };
 
-static Uint16 darutos3[] = {
+static Uint16 daltos3[] = {
     0x390, 0x3b0, 0x3b2, 0x00, 0x3d2, 0x3d0,
 };
 
-static Uint16 darutos4[] = {
+static Uint16 daltos4[] = {
     0x398, 0x3b8, 0x3ba, 0x00, 0x3da, 0x3d8,
 };
 
-// Keeps track of whether Lucia killed Darutos.
+// Keeps track of whether Lucia killed Daltos.
 // NOTE: The original game used orbCollected for this purpose, but that led to
-// a bug where killing Darutos and then dying to his fireball would allow Lucia
-// to skip fighting Darutos since orbCollected doesn't get cleared when
+// a bug where killing Daltos and then dying to his fireball would allow Lucia
+// to skip fighting Daltos since orbCollected doesn't get cleared when
 // continuing.
-Uint8 darutosKilled;
+Uint8 daltosKilled;
 
-void Darutos_InitObj(Object *o) {
-    // darutos's position is hardcoded
+void Daltos_InitObj(Object *o) {
+    // daltos's position is hardcoded
     o->x.v = 0x3a80;
     o->y.v = 0x1f80;
     o->hp = 255;
@@ -77,7 +77,7 @@ void Darutos_InitObj(Object *o) {
     o->ySpeed = 0x38;
 }
 
-void Darutos_Obj(Object *o) {
+void Daltos_Obj(Object *o) {
     if (o->stunnedTimer) {
         o->stunnedTimer--;
     }
@@ -130,32 +130,32 @@ void Darutos_Obj(Object *o) {
     Uint16 *frame;
     spr.size = SPRITE_16X16;
     spr.palette = 2;
-    // --- draw darutos's legs ---
+    // --- draw daltos's legs ---
     if (!(o->timer & 0x40)) {
         dispOffsetX = (o->direction == DIR_RIGHT) ? -0x10 : 0x10;
-        frame = darutos2;
+        frame = daltos2;
     }
     else {
-        frame = darutos1;
+        frame = daltos1;
     }
 
     // NOTE: The original game used its equivalent of Sprite_SetDrawLarge here,
-    // but that made Darutos not get drawn unless he was at least halfway
+    // but that made Daltos not get drawn unless he was at least halfway
     // onscreen, making it harder to judge what side he was on. Instead we
     // calculate the sprite position manually and then use Sprite_SetDrawLargeAbs.
     if (gameType != GAME_TYPE_ORIGINAL) {
         spr.x = ((o->x.v - cameraX.v) >> 4) + dispOffsetX;
         spr.y = ((o->y.v - cameraY.v) >> 4) - 9;
         spr.mirror = (o->direction == DIR_LEFT) ? 0 : H_MIRROR;
-        Sprite_SetDrawLargeAbs(&spr, o, frame, darutosOffsets1);
+        Sprite_SetDrawLargeAbs(&spr, o, frame, daltosOffsets1);
     }
     else {
-        if (!Sprite_SetDrawLarge(&spr, o, frame, darutosOffsets1, dispOffsetX, 0)) {
+        if (!Sprite_SetDrawLarge(&spr, o, frame, daltosOffsets1, dispOffsetX, 0)) {
             return;
         }
     }
 
-    // --- draw darutos's tail ---
+    // --- draw daltos's tail ---
     // get tile after the "0x00"
     spr.tile = frame[5];
     if (o->timer & 0x40) {
@@ -169,15 +169,15 @@ void Darutos_Obj(Object *o) {
         spr.size = SPRITE_8X16;
         Sprite_Draw(&spr, o);
     }
-    // --- draw darutos's head and wing ---
+    // --- draw daltos's head and wing ---
     spr.y -= 0x20;
     Sint16 xOffset = (o->timer & 0x40) ? -0x18 : -0x1c;
     if (o->direction == DIR_RIGHT) { xOffset = -xOffset; }
     spr.x += xOffset;
-    frame = (!(o->timer & 0x80)) ? darutos3 : darutos4;
+    frame = (!(o->timer & 0x80)) ? daltos3 : daltos4;
     spr.size = SPRITE_16X16;
-    Sprite_SetDrawLargeAbs(&spr, o, frame, darutosOffsets2);
-    // --- draw the back of darutos's wing ---
+    Sprite_SetDrawLargeAbs(&spr, o, frame, daltosOffsets2);
+    // --- draw the back of daltos's wing ---
     // get tile after the "0x00"
     spr.tile = frame[4];
     spr.size = SPRITE_8X16;
@@ -185,15 +185,15 @@ void Darutos_Obj(Object *o) {
     spr.tile = frame[5];
     spr.y -= 0x10;
     Sprite_Draw(&spr, o);
-    // --- draw darutos's mouth ---
+    // --- draw daltos's mouth ---
     spr.tile = (!(o->x.f.h & 1)) ? 0x380 : 0x388;
     spr.x += (o->direction == DIR_RIGHT) ? 0x28 : -0x28;
     Sprite_Draw(&spr, o);
-    // --- draw darutos's hand ---
+    // --- draw daltos's hand ---
     spr.y += 0x10;
     spr.tile = (!(o->x.f.l & 0x80)) ? 0x382 : 0x38a;
     Sprite_Draw(&spr, o);
-    // draw darutos's chest and other hand ---
+    // draw daltos's chest and other hand ---
     spr.tile += 0x10;
     spr.x += (o->direction == DIR_RIGHT) ? -0xc : 0xc;
     spr.size = SPRITE_16X16;
@@ -201,7 +201,7 @@ void Darutos_Obj(Object *o) {
     spr.y -= 0x10;
 
     if (!Collision_Handle(o, &spr, COLLISION_SIZE_16X16, 95)) {
-        darutosKilled = 1;
+        daltosKilled = 1;
         Game_PlayRoomSong();
         Sound_Play(SFX_BOSS_KILL);
     }

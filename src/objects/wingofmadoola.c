@@ -58,7 +58,7 @@ void WingOfMadoola_Obj(Object *o) {
     if (Collision_WithLucia(o, &spr, COLLISION_SIZE_16X32, ITEM_FLAG + ITEM_SCROLL) == 2) {
         hasWing = 0xff;
         Object_DeleteAllAfterLucia();
-        o->type = OBJ_DARUTOS_INIT;
+        o->type = OBJ_DALTOS_INIT;
         Game_PlayRoomSong();
     }
 }

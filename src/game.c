@@ -21,7 +21,7 @@
 #include <string.h>
 
 #include "camera.h"
-#include "darutos.h"
+#include "daltos.h"
 #include "db.h"
 #include "demo.h"
 #include "ending.h"
@@ -213,9 +213,9 @@ static void Game_InitRoomVars(Object *lucia) {
         }
         // NOTE: This wasn't in the original game. This fixes a bug where
         // collecting the Wing of Madoola and then going into a door would
-        // cause Darutos not to spawn, softlocking the game.
+        // cause Daltos not to spawn, softlocking the game.
         else {
-            objects[MAX_OBJECTS - 1].type = OBJ_DARUTOS_INIT;
+            objects[MAX_OBJECTS - 1].type = OBJ_DALTOS_INIT;
         }
     }
 
@@ -373,7 +373,7 @@ static int Game_RunStage(void) {
     healthTimer = 0;
     fountainUsed = 0;
     hasWing = 0;
-    darutosKilled = 0;
+    daltosKilled = 0;
 
 initRoom:
     Game_InitRoomVars(lucia);
@@ -429,11 +429,11 @@ initRoom:
             if (lucia->type == OBJ_LUCIA_WARP_DOOR) {
                 int switchRoom = Map_Door(lucia);
                 if (switchRoom == DOOR_ENDING) {
-                    if (darutosKilled) {
+                    if (daltosKilled) {
                         return STAGE_EXIT_WON;
                     }
                     // put Lucia back where she was if she tried to enter the ending
-                    // door without killing Darutos
+                    // door without killing Daltos
                     else {
                         Game_SetRoom(currRoom);
                     }
@@ -461,8 +461,8 @@ void Game_PlayRoomSong(void) {
     Uint8 song = mapData->rooms[currRoom].song;
     // are we in stage 16's room?
     if (currRoom == 14) {
-        // don't play any music if darutos has been killed
-        if (darutosKilled) {
+        // don't play any music if daltos has been killed
+        if (daltosKilled) {
             return;
         }
         // if lucia collected the wing of madoola, play the castle theme

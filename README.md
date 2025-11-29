@@ -60,8 +60,8 @@ Also in the options menu, you'll find a "game type" setting. The "Original" game
 - Game runs without NES hardware limitations (no slowdown, no sprite flicker, no garbage on the edge of the screen).
 - Game progress is saved to disk.
 - The status/stage screens can be skipped by pressing the Start button.
-- Fixed a bug where collecting the Wing of Madoola and then entering a door would make Darutos not spawn.
-- Fixed a bug where killing Darutos and then dying to one of his fireballs would let you skip fighting him after continuing.
+- Fixed a bug where collecting the Wing of Madoola and then entering a door would make Daltos not spawn.
+- Fixed a bug where killing Daltos and then dying to one of his fireballs would let you skip fighting him after continuing.
 - Fixed a bug where sound effects would sometimes get stuck on, glitch out, etc.
 - Fixed a bug where pausing and then unpausing on a castle level would cause the noise channel to drop out of the music.
 - Fixed a bug where the mirroring on the fireball that some enemies throw wasn't initialized.
@@ -74,7 +74,7 @@ Also in the options menu, you'll find a "game type" setting. The "Original" game
 - Music doesn't restart when pausing/unpausing the game.
 - The arcade version of the boss music is used instead of the console version.
 - The selected weapon is visible during gameplay, and you can change weapons without pausing.
-- Darutos gets drawn even when he's only partially visible, making him easier to see.
+- Daltos gets drawn even when he's only partially visible, making him easier to see.
 - You can kill multiple enemies at once when they're on top of each other (makes dealing with Nyurus much less annoying).
 - Fixed a bug where the orb you get at the end of a level wasn't animated correctly.
 - Fixed a bug where Nipata would get stuck if it spawned in a narrow gap.

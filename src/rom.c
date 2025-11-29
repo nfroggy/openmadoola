@@ -329,7 +329,7 @@ MapData *Rom_GetMapDataArcade(void) {
     };
     memcpy(data->rooms[14].palette, room14Pal, sizeof(room14Pal));
     // don't spawn enemies around ending door (necessary due to changed spawning
-    // behavior after darutos is killed)
+    // behavior after daltos is killed)
     data->rooms[14].spawns[2].count = 0;
     data->rooms[14].spawns[4].count = 0;
     return data;

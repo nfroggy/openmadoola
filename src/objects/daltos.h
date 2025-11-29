@@ -1,5 +1,5 @@
-/* darutos.h: Darutos object code
- * Copyright (c) 2023, 2024 Nathan Misner
+/* daltos.h: Daltos object code
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -20,7 +20,7 @@
 #pragma once
 #include "object.h"
 
-extern Uint8 darutosKilled;
+extern Uint8 daltosKilled;
 
-void Darutos_InitObj(Object *o);
-void Darutos_Obj(Object *o);
+void Daltos_InitObj(Object *o);
+void Daltos_Obj(Object *o);

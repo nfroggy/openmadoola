@@ -17,7 +17,7 @@
  * along with OpenMadoola. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "darutos.h"
+#include "daltos.h"
 #include "game.h"
 #include "camera.h"
 #include "lucia.h"
@@ -73,8 +73,8 @@ void Enemy_Spawn(void) {
         // the wing of madoola
         if (hasWing && (currRoom == 14)) {
             if (gameType != GAME_TYPE_ARCADE) { return; }
-            // arcade mode starts spawning enemies again after darutos is killed
-            else if (!darutosKilled) { return; }
+            // arcade mode starts spawning enemies again after daltos is killed
+            else if (!daltosKilled) { return; }
         }
 
         Object temp = { 0 };
