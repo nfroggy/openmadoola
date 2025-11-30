@@ -1,5 +1,5 @@
 /* bospido.c: Bospido object code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -26,10 +26,10 @@
 #include "sprite.h"
 
 static Sint8 bospidoOffsets[] = {
-    0xf0, 0x00,
-    0x00, 0xf0,
-    0x10, 0x00,
-    0x0c, 0x10,
+    -0x10,  0x00,
+     0x00, -0x10,
+     0x10,  0x00,
+     0x0c,  0x10,
 };
 
 static Uint16 bospido1[] = {

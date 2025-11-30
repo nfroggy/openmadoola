@@ -1,5 +1,5 @@
 /* peraskull.c: Peraskull object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -52,14 +52,14 @@ void Peraskull_Obj(Object *o) {
                 Object_CheckForWall(o);
                 Object_ApplyGravity(o);
                 if (Object_UpdateYPos(o)) {
-                    o->ySpeed = 0xf0;
+                    o->ySpeed = -0x10;
                 }
                 else {
                     o->timer--;
                     if (o->timer & 0x3f) {
                         goto doneSetPos;
                     }
-                    o->ySpeed = 0xf0;
+                    o->ySpeed = -0x10;
                 }
                 o->timer = 0;
             }

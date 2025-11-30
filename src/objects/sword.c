@@ -1,5 +1,5 @@
 /* sword.c: Sword object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -26,11 +26,11 @@
 #include "weapon.h"
 
 static Sint8 swordXOffsets[] = {
-    0xFD, 0x10, 0x03, 0xF0,
+    -0x03, 0x10, 0x03, -0x10,
 };
 
 static Sint8 swordYOffsets[] = {
-    0xF0, 0x06, 0xF0, 0x06,
+    -0x10, 0x06, -0x10, 0x06,
 };
 
 static Sint8 swordMirrors[] = {

@@ -1,5 +1,5 @@
 /* suneisa.c: Suneisa object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -24,10 +24,10 @@
 #include "suneisa.h"
 
 static Sint8 offsets[] = {
-//  x     y
-    0x00, 0xf0,
-    0x10, 0x10,
-    0xf0, 0xf0,
+//   x     y
+     0x00, -0x10,
+     0x10,  0x10,
+    -0x10, -0x10,
 };
 
 static Uint16 frame1[] = {

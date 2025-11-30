@@ -1,5 +1,5 @@
 /* fire.c: Fire object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -33,7 +33,7 @@ void Fire_InitObj(Object *o) {
 }
 
 static Sint8 fireOffsetTbl[] = {
-    0x00, 0xfd, 0xfb, 0xfd, 0x00, 0x03, 0x05, 0x03,
+    0, -3, -5, -3, 0, 3, 5, 3,
 };
 
 void Fire_Obj(Object *o) {
@@ -49,7 +49,7 @@ void Fire_Obj(Object *o) {
                     o->xSpeed = -o->xSpeed;
                 }
                 else {
-                    o->ySpeed = 0x80;
+                    o->ySpeed = -0x80;
                 }
             }
             else {

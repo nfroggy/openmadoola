@@ -1,5 +1,5 @@
 /* spajyan.c: Spajyan object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -30,7 +30,7 @@ void Spajyan_InitObj(Object *o) {
     o->type += 0x20;
     o->timer = 0;
     o->xSpeed = (o->direction == DIR_RIGHT) ? 0x8 : -0x8;
-    o->ySpeed = 0x80;
+    o->ySpeed = -0x80;
 }
 
 void Spajyan_Obj(Object *o) {
@@ -56,7 +56,7 @@ void Spajyan_Obj(Object *o) {
                 if (Object_TouchingGround(o)) {
                     o->y.f.l &= 0x80;
                     o->timer += 0x80;
-                    o->ySpeed = 0x80;
+                    o->ySpeed = -0x80;
                 }
                 else {
                     o->ySpeed = 0;

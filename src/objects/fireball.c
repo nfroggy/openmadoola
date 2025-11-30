@@ -1,5 +1,5 @@
 /* fireball.c: Fireball object code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -58,7 +58,7 @@ void Fireball_Spawn(Uint8 mask, Object *parent) {
             o->y = parent->y;
             o->timer = 120;
             o->stunnedTimer = 0;
-            o->ySpeed = 0x80;
+            o->ySpeed = -0x80;
             o->xSpeed = RNG_Get() & 0x3f;
             o->type = OBJ_FIREBALL;
             Object_FaceLucia(o);

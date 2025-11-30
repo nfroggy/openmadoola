@@ -54,7 +54,7 @@ void Nomaji_Obj(Object *o) {
             if (luciaXPos.f.h < o->x.f.h) {
                 o->xSpeed = -o->xSpeed;
             }
-            o->ySpeed = 0x80;
+            o->ySpeed = -0x80;
         }
 
         spr.tile = 0xa2;

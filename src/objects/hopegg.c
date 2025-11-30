@@ -1,5 +1,5 @@
 /* hopegg.c: Hopegg object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -49,7 +49,7 @@ void Hopegg_Obj(Object *o) {
         // bounce twice
         if ((o->timer == 0xA0) || (o->timer == 0xD0)) {
             o->timer++;
-            o->ySpeed = 0x80;
+            o->ySpeed = -0x80;
         }
 
         Object_ApplyGravity(o);

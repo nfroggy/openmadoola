@@ -1,5 +1,5 @@
 /* nipata.c: Nipata object code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -71,7 +71,7 @@ void Nipata_Obj(Object *o) {
         Object_ApplyGravity(o);
         // bounce off the floor
         if (Object_UpdateYPos(o)) {
-            o->ySpeed = 0xf0;
+            o->ySpeed = -0x10;
         }
         else {
             if ((o->timer & 0x30) != 0x30) {
@@ -79,7 +79,7 @@ void Nipata_Obj(Object *o) {
             }
             o->timer--;
             if (!(o->timer & 0xf)) {
-                o->ySpeed = 0xf8;
+                o->ySpeed = -0x08;
                 do {
                     o->timer &= 0x3f;
                     o->timer += 0x10;

@@ -42,7 +42,7 @@ void YokkoChan_InitObj(Object *o) {
     o->type += 0x20;
     o->timer = 2;
     o->xSpeed = (o->direction == DIR_RIGHT) ? 0xc : -0xc;
-    o->ySpeed = 0xb0;
+    o->ySpeed = -0x50;
 }
 
 void YokkoChan_Obj(Object *o) {
@@ -65,7 +65,7 @@ void YokkoChan_Obj(Object *o) {
                 if (Object_TouchingGround(o)) {
                     o->y.f.l &= 0x80;
                     o->timer += 2;
-                    o->ySpeed = 0xb0;
+                    o->ySpeed = -0x50;
                 }
                 else {
                     o->ySpeed = 0;

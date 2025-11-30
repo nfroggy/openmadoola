@@ -1,5 +1,5 @@
 /* dopipu.c: Dopipu object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -46,7 +46,7 @@ void Dopipu_Obj(Object *o) {
                 }
             }
 
-            o->ySpeed = 0x80;
+            o->ySpeed = -0x80;
             o->timer++;
         }
 

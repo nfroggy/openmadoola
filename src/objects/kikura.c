@@ -1,5 +1,5 @@
 /* kikura.c: Kikura object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -43,7 +43,7 @@ void Kikura_Obj(Object *o) {
         // every 32 frames, switch between moving up and down/over
         if ((o->timer & 0x20) == 0) {
             // move up, don't update x pos
-            o->ySpeed = 0xE8;
+            o->ySpeed = -0x18;
             spr.tile = 0xCE;
         }
         else {

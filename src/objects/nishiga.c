@@ -1,5 +1,5 @@
 /* nishiga.c: Nishiga object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -39,7 +39,7 @@ void Nishiga_Obj(Object *o) {
     else {
         // move down
         if (!(o->timer & 0x20)) {
-            o->ySpeed = 0xF0;
+            o->ySpeed = -0x10;
         }
         // move up
         else if (!(o->timer & 0x40)) {

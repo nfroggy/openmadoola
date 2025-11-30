@@ -1,5 +1,5 @@
 /* daltos.c: Daltos object code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -28,10 +28,10 @@
 #include "object.h"
 
 static Sint8 daltosOffsets1[] = {
-    0xf0, 0x00,
-    0x00, 0xf0,
-    0x10, 0x00,
-    0x0c, 0x00,
+    -0x10,  0x00,
+     0x00, -0x10,
+     0x10,  0x00,
+     0x0c,  0x00,
 };
 
 // standing
@@ -73,7 +73,7 @@ void Daltos_InitObj(Object *o) {
     o->type += 0x20;
     o->timer = 0x2f;
     o->direction = DIR_LEFT;
-    o->xSpeed = 0xe0;
+    o->xSpeed = -0x20;
     o->ySpeed = 0x38;
 }
 

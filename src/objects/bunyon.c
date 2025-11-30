@@ -1,5 +1,5 @@
 /* bunyon.c: Bunyon object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -31,10 +31,10 @@ static Uint16 bunyonTiles[] = {
 };
 
 static Sint8 bunyonOffsets[] = {
-    0xf0, 0x00,
-    0x00, 0xf0,
-    0x10, 0x00,
-    0xf8, 0x10,
+    -0x10,  0x00,
+     0x00, -0x10,
+     0x10,  0x00,
+    -0x08,  0x10,
 };
 
 static void Bunyon_HandleMovement(Object *o);
@@ -191,14 +191,14 @@ typedef struct {
 } BUNYON_SPLIT_T;
 
 BUNYON_SPLIT_T bunyonSplits[] = {
-    {0xff00, 0xff00, DIR_LEFT,  0xe8},
-    {0xff00, 0x0000, DIR_LEFT,  0xe8},
-    {0x0000, 0xff00, DIR_RIGHT, 0x18},
-    {0x0000, 0x0000, DIR_RIGHT, 0x18},
-    {0xffbf, 0xffbf, DIR_LEFT,  0xe4},
-    {0xffbf, 0x0000, DIR_LEFT,  0xe4},
-    {0x0000, 0xffbf, DIR_RIGHT, 0x1c},
-    {0x0000, 0x0000, DIR_RIGHT, 0x1c},
+    {-0x100, -0x100,  DIR_LEFT,  -0x18},
+    {-0x100,   0x00,  DIR_LEFT,  -0x18},
+    {  0x00, -0x100, DIR_RIGHT,   0x18},
+    {  0x00,   0x00, DIR_RIGHT,   0x18},
+    { -0x41,  -0x41,  DIR_LEFT,  -0x1c},
+    { -0x41,   0x00,  DIR_LEFT,  -0x1c},
+    {  0x00,  -0x41, DIR_RIGHT,   0x1c},
+    {  0x00,   0x00, DIR_RIGHT,   0x1c},
 };
 
 static void Bunyon_HandleSplit(Object *parent, int index, int count) {

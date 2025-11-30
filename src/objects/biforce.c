@@ -1,5 +1,5 @@
 /* biforce.c: Biforce object code
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2025 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -51,11 +51,11 @@ void Biforce_Obj(Object *o) {
 }
 
 static Sint8 biforceStandingOffsets[] = {
-    0x00, 0xf0,
-    0x00, 0xf0,
-    0x10, 0x00,
-    0x00, 0x10,
-    0xe4, 0xf0,
+     0x00, -0x10,
+     0x00, -0x10,
+     0x10,  0x00,
+     0x00,  0x10,
+    -0x1c, -0x10,
 };
 
 static Uint16 biforceStanding1[] = {
@@ -131,10 +131,10 @@ static void Biforce_StandingObj(Object *o) {
 }
 
 static Sint8 biforceCrawlingOffsets[] = {
-    0x00, 0xf0,
-    0x10, 0x00,
-    0x00, 0x10,
-    0xe4, 0x00,
+     0x00, -0x10,
+     0x10,  0x00,
+     0x00,  0x10,
+    -0x1c,  0x00,
 };
 
 static Uint16 biforceCrawling1[] = {
