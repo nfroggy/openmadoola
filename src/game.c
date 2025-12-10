@@ -122,6 +122,7 @@ void Game_LoadGame(void) {
 
 static void Game_InitNewGame(void) {
     health = 1000;
+    magic = 1000;
     maxHealth = 1000;
     maxMagic = 1000;
     highestReachedStage = 0;
