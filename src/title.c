@@ -211,7 +211,7 @@ static int Title_AnimateOut(void) {
     Uint8 scrollDir = 0;
     
     while (scroll < 254) {
-        scroll += 2;
+        scroll += (gameType == GAME_TYPE_ARCADE ? 4 : 2);
         scrollDir ^= 1;
         if (scrollDir) {
             BG_Scroll(BG_CENTERED_X + scroll, 0);
