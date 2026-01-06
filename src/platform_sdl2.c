@@ -274,6 +274,8 @@ void Platform_EndFrame(void) {
                 rgbFramebuffer[dstOffset++] = rgbPalette[framebuffer[srcOffset++]];
             }
             srcOffset += (TILE_WIDTH * 2);
+            dstOffset = 0;
+            rgbFramebuffer += (pitch / sizeof(Uint32));
         }
     }
     SDL_UnlockTexture(drawTexture);
