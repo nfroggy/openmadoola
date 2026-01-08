@@ -1,5 +1,5 @@
 /* platform_sdl2.c: SDL2 specific code
- * Copyright (c) 2023-2025 Nathan Misner
+ * Copyright (c) 2023-2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *

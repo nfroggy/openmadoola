@@ -1,5 +1,5 @@
 ﻿/* rom.c: Reads from the game ROM file
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *

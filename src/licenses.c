@@ -1,5 +1,5 @@
 /* licenses.c: Displays software license information
-* Copyright (c) 2025 Nathan Misner
+* Copyright (c) 2025-2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -63,7 +63,7 @@ static void displayLicense(const char *title, const char **pages, int numPages) 
 
 static void dispOpenMadoolaLicense(void) {
     const static char *openMadoolaLicense[] = {
-        "Copyright @ 2023-2025\n\n"
+        "Copyright @ 2023-2026\n\n"
         "Nathan Misner.\n\n\n\n"
         "OpenMadoola is free software:\n\n"
         "you can redistribute it and/or\n\n"
@@ -265,7 +265,7 @@ void dispNesSndEmuLicense(void) {
 #ifdef OM_PLATFORM_SDL2
 void dispSDL2License(void) {
     const static char *sdl2License[] = {
-        "Copyright @ 1997-2025 Sam\n\n"
+        "Copyright @ 1997-2026 Sam\n\n"
         "Lantinga\n\n\n\n"
         "This software is provided\n\n"
         "'as-is', without any express\n\n"
@@ -307,7 +307,7 @@ void dispSDL2License(void) {
 #ifdef OM_PLATFORM_SDL3
 void dispSDL3License(void) {
     const static char *sdl3License[] = {
-        "Copyright @ 1997-2025 Sam\n\n"
+        "Copyright @ 1997-2026 Sam\n\n"
         "Lantinga\n\n\n\n"
         "This software is provided\n\n"
         "'as-is', without any express\n\n"
