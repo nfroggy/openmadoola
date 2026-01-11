@@ -30,7 +30,7 @@ typedef uint32_t Uint32;
 typedef int64_t  Sint64;
 typedef uint64_t Uint64;
 
-#define OPENMADOOLA_VERSION "1.25"
+#define OPENMADOOLA_VERSION "1.26"
 
 #define SCREEN_WIDTH (256) // original NES aspect ratio
 //#define SCREEN_WIDTH (368) // approx. 16:9 aspect ratio
