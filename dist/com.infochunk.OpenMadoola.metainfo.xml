@@ -73,6 +73,17 @@
     <url type="bugtracker">https://github.com/nfroggy/openmadoola/issues</url>
 
     <releases>
+        <release version="1.26" date="2026-01-11">
+            <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.26</url>
+            <description>
+                <ul>
+                    <li>Fixed arcade mode magic initialization when starting a new game after loading a save file</li>
+                    <li>Fixed arcade mode room 11 palette</li>
+                    <li>Fixed arcade mode title animation speed</li>
+                    <li>Use pitch when writing to framebuffer (may fix graphics on some systems)</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.24" date="2025-11-10">
             <url type="details">https://github.com/nfroggy/openmadoola/releases/tag/v1.24</url>
             <description>
