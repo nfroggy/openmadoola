@@ -74,6 +74,11 @@ void Simple_Apu::volume(int level) {
 	apu.volume( static_cast<double>(level) / 100.0 );
 }
 
+void Simple_Apu::equalizer(double treble_db, int bass_freq) {
+	apu.treble_eq(blip_eq_t(treble_db));
+	buf.bass_freq(bass_freq);
+}
+
 void Simple_Apu::clear_buf() {
 	buf.clear();
 }

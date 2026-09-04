@@ -42,6 +42,9 @@ public:
 	// set APU volume
 	void volume(int level);
 
+	// set APU output eq
+	void equalizer(double treble_db, int bass_freq);
+
 	// clear blip buffer
 	void clear_buf();
 	

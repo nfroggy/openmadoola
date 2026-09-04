@@ -1,5 +1,5 @@
 /* sound.cpp: Sound engine and output code
- * Copyright (c) 2023, 2024, 2025 Nathan Misner
+ * Copyright (c) 2023-2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -39,8 +39,10 @@ extern "C" {
 // audio settings
 #define SOUND_FREQ 44100
 #define SAMPLES_PER_FRAME (SOUND_FREQ / 60)
+#define TREBLE_DB (-15.0)
+#define BASS_FREQ 80
 
-static Simple_Apu apus[2];
+static std::array<Simple_Apu, 2> apus;
 
 static constexpr std::array<const char *, NUM_SOUNDS> initSoundFilenames(void) {
     std::array<const char *, NUM_SOUNDS> arr = {};
@@ -158,16 +160,17 @@ static Uint8 *Sound_LoadData(Uint8 *romData, Sound *out) {
 }
 
 void Sound_Init(void) {
-    apus[0].sample_rate(SOUND_FREQ);
-    apus[1].sample_rate(SOUND_FREQ);
-
     DBEntry *entry = DB_Find("volume");
     if (entry) {
         volume = (int)entry->data[0];
     }
 
-    apus[0].volume(volume);
-    apus[1].volume(volume);
+    for (auto &apu : apus) {
+        apu.sample_rate(SOUND_FREQ);
+        apu.volume(volume);
+        apu.equalizer(TREBLE_DB, BASS_FREQ);
+    }
+
     muted = 0;
 }
 
@@ -278,10 +281,6 @@ void Sound_Reset(void) {
     apuStatusCopy[1] = 0;
     apus[0].write_register(0x4015, apuStatusCopy[0]);
     apus[1].write_register(0x4015, apuStatusCopy[1]);
-    /*
-    blip_bufs[0].clear();
-    blip_bufs[1].clear();
-    */
 }
 
 void Sound_Play(int num) {
