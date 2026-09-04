@@ -27,7 +27,7 @@ jobs:
             - name: "Copy SDL2"
               run: Copy-Item -Path ".\SDL2-2.32.10\*" -Destination ".\libs\SDL2" -Recurse
             - name: "cmake configure"
-              run: cmake -S . -B build -G "Visual Studio 17 2022" -DACTIVE_PLATFORM=SDL2 -DFAIL_ON_WARNING=ON
+              run: cmake -S . -B build -G "Visual Studio 18 2026" -DACTIVE_PLATFORM=SDL2 -DFAIL_ON_WARNING=ON
             - name: "cmake build"
               run: cmake --build build --config Release
 
@@ -36,13 +36,13 @@ jobs:
         steps:
             - uses: actions/checkout@v5
             - name: "Download SDL3"
-              run: Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.2.24/SDL3-devel-3.2.24-VC.zip" -OutFile ".\sdl3.zip"
+              run: Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-devel-3.4.16-VC.zip" -OutFile ".\sdl3.zip"
             - name: "Extract SDL3"
               run: Expand-Archive -Path ".\sdl3.zip" -DestinationPath "." -Force
             - name: "Copy SDL3"
-              run: Copy-Item -Path ".\SDL3-3.2.24\*" -Destination ".\libs\SDL3" -Recurse
+              run: Copy-Item -Path ".\SDL3-3.4.16\*" -Destination ".\libs\SDL3" -Recurse
             - name: "cmake configure"
-              run: cmake -S . -B build -G "Visual Studio 17 2022" -DACTIVE_PLATFORM=SDL3 -DFAIL_ON_WARNING=ON
+              run: cmake -S . -B build -G "Visual Studio 18 2026" -DACTIVE_PLATFORM=SDL3 -DFAIL_ON_WARNING=ON
             - name: "cmake build"
               run: cmake --build build --config Release
 
