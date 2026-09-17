@@ -1,5 +1,5 @@
 /* enemy.c: Enemy spawning code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -68,7 +68,7 @@ void Enemy_Spawn(void) {
 
     // SCROLL_MODE_LOCKED happens when we're transitioning to a different
     // room, Lucia dies, or we're in an item room
-    if ((scrollMode != SCROLL_MODE_LOCKED) && (rand < 0x20)) {
+    if ((mapData.maps[currRoom].scrollMode != SCROLL_MODE_LOCKED) && (rand < 0x20)) {
         // don't spawn enemies if lucia is in the last stage and has collected
         // the wing of madoola
         if (hasWing && (currRoom == 14)) {
@@ -80,44 +80,36 @@ void Enemy_Spawn(void) {
         Object temp = { 0 };
         if (!Enemy_InitLocation(&temp)) { return; }
         SpawnInfo info = { 0 };
-
+        SpawnMode spawnMode = mapData.maps[currRoom].spawnMode;
+        int spawnCount = 0;
+        Uint16 spawnId = 0;
         Map_GetSpawnInfo(&temp, &info);
-        // return if the map data isn't valid
-        if ((info.count == 0) || (info.count >= 10)) {
-            return;
-        }
-        // return if we're spawning a boss and the boss has already been killed
-        if ((info.type == SPAWN_TYPE_BOSS) && !bossActive) {
-            return;
-        }
 
-        // limit spawning objects for boss areas
-        if (bossActive) {
-            info.enemy = mapData->stages[stage].bossObj;
-            info.count = MIN(numBossObjs, mapData->stages[stage].bossSpawnCount);
+        if (spawnMode == SPAWN_MODE_ENEMY) {
+            // return if the map data isn't valid
+            if ((info.enemy.count == 0) || (info.enemy.count >= 10)) {
+                return;
+            }
+            spawnCount = info.enemy.count;
+            spawnId = info.enemy.id;
+        }
+        else if (spawnMode == SPAWN_MODE_BOSS) {
+            // return if we're spawning a boss and the boss has already been killed
+            if (!bossActive || !info.boss) {
+                return;
+            }
+            spawnCount = MIN(numBossObjs, mapData.stages[stage].bossSpawnCount);
+            spawnId = mapData.stages[stage].bossObj;
         }
 
         // get the object slot
-        Object *o = Object_FindNext(ENEMY_SLOT, ENEMY_SLOT + info.count);
+        Object *o = Object_FindNext(ENEMY_SLOT, ENEMY_SLOT + spawnCount);
         // if no available slot, return
         if (!o) {
             return;
         }
         *o = temp;
-
-        // normal randomly spawning enemy
-        if (info.type == SPAWN_TYPE_ENEMY) {
-            o->type = info.enemy;
-        }
-
-        // boss
-        else if (info.type == SPAWN_TYPE_BOSS) {
-            if (!bossActive) {
-                return;
-            }
-            o->type = info.enemy;
-        }
-
+        o->type = spawnId;
         Object_FaceLucia(o);
         o->timer = 0;
     }

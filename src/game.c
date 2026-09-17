@@ -139,15 +139,7 @@ static void Game_InitNewGame(void) {
 }
 
 static void Game_InitCommon(void) {
-    if (mapData) {
-        Map_FreeData(mapData);
-    }
-    if (gameType == GAME_TYPE_ARCADE) {
-        mapData = Rom_GetMapDataArcade();
-    }
-    else {
-        mapData = Rom_GetMapData();
-    }
+    Map_LoadData("madoola.lvl");
     score = 0;
     lives = 3;
     paused = 0;
@@ -179,6 +171,7 @@ static void Game_InitRoomVars(Object *lucia) {
     Map_GetSpawnInfo(lucia, &info);
 
     // if we're in an item room and the item hasn't been collected, spawn it
+    /*
     if ((info.type == SPAWN_TYPE_ITEM) && (!Item_Collected(lucia))) {
         objects[9].type = OBJ_ITEM;
         objects[9].hp = info.enemy - ITEM_FLAG;
@@ -188,24 +181,26 @@ static void Game_InitRoomVars(Object *lucia) {
         objects[9].y.f.l = 0x80;
         objects[9].ySpeed = 0;
     }
-    
+
     // if we're in the boss room and the boss hasn't been defeated, set up the
     // number of boss objects
-    else if (currRoom == 6) {
+    else */ if (currRoom == 6) {
         if (!bossDefeated[stage]) {
             bossActive = 1;
-            numBossObjs = mapData->stages[stage].bossObjCount;
+            numBossObjs = mapData.stages[stage].bossObjCount;
         }
     }
 
     // Arcade mode only allows using a fountain once per life per stage.
     // Otherwise, Lucia can stay in a stage indefinitely and rack up a really
     // high score which breaks the scoring system.
+    /*
     else if ((info.type == SPAWN_TYPE_FOUNTAIN) &&
              ((gameType != GAME_TYPE_ARCADE) || !fountainUsed))
     {
         Game_SpawnFountain(&info);
     }
+    */
 
     // spawn the wing of madoola if lucia hasn't collected it yet
     if (stage == 15) {
@@ -225,6 +220,7 @@ static void Game_InitRoomVars(Object *lucia) {
     Object_InitCollision(lucia);
 }
 
+/*
 static Sint8 fountainXTbl[] = {0x39, 0x29, 0x59, 0x79, 0x29, 0x59, 0x79};
 static Sint8 fountainYTbl[] = {0x0A, 0x1A, 0x1A, 0x1A, 0x26, 0x26, 0x26};
 static Uint8 fountainPalette[] = {0x26, 0x03, 0x31, 0x21};
@@ -235,6 +231,7 @@ static void Game_SpawnFountain(SpawnInfo *info) {
     objects[9].type = OBJ_FOUNTAIN;
     Sprite_SetPalette(2, fountainPalette);
 }
+*/
 
 static void Game_Run(void) {
     while (1) {
@@ -368,9 +365,9 @@ static int Game_RunStage(void) {
     // set up lucia's position and the room number
     Object *lucia = &objects[0];
     memset(lucia, 0, sizeof(Object));
-    lucia->x = mapData->stages[stage].xPos;
-    lucia->y = mapData->stages[stage].yPos;
-    Game_SetRoom(mapData->stages[stage].roomNum);
+    lucia->x = mapData.stages[stage].xPos;
+    lucia->y = mapData.stages[stage].yPos;
+    Game_SetRoom(mapData.stages[stage].roomNum);
     healthTimer = 0;
     fountainUsed = 0;
     hasWing = 0;
@@ -459,7 +456,7 @@ initRoom:
 
 void Game_PlayRoomSong(void) {
     Sound_Reset();
-    Uint8 song = mapData->rooms[currRoom].song;
+    Uint8 song = mapData.maps[currRoom].song;
     // are we in stage 16's room?
     if (currRoom == 14) {
         // don't play any music if daltos has been killed
@@ -586,10 +583,8 @@ static void Game_HandlePause(void) {
 }
 
 static void Game_SetRoom(Uint8 roomNum) {
-    if (roomNum == 15) { scrollMode = SCROLL_MODE_LOCKED; }
-    else if ((roomNum == 6) || (roomNum == 7)) { scrollMode = SCROLL_MODE_X; }
-    else { scrollMode = SCROLL_MODE_FREE; }
     Map_Init(roomNum);
+    scrollMode = mapData.maps[currRoom].scrollMode;
 }
 
 static void Game_HandlePaletteShifting(void) {
@@ -639,6 +634,7 @@ static Uint16 *Game_GetDoorMetatiles(void) {
 }
 
 static void Game_SetMetatileTiles(Uint16 num, Uint16 tl, Uint16 tr, Uint16 bl, Uint16 br) {
+    /*
     Uint16 tileset = mapData->rooms[currRoom].tileset;
     Uint16 base = tilesetBases[tileset];
 
@@ -646,6 +642,7 @@ static void Game_SetMetatileTiles(Uint16 num, Uint16 tl, Uint16 tr, Uint16 bl, U
     mapData->tilesets[tileset].metatiles[num].tiles[1] = tr + base;
     mapData->tilesets[tileset].metatiles[num].tiles[2] = bl + base;
     mapData->tilesets[tileset].metatiles[num].tiles[3] = br + base;
+    */
 }
 
 static void Game_LeftDoorMidOpen(void) {

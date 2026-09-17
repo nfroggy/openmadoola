@@ -1,5 +1,5 @@
 /* map.h: handles accessing map data
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -18,31 +18,85 @@
  */
 
 #pragma once
+#include <stdbool.h>
 #include "graphics.h"
 #include "object.h"
 
+#define METATILE_SIZE 16
+#define SCREEN_WIDTH_METATILES 16
+#define SCREEN_HEIGHT_METATILES 16
+
+// current room number
+extern Uint8 currRoom;
+extern Uint8 roomWidthMetatiles;
+extern Uint8 roomHeightMetatiles;
+
+// anything below this is solid ground
+#define MAP_SOLID (0x1f)
+// anything below this is either solid ground or a ladder
+#define MAP_LADDER (0x24)
+extern Uint16 *mapMetatiles;
+
+typedef enum {
+    METATILE_TYPE_SCENERY = 0,
+    METATILE_TYPE_SOLID = 1,
+    METATILE_TYPE_LADDER = 2,
+    METATILE_TYPE_WARP_DOOR = 3,
+    METATILE_TYPE_STAGE_EXIT = 4,
+} MetatileType;
+
 typedef struct {
-    Uint16 palnum;
+    MetatileType type;
+    Uint8 palnum;
     Uint16 tiles[4];
 } Metatile;
 
 typedef struct {
-    Uint16 len;
-    Metatile *metatiles; // metatiles are 2x2 arrays of tiles
+    Uint16 numMetatiles;
+    Metatile *metatiles; // metatiles are 2x2 arrays of tile ids (16x16px)
+    Uint16 numChunks;
+    Uint16 (*chunks)[16]; // chunks are 4x4 arrays of metatile ids (64x64px)
+    Uint16 numScreens;
+    Uint16 (*screens)[16]; // screens are 4x4 array of chunk ids (256x256px)
 } Tileset;
 
-typedef enum {
-    SPAWN_TYPE_ENEMY = 0,
-    SPAWN_TYPE_ITEM,
-    SPAWN_TYPE_FOUNTAIN,
-    SPAWN_TYPE_BOSS,
-} SPAWN_TYPE;
+typedef struct {
+    Uint16 duration;
+    Uint8 *colors;
+} PaletteAnimFrame;
 
 typedef struct {
-    Uint8 type;
-    Uint8 enemy;
-    Uint8 count;
+    Uint8 startEntry;
+    Uint8 numEntries;
+    Uint16 numFrames;
+    PaletteAnimFrame *frames;
+} PaletteAnim;
+
+typedef enum {
+    SCROLL_MODE_FREE,
+    SCROLL_MODE_X,
+    SCROLL_MODE_LOCKED,
+} ScrollMode;
+
+typedef enum {
+    SPAWN_MODE_ENEMY = 0,
+    SPAWN_MODE_BOSS = 1,
+} SpawnMode;
+
+typedef union {
+    struct {
+        Uint16 id;
+        Uint8 count;
+    } enemy;
+    bool boss;
 } SpawnInfo;
+
+typedef struct {
+    Uint16 id;
+    Fixed16 xPos;
+    Fixed16 yPos;
+    Uint16 param;
+} ObjectSpawn;
 
 typedef struct {
     // which tileset to use
@@ -51,12 +105,17 @@ typedef struct {
     Uint8 song;
     // palette data to use
     Uint8 palette[16];
+    Uint8 numPaletteAnims;
+    PaletteAnim *paletteAnims;
     Uint8 width; // in screens (256px)
     Uint8 height;
+    ScrollMode scrollMode;
     Uint16 *screenNums;
-    // which enemy (object number) should go to each screen
-    SpawnInfo spawns[64];
-} Room;
+    SpawnMode spawnMode;
+    SpawnInfo *spawns;
+    Uint16 numObjects;
+    ObjectSpawn *objects;
+} Map;
 
 typedef struct {
     // Lucia spawn x
@@ -79,46 +138,24 @@ typedef struct {
     // chunk aligned y position (divided by 16)
     Uint8 yPos;
     // room number
-    Uint8 roomNum;
+    Uint16 mapNum;
 } WarpDoor;
 
 typedef struct {
     Uint16 numTilesets;
     Tileset *tilesets;
-    Uint16 numChunks;
-    Uint16 (*chunks)[16]; // chunks are 4x4 arrays of metatiles (64x64px)
-    Uint16 numScreens;
-    Uint16 (*screens)[16]; // screens are 4x4 arrays of chunks (256x256px)
-    Uint16 numRooms;
-    Room *rooms;
-    StageInfo stages[16];
+    Uint16 numMaps;
+    Map *maps;
     Uint16 numWarpDoors;
     WarpDoor *warpDoors;
+    Uint16 numStages;
+    StageInfo *stages;
 } MapData;
 
 // map data
-extern MapData *mapData;
+extern MapData mapData;
 
-#define METATILE_SIZE 16
-#define SCREEN_WIDTH_METATILES 16
-#define SCREEN_HEIGHT_METATILES 16
-
-// current room number
-extern Uint8 currRoom;
-extern Uint8 roomWidthMetatiles;
-extern Uint8 roomHeightMetatiles;
-
-// anything below this is solid ground
-#define MAP_SOLID (0x1f)
-// anything below this is either solid ground or a ladder
-#define MAP_LADDER (0x24)
-extern Uint16 *mapMetatiles;
-
-/**
- * @brief Frees a heap-allocated MapData struct
- * @param data struct to free
- */
-void Map_FreeData(MapData *data);
+void Map_LoadData(const char *filename);
 
 /**
  * @brief Loads a room from the map data

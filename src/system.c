@@ -22,6 +22,7 @@
 #include "game.h"
 #include "highscore.h"
 #include "joy.h"
+#include "map.h"
 #include "palette.h"
 #include "platform.h"
 #include "rng.h"
@@ -48,6 +49,7 @@ int System_Init(void) {
     HighScore_Init();
     Joy_Init();
     RNG_Seed();
+    Map_LoadData("madoola.lvl");
     return 1;
 }
 

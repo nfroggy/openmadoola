@@ -1,0 +1,92 @@
+OpenMadoola .lvl file format, version 0
+All multi-byte ints are big-endian
+12.4 fixed means "signed big-endian 12.4 fixed point value, measured in pixels"
+All arrays are row-major order (x increases, then y increases)
+
+=== header ===
+5 bytes: ASCII "Lucia"
+1 byte: file version (currently 0)
+
+=== tileset data ===
+2 bytes: number of tilesets
+each tileset: {
+    2 bytes: number of metatiles
+    n bytes: metatile data
+    each metatile: {
+        1 byte: type (0 = no collision, 1 = solid, 2 = ladder, 3 = warp door, 4 = stage exit)
+        1 byte: palette number (0-3)
+        4 2-byte tile ids (2x2 array). zero-based indices into openmadoola's chr data.
+    }
+
+    2 bytes: number of chunks
+    n bytes: chunk data
+    each chunk: {
+        16 2-byte metatile ids (4x4 array). uses the tileset selected by the current map.
+    }
+
+    2 bytes: number of screens
+    n bytes: screen data
+    each screen: {
+        16 2-byte chunk ids (4x4 array)
+    }
+}
+
+=== map table ===
+2 bytes: number of maps
+each map: {
+    2 bytes: tileset id
+    1 byte: music id
+    16 bytes: tileset color palette (NES color indices 00-3f). 4 consecutive 4-color palettes.
+    1 byte: number of palette animations (0 = none)
+    each animation: {
+        1 byte: first palette entry (0-15)
+        1 byte: number of entries affected (1-16)
+        2 bytes: number of frames (must be nonzero)
+        each frame: {
+            2 bytes: duration in game ticks (must be nonzero)
+            n bytes: NES color indices (# bytes = entries affected)
+        }
+    }
+    1 byte: width in screens (1-8)
+    1 byte: height in screens (1-8)
+    1 byte: scroll mode (0 = normal, 1 = x only, 2 = locked)
+    n bytes: 2-byte screen ids (# ids = w * h)
+    1 byte: enemy spawn mode (0 = normal, 1 = boss)
+    n bytes: enemy spawn data (# entries = w * h)
+    spawn data if enemy span mode is 0: {
+        2 bytes: object id
+        1 byte: count
+    }
+    spawn data if enemy spawn mode is 1: {
+        1 byte: spawning allowed (0 = not allowed, 1 = allowed)
+    }
+    2 bytes: number of object spawn entries
+    n bytes: object spawn data. Objects are spawned unconditionally when the map is loaded.
+    each object spawn entry: {
+        2 bytes: object id
+        2 bytes: x pos (12.4 fixed)
+        2 bytes: y pos (12.4 fixed)
+        2 bytes: object-specific parameter value
+    }
+}
+
+=== door table ===
+2 bytes: number of doors (must be even)
+n bytes: door data
+each door {
+    1 byte: x position in 16-pixel metatile units
+    1 byte: y position in 16-pixel metatile units
+    2 bytes: map number
+}
+Door 0 is the ending door, and door 1 is a dummy door. After that, each source/destination door goes next to each other such that door n leads to door n ^ 1.
+
+=== stage table ===
+2 bytes: number of stages
+each stage: {
+    2 bytes: Lucia spawn x (12.4 fixed)
+    2 bytes: Lucia spawn y (12.4 fixed)
+    2 bytes: Map number
+    2 bytes: boss object id
+    1 byte: # boss objects active at once
+    1 byte: # boss objects to kill
+}

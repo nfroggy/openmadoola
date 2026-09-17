@@ -1,7 +1,6 @@
 .DS_Store
 *.nes
 *.assets
-*.lvl
 *.db
 *.sav
 imgui.ini

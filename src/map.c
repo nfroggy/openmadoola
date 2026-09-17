@@ -1,5 +1,5 @@
   /* map.c: handles accessing map data
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023, 2024, 2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -21,41 +21,167 @@
 #include <string.h>
 
 #include "alloc.h"
+#include "buffer.h"
 #include "constants.h"
+#include "file.h"
 #include "graphics.h"
 #include "map.h"
 #include "object.h"
 #include "palette.h"
+#include "util.h"
 
-MapData *mapData;
+MapData mapData;
 Uint16 *mapMetatiles;
 Uint8 currRoom = 0xff;
 Uint8 roomWidthMetatiles, roomHeightMetatiles;
 static Uint16 scrollX;
 static Uint16 scrollY;
 
-void Map_FreeData(MapData *data) {
-    for (int i = 0; i < data->numTilesets; i++) {
-        free(data->tilesets[i].metatiles);
+void Map_LoadData(const char *filename) {
+    FILE *fp = File_OpenResource(filename, "rb");
+    if (!fp) {
+        printf("couldn't open file\n");
+        return;
     }
-    free(data->tilesets);
-    free(data->chunks);
-    free(data->screens);
-    free(data->warpDoors);
-    for (int i = 0; i < data->numRooms; i++) {
-        free(data->rooms[i].screenNums);
-    }
-    free(data->rooms);
-    free(data);
-}
+    Buffer *fileBuf = Buffer_InitFromFile(fp);
+    Uint8 *mapFile = fileBuf->data;
 
+    if (memcmp(mapFile, "Lucia", 5) != 0) {
+        printf("invalid map file\n");
+        return;
+    }
+
+    Uint8 version = mapFile[5];
+    if (version != 0) {
+        printf("unsupported map version %u\n", version);
+        return;
+    }
+    int cursor = 6;
+
+    // load tilesets
+    mapData.numTilesets = Util_LoadUint16(mapFile + cursor); cursor += 2;
+    mapData.tilesets = ommalloc(mapData.numTilesets * sizeof(Tileset));
+    for (Uint16 i = 0; i < mapData.numTilesets; i++) {
+        Tileset *ts = &mapData.tilesets[i];
+
+        // load metatile definitions
+        ts->numMetatiles = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        ts->metatiles = ommalloc(ts->numMetatiles * sizeof(Metatile));
+        for (Uint16 j = 0; j < ts->numMetatiles; j++) {
+            Metatile *mt = &ts->metatiles[j];
+            mt->type = (MetatileType)mapFile[cursor++];
+            mt->palnum = mapFile[cursor++];
+            for (int k = 0; k < ARRAY_LEN(mt->tiles); k++) {
+                mt->tiles[k] = Util_LoadUint16(mapFile + cursor); cursor += 2;
+            }
+        }
+
+        // load chunk definitions
+        ts->numChunks = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        ts->chunks = ommalloc(ts->numChunks * sizeof(ts->chunks[0]));
+        for (Uint16 j = 0; j < ts->numChunks; j++) {
+            for (int k = 0; k < ARRAY_LEN(ts->chunks[0]); k++) {
+                ts->chunks[j][k] = Util_LoadUint16(mapFile + cursor); cursor += 2;
+            }
+        }
+
+        // load screen definitions
+        ts->numScreens = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        ts->screens = ommalloc(ts->numScreens * sizeof(ts->screens[0]));
+        for (Uint16 j = 0; j < ts->numScreens; j++) {
+            for (int k = 0; k < ARRAY_LEN(ts->screens[0]); k++) {
+                ts->screens[j][k] = Util_LoadUint16(mapFile + cursor); cursor += 2;
+            }
+        }
+    }
+
+    // load maps
+    mapData.numMaps = Util_LoadUint16(mapFile + cursor); cursor += 2;
+    mapData.maps = ommalloc(mapData.numMaps * sizeof(Map));
+    for (Uint16 i = 0; i < mapData.numMaps; i++) {
+        Map *map = &mapData.maps[i];
+
+        map->tileset = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        map->song = mapFile[cursor++];
+        memcpy(map->palette, mapFile + cursor, 16); cursor += 16;
+
+        map->numPaletteAnims = mapFile[cursor++];
+        map->paletteAnims = ommalloc(map->numPaletteAnims * sizeof(PaletteAnim));
+        for (Uint16 j = 0; j < map->numPaletteAnims; j++) {
+            PaletteAnim *pa = &map->paletteAnims[j];
+            pa->startEntry = mapFile[cursor++];
+            pa->numEntries = mapFile[cursor++];
+            pa->numFrames = Util_LoadUint16(mapFile + cursor); cursor += 2;
+            pa->frames = ommalloc(pa->numFrames * sizeof(PaletteAnimFrame));
+            for (Uint16 k = 0; k < pa->numFrames; k++) {
+                pa->frames[k].duration = Util_LoadUint16(mapFile + cursor); cursor += 2;
+                pa->frames[k].colors = ommalloc(pa->numEntries);
+                memcpy(pa->frames[k].colors, mapFile + cursor, pa->numEntries); cursor += pa->numEntries;
+            }
+        }
+
+        map->width = mapFile[cursor++];
+        map->height = mapFile[cursor++];
+        map->scrollMode = mapFile[cursor++];
+        map->screenNums = ommalloc(map->width * map->height * sizeof(Uint16));
+        for (int j = 0; j < (map->width * map->height); j++) {
+            map->screenNums[j] = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        }
+
+        map->spawnMode = mapFile[cursor++];
+        map->spawns = ommalloc(map->width * map->height * sizeof(SpawnInfo));
+        for (int j = 0; j < (map->width * map->height); j++) {
+            if (map->spawnMode == SPAWN_MODE_ENEMY) {
+                map->spawns[j].enemy.id = Util_LoadUint16(mapFile + cursor); cursor += 2;
+                map->spawns[j].enemy.count = mapFile[cursor++];
+            }
+            else {
+                map->spawns[j].boss = mapFile[cursor++];
+            }
+        }
+
+        map->numObjects = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        map->objects = ommalloc(map->numObjects * sizeof(ObjectSpawn));
+        for (int j = 0; j < map->numObjects; j++) {
+            ObjectSpawn *os = &map->objects[j];
+            os->id = Util_LoadUint16(mapFile + cursor); cursor += 2;
+            os->xPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
+            os->yPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
+            os->param = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        }
+    }
+
+    // door table
+    mapData.numWarpDoors = Util_LoadUint16(mapFile + cursor); cursor += 2;
+    mapData.warpDoors = ommalloc(mapData.numWarpDoors * sizeof(WarpDoor));
+    for (int i = 0; i < mapData.numWarpDoors; i++) {
+        WarpDoor *wd = &mapData.warpDoors[i];
+        wd->xPos = mapFile[cursor++];
+        wd->yPos = mapFile[cursor++];
+        wd->mapNum = Util_LoadUint16(mapFile + cursor); cursor += 2;
+    }
+
+    // stage table
+    mapData.numStages = Util_LoadUint16(mapFile + cursor); cursor += 2;
+    mapData.stages = ommalloc(mapData.numStages * sizeof(StageInfo));
+    for (int i = 0; i < mapData.numStages; i++) {
+        StageInfo *si = &mapData.stages[i];
+        si->xPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
+        si->yPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
+        si->roomNum = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        si->bossObj = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        si->bossSpawnCount = mapFile[cursor++];
+        si->bossObjCount = mapFile[cursor++];
+    }
+}
 
 void Map_Init(Uint8 roomNum) {
     if (roomNum == currRoom) { return; }
 
     currRoom = roomNum;
-    Uint8 roomWidthScreens = mapData->rooms[currRoom].width;
-    Uint8 roomHeightScreens = mapData->rooms[currRoom].height;
+    Uint8 roomWidthScreens = mapData.maps[currRoom].width;
+    Uint8 roomHeightScreens = mapData.maps[currRoom].height;
+    Tileset *tileset = &mapData.tilesets[mapData.maps[currRoom].tileset];
     roomWidthMetatiles = roomWidthScreens * SCREEN_WIDTH_METATILES;
     roomHeightMetatiles = roomHeightScreens * SCREEN_HEIGHT_METATILES;
     if (mapMetatiles) { free(mapMetatiles); }
@@ -64,13 +190,13 @@ void Map_Init(Uint8 roomNum) {
     // decompress the room's metatiles
     for (int screenY = 0; screenY < roomHeightScreens; screenY++) {
         for (int screenX = 0; screenX < roomWidthScreens; screenX++) {
-            int screenNum = mapData->rooms[roomNum].screenNums[screenY * roomWidthScreens + screenX];
+            int screenNum = mapData.maps[roomNum].screenNums[screenY * roomWidthScreens + screenX];
             for (int chunkY = 0; chunkY < 4; chunkY++) {
                 for (int chunkX = 0; chunkX < 4; chunkX++) {
-                    int chunkNum = mapData->screens[screenNum][chunkY * 4 + chunkX];
+                    int chunkNum = tileset->screens[screenNum][chunkY * 4 + chunkX];
                     for (int metatileY = 0; metatileY < 4; metatileY++) {
                         for (int metatileX = 0; metatileX < 4; metatileX++) {
-                            Uint16 metatileNum = mapData->chunks[chunkNum][metatileY * 4 + metatileX];
+                            Uint16 metatileNum = tileset->chunks[chunkNum][metatileY * 4 + metatileX];
                             int xPos = (screenX * 16) + (chunkX * 4) + metatileX;
                             int yPos = (screenY * 16) + (chunkY * 4) + metatileY;
                             mapMetatiles[yPos * roomWidthMetatiles + xPos] = metatileNum;
@@ -86,16 +212,14 @@ void Map_Init(Uint8 roomNum) {
 }
 
 void Map_LoadPalettes(Uint8 roomNum) {
-    memcpy(colorPalette, mapData->rooms[roomNum].palette, sizeof(mapData->rooms[roomNum].palette));
+    memcpy(colorPalette, mapData.maps[roomNum].palette, sizeof(mapData.maps[roomNum].palette));
 }
 
 void Map_GetSpawnInfo(Object *o, SpawnInfo *info) {
-    // lower 3 bits of offset = x coords
-    Uint8 offset = (((Uint8)o->x.f.h) >> 4) & 7;
-    // upper 3 bits = y coords
-    offset |= (((Uint8)o->y.f.h) >> 1) & 0x38;
-
-    *info = mapData->rooms[currRoom].spawns[offset];
+    int xScreen = o->x.v >> 12;
+    int yScreen = o->y.v >> 12;
+    Map *map = &mapData.maps[currRoom];
+    *info = map->spawns[yScreen * map->width + xScreen];
 }
 
 Uint16 Map_CheckX(Object *o) {
@@ -264,10 +388,10 @@ int Map_Door(Object *o) {
     Uint8 chunkAlignedX = o->x.f.h & 0xfc;
     Uint8 chunkAlignedY = o->y.f.h & 0xfc;
 
-    for (int i = 0; i < mapData->numWarpDoors; i++) {
-        Uint8 chunkAlignedDoorX = mapData->warpDoors[i].xPos & 0xfc;
-        Uint8 chunkAlignedDoorY = mapData->warpDoors[i].yPos & 0xfc;
-        if ((mapData->warpDoors[i].roomNum == currRoom) &&
+    for (int i = 0; i < mapData.numWarpDoors; i++) {
+        Uint8 chunkAlignedDoorX = mapData.warpDoors[i].xPos & 0xfc;
+        Uint8 chunkAlignedDoorY = mapData.warpDoors[i].yPos & 0xfc;
+        if ((mapData.warpDoors[i].mapNum == currRoom) &&
             (chunkAlignedDoorX == chunkAlignedX) &&
             (chunkAlignedDoorY == chunkAlignedY))
         {
@@ -278,9 +402,9 @@ int Map_Door(Object *o) {
                 int doorIndex = i ^ 1;
                 o->x.f.l = 0x80;
                 o->y.f.l = 0x80;
-                o->x.f.h = mapData->warpDoors[doorIndex].xPos;
-                o->y.f.h = mapData->warpDoors[doorIndex].yPos;
-                return mapData->warpDoors[doorIndex].roomNum;
+                o->x.f.h = mapData.warpDoors[doorIndex].xPos;
+                o->y.f.h = mapData.warpDoors[doorIndex].yPos;
+                return mapData.warpDoors[doorIndex].mapNum;
         }
     }
 
@@ -293,7 +417,7 @@ void Map_SetPos(Uint16 x, Uint16 y) {
 }
 
 void Map_Draw(void) {
-    Uint16 tileset = mapData->rooms[currRoom].tileset;
+    Tileset *tileset = &mapData.tilesets[mapData.maps[currRoom].tileset];
 
     for (int y = 0; y < SCREEN_HEIGHT + METATILE_SIZE; y += METATILE_SIZE) {
         for (int x = 0; x < SCREEN_WIDTH + METATILE_SIZE; x += METATILE_SIZE) {
@@ -303,7 +427,7 @@ void Map_Draw(void) {
             int xTile = (((x + scrollX) / METATILE_SIZE) % roomWidthMetatiles);
             int yTile = (((y + scrollY) / METATILE_SIZE) % roomWidthMetatiles);
 
-            Metatile *metatile = &mapData->tilesets[tileset].metatiles[mapMetatiles[yTile * roomWidthMetatiles + xTile]];
+            Metatile *metatile = &tileset->metatiles[mapMetatiles[yTile * roomWidthMetatiles + xTile]];
             Graphics_DrawBGTile(xPos + 0, yPos + 0, metatile->tiles[0], metatile->palnum);
             Graphics_DrawBGTile(xPos + 8, yPos + 0, metatile->tiles[1], metatile->palnum);
             Graphics_DrawBGTile(xPos + 0, yPos + 8, metatile->tiles[2], metatile->palnum);

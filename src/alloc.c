@@ -1,5 +1,5 @@
 /* alloc.c: Memory allocation wrapper code
- * Copyright (c) 2024 Nathan Misner
+ * Copyright (c) 2024, 2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -20,6 +20,9 @@
 #include <stdlib.h>
 
 void *ommalloc(size_t size) {
+    if (!size) {
+        return NULL;
+    }
     void *ptr = malloc(size);
     if (!ptr) {
         abort();
@@ -28,6 +31,9 @@ void *ommalloc(size_t size) {
 }
 
 void *omaligned_alloc(size_t alignment, size_t size) {
+    if (!size) {
+        return NULL;
+    }
     if (size % alignment) {
         abort();
     }

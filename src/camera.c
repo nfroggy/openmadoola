@@ -1,5 +1,5 @@
 /* camera.c: Camera handling
- * Copyright (c) 2023-2025 Nathan Misner
+ * Copyright (c) 2023-2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -27,10 +27,6 @@
 Fixed16 cameraX;
 Fixed16 cameraY;
 
-#define SCROLL_MODE_FREE (0)
-#define SCROLL_MODE_X (1)
-#define SCROLL_MODE_LOCKED (2)
-
 #define SCROLL_OFFSET_X ((SCREEN_WIDTH / 2) << 4)
 #define ARCADE_L_BOUND (SCROLL_OFFSET_X - 0x100)
 #define ARCADE_R_BOUND (SCROLL_OFFSET_X + 0x100)
@@ -38,7 +34,7 @@ Fixed16 cameraY;
 #define SCROLL_MAX_X ((MAP_WIDTH_PIXELS - SCREEN_WIDTH) << 4)
 #define SCROLL_MAX_Y ((MAP_HEIGHT_PIXELS - SCREEN_HEIGHT) << 4)
 
-Uint8 scrollMode;
+ScrollMode scrollMode;
 
 static inline Sint16 Camera_MaxX(void) {
     return ((roomWidthMetatiles * METATILE_SIZE) - SCREEN_WIDTH) << 4;
