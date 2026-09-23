@@ -319,6 +319,13 @@ void Lucia_AirObj(Object *o) {
         o->ySpeed = 0;
         usingWing = 0;
     }
+    else if (o->ySpeed >= 0) {
+        // ladders are only solid from above, so check for ground again after moving down
+        if (Object_TouchingGround(o)) {
+            Object_MetatileAlignY(o);
+            goto make_normal;
+        }
+    }
 
     // lucia's jump should be floatier when you're holding A
     if (!(joy & JOY_A)) {
