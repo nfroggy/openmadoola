@@ -114,9 +114,15 @@ typedef struct {
     Sint8 ySpeed;
     Uint8 timer;
     Uint8 type;
+    Uint16 id;
 } Object;
 
 #define MAX_OBJECTS (256)
+#define OBJ_SLOT_LUCIA 0
+#define OBJ_SLOT_WEAPONS_MIN 1
+#define OBJ_SLOT_WEAPONS_MAX 9
+#define OBJ_SLOT_GENERAL_MIN 9
+#define OBJ_SLOT_GENERAL_MAX MAX_OBJECTS
 // object 0 = Lucia
 // objects 1-8 = Lucia's weapons
 // objects 9-MAX_OBJECTS: anything else

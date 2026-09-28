@@ -68,7 +68,7 @@ void Enemy_Spawn(void) {
 
     // SCROLL_MODE_LOCKED happens when we're transitioning to a different
     // room, Lucia dies, or we're in an item room
-    if ((mapData.maps[currRoom].scrollMode != SCROLL_MODE_LOCKED) && (rand < 0x20)) {
+    if ((scrollMode != SCROLL_MODE_LOCKED) && (rand < 0x20)) {
         // don't spawn enemies if lucia is in the last stage and has collected
         // the wing of madoola
         if (hasWing && (currRoom == 14)) {

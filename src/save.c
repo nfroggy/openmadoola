@@ -65,7 +65,7 @@ void Save_Serialize(Buffer *buf) {
         Buffer_Add(buf, weaponLevels[i]);
     }
     Buffer_Add(buf, bootsLevel);
-    for (int i = 0; i < ARRAY_LEN(itemsCollected); i++) {
+    for (int i = 0; i < 8; i++) {
         Buffer_Add(buf, itemsCollected[i]);
     }
     for (int i = 0; i < ARRAY_LEN(bossDefeated); i++) {
@@ -87,8 +87,8 @@ int Save_Deserialize(Buffer *buf) {
     memcpy(weaponLevels, buf->data + cursor, sizeof(weaponLevels));
     cursor += sizeof(weaponLevels);
     bootsLevel = buf->data[cursor++];
-    memcpy(itemsCollected, buf->data + cursor, sizeof(itemsCollected));
-    cursor += sizeof(itemsCollected);
+    memcpy(itemsCollected, buf->data + cursor, 8);
+    cursor += 8;
     memcpy(bossDefeated, buf->data + cursor, sizeof(bossDefeated));
     cursor += sizeof(bossDefeated);
     if (buf->dataSize > cursor) {

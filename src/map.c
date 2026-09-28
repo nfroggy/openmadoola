@@ -144,10 +144,20 @@ void Map_LoadData(const char *filename) {
         map->objects = ommalloc(map->numObjects * sizeof(ObjectSpawn));
         for (int j = 0; j < map->numObjects; j++) {
             ObjectSpawn *os = &map->objects[j];
-            os->id = Util_LoadUint16(mapFile + cursor); cursor += 2;
+            os->type = Util_LoadUint16(mapFile + cursor); cursor += 2;
             os->xPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
             os->yPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
             os->param = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        }
+
+        map->numItems = Util_LoadUint16(mapFile + cursor); cursor += 2;
+        map->items = ommalloc(map->numItems * sizeof(ItemSpawn));
+        for (int j = 0; j < map->numItems; j++) {
+            ItemSpawn *is = &map->items[j];
+            is->id = Util_LoadUint16(mapFile + cursor); cursor += 2;
+            is->xPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
+            is->yPos.v = Util_LoadSint16(mapFile + cursor); cursor += 2;
+            is->type = Util_LoadUint16(mapFile + cursor); cursor += 2;
         }
     }
 

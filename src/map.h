@@ -92,11 +92,18 @@ typedef union {
 } SpawnInfo;
 
 typedef struct {
-    Uint16 id;
+    Uint16 type;
     Fixed16 xPos;
     Fixed16 yPos;
     Uint16 param;
 } ObjectSpawn;
+
+typedef struct {
+    Uint16 id;
+    Fixed16 xPos;
+    Fixed16 yPos;
+    Uint16 type;
+} ItemSpawn;
 
 typedef struct {
     // which tileset to use
@@ -115,6 +122,8 @@ typedef struct {
     SpawnInfo *spawns;
     Uint16 numObjects;
     ObjectSpawn *objects;
+    Uint16 numItems;
+    ItemSpawn *items;
 } Map;
 
 typedef struct {

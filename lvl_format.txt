@@ -68,6 +68,14 @@ each map: {
         2 bytes: y pos (12.4 fixed)
         2 bytes: object-specific parameter value
     }
+    2 bytes: number of item pickup entries
+    n bytes: Item pickup data.
+    each item pickup entry: {
+        2 bytes: unique item id, globally unique in the entire .lvl file.
+        2 bytes: x pos (12.4 fixed)
+        2 bytes: y pos (12.4 fixed)
+        2 bytes: item type
+    }
 }
 
 === door table ===

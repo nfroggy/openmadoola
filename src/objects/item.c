@@ -27,7 +27,7 @@
 #include "object.h"
 #include "sprite.h"
 
-Uint8 itemsCollected[8];
+Uint8 itemsCollected[8192];
 
 Uint16 itemTiles[] = {
     0x60,   // regular sword
@@ -121,16 +121,17 @@ void Item_Obj(Object *o) {
         }
     }
 
-    // if lucia didn't pick up the item, return
-    if (Collision_WithLucia(o, &spr, COLLISION_SIZE_16X16, o->hp + ITEM_FLAG) != 2) {
+    // if lucia picked up the item, mark as collected
+    if (Collision_WithLucia(o, &spr, COLLISION_SIZE_16X16, o->hp + ITEM_FLAG) == 2) {
+        if (currRoom == 15) {
+            Item_SetCollected(o);
+        }
+    }
+    else {
         return;
     }
 
 eraseItem:
-    if (currRoom == 15) {
-        Item_SetCollected(o);
-    }
-
     o->type = OBJ_NONE;
 }
 
@@ -138,20 +139,14 @@ void Item_InitCollected(void) {
     memset(itemsCollected, 0, sizeof(itemsCollected));
 }
 
-static void Item_GetScreenCoords(Object *o, Uint8 *xScreen, Uint8 *yScreen) {
-    // divide the upper byte by 16 to get the size in screens (256px)
-    *xScreen = (((Uint8)o->x.f.h) >> 4) & 7;
-    *yScreen = (((Uint8)o->y.f.h) >> 4) & 7;
-}
-
 static void Item_SetCollected(Object *o) {
-    Uint8 xScreen, yScreen;
-    Item_GetScreenCoords(o, &xScreen, &yScreen);
-    itemsCollected[yScreen] |= (1 << xScreen);
+    int idBit = o->id & 7;
+    int idByte = o->id >> 3;
+    itemsCollected[idByte] |= (1 << idBit);
 }
 
-Uint8 Item_Collected(Object *o) {
-    Uint8 xScreen, yScreen;
-    Item_GetScreenCoords(o, &xScreen, &yScreen);
-    return itemsCollected[yScreen] & (1 << xScreen);
+Uint8 Item_Collected(Uint16 id) {
+    int idBit = id & 7;
+    int idByte = id >> 3;
+    return itemsCollected[idByte] & (1 << idBit);
 }

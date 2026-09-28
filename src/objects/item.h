@@ -44,7 +44,7 @@ typedef enum {
 // the flag added to the "object damage" variable to tell Lucia's code she's touching an item
 #define ITEM_FLAG (0xA0)
 
-extern Uint8 itemsCollected[8];
+extern Uint8 itemsCollected[8192];
 
 /**e
  * @brief item object code
@@ -58,8 +58,8 @@ void Item_Obj(Object *o);
 void Item_InitCollected(void);
 
 /**
- * @brief checks if an item room item was collected
- * @param o object to get the screen position from
+ * @brief checks if an item was collected
+ * @param id the id to check for collection status
  * @returns nonzero if the item was collected, zero otherwise
 */
-Uint8 Item_Collected(Object *o);
+Uint8 Item_Collected(Uint16 id);

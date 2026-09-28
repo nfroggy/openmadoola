@@ -146,7 +146,6 @@ static void Game_InitCommon(void) {
     currentWeapon = WEAPON_SWORD;
 }
 
-static Uint8 itemSpawnYOffsets[] = {0x09, 0x0B, 0x09, 0x0B};
 static void Game_InitRoomVars(Object *lucia) {
     Map_LoadPalettes(currRoom);
     // load sprite palettes
@@ -167,24 +166,38 @@ static void Game_InitRoomVars(Object *lucia) {
     lucia->direction = 0;
     flashTimer = 0;
 
+    for (int i = 0; i < mapData.maps[currRoom].numObjects; i++) {
+        ObjectSpawn *os = &mapData.maps[currRoom].objects[i];
+        Object *o = Object_FindNext(OBJ_SLOT_GENERAL_MIN, OBJ_SLOT_GENERAL_MAX);
+        if (o) {
+            o->type = os->type;
+            o->x = os->xPos;
+            o->y = os->yPos;
+        }
+    }
+
+    // spawn any items that haven't been collected
+    for (int i = 0; i < mapData.maps[currRoom].numItems; i++) {
+        ItemSpawn *is = &mapData.maps[currRoom].items[i];
+        if (!Item_Collected(is->id)) {
+            Object *o = Object_FindNext(OBJ_SLOT_GENERAL_MIN, OBJ_SLOT_GENERAL_MAX);
+            if (o) {
+                o->type = OBJ_ITEM;
+                o->x = is->xPos;
+                o->y = is->yPos;
+                o->id = is->id;
+                o->ySpeed = 0;
+                o->hp = (Sint16)is->type;
+            }
+        }
+    }
+
     SpawnInfo info;
     Map_GetSpawnInfo(lucia, &info);
 
-    // if we're in an item room and the item hasn't been collected, spawn it
-    /*
-    if ((info.type == SPAWN_TYPE_ITEM) && (!Item_Collected(lucia))) {
-        objects[9].type = OBJ_ITEM;
-        objects[9].hp = info.enemy - ITEM_FLAG;
-        objects[9].x.f.h = (lucia->x.f.h & 0x70) | 7;
-        objects[9].y.f.h = (lucia->y.f.h & 0x70) | itemSpawnYOffsets[lucia->y.f.h >> 5];
-        objects[9].x.f.l = 0x80;
-        objects[9].y.f.l = 0x80;
-        objects[9].ySpeed = 0;
-    }
-
     // if we're in the boss room and the boss hasn't been defeated, set up the
     // number of boss objects
-    else */ if (currRoom == 6) {
+    if (mapData.maps[currRoom].spawnMode == SPAWN_MODE_BOSS) {
         if (!bossDefeated[stage]) {
             bossActive = 1;
             numBossObjs = mapData.stages[stage].bossObjCount;
@@ -201,19 +214,6 @@ static void Game_InitRoomVars(Object *lucia) {
         Game_SpawnFountain(&info);
     }
     */
-
-    // spawn the wing of madoola if lucia hasn't collected it yet
-    if (stage == 15) {
-        if (!hasWing) {
-            objects[MAX_OBJECTS - 1].type = OBJ_WING_OF_MADOOLA;
-        }
-        // NOTE: This wasn't in the original game. This fixes a bug where
-        // collecting the Wing of Madoola and then going into a door would
-        // cause Daltos not to spawn, softlocking the game.
-        else {
-            objects[MAX_OBJECTS - 1].type = OBJ_DALTOS_INIT;
-        }
-    }
 
     lucia->type = OBJ_LUCIA_NORMAL;
     Camera_SetXY(lucia);
