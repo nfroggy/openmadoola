@@ -1,5 +1,5 @@
 /* fountain.c: Fountain object code
- * Copyright (c) 2023, 2024 Nathan Misner
+ * Copyright (c) 2023-2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -55,7 +55,7 @@ void Fountain_Obj(Object *o) {
 
         // give lucia the equivalent of a 500 hp powerup every 16 frames
         if ((gameFrames & 0xf) == 0) {
-            spr.y += 10;
+            spr.y += 16;
             if (Collision_WithLucia(o, &spr, COLLISION_SIZE_16X32, ITEM_FLAG + ITEM_APPLE) == 2) {
                 fountainUsed = 1;
             }
