@@ -19,8 +19,8 @@
 
 #include <stdio.h>
 
+#include "config_db.h"
 #include "constants.h"
-#include "db.h"
 #include "demo.h"
 #include "file.h"
 #include "input.h"
@@ -115,12 +115,12 @@ void Joy_SaveMappings(void) {
         joyBuffer[(i * 4) + 2] = gamepadMappings[i] >> 8;
         joyBuffer[(i * 4) + 3] = gamepadMappings[i] & 0xff;
     }
-    DB_Set("joy", joyBuffer, sizeof(joyBuffer));
-    DB_Save();
+    DB_Set(&configDB, "joy", joyBuffer, sizeof(joyBuffer));
+    DB_Save(&configDB);
 }
 
 void Joy_Init(void) {
-    DBEntry *joyEntry = DB_Find("joy");
+    DBEntry *joyEntry = DB_Find(&configDB, "joy");
     Uint16 mapping;
     if (joyEntry) {
         for (int i = 0; i < ARRAY_LEN(keyMappings); i++) {

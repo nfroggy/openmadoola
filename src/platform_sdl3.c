@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "config_db.h"
 #include "constants.h"
-#include "db.h"
 #include "file.h"
 #include "game.h"
 #include "graphics.h"
@@ -344,8 +344,8 @@ int Platform_SetVideoScale(int requested) {
         // resize window
         Platform_ResizeWindow();
         Platform_SetupRenderer();
-        DB_Set("scale", &scale, 1);
-        DB_Save();
+        DB_Set(&configDB, "scale", &scale, 1);
+        DB_Save(&configDB);
     }
     return scale;
 }
@@ -355,13 +355,13 @@ int Platform_SetFullscreen(int requested) {
         fullscreen = requested;
         Platform_ResizeWindow();
         Platform_SetupRenderer();
-        DB_Set("fullscreen", &fullscreen, 1);
+        DB_Set(&configDB, "fullscreen", &fullscreen, 1);
         if (fullscreen) {
             Uint8 data[4];
             Util_SaveUint32(display, data);
-            DB_Set("fullscreenDisplay", data, sizeof(data));
+            DB_Set(&configDB, "fullscreenDisplay", data, sizeof(data));
         }
-        DB_Save();
+        DB_Save(&configDB);
     }
     return fullscreen;
 }
@@ -375,8 +375,8 @@ int Platform_SetOverscan(int requested) {
         overscan = requested;
         Platform_ResizeWindow();
         Platform_SetupRenderer();
-        DB_Set("overscan", &overscan, 1);
-        DB_Save();
+        DB_Set(&configDB, "overscan", &overscan, 1);
+        DB_Save(&configDB);
     }
     return overscan;
 }
@@ -400,8 +400,8 @@ int Platform_SetNTSC(int requested) {
         ntscEnabled = requested;
         Platform_SetupRenderer();
         SDL_SetTextureScaleMode(drawTexture, SDL_SCALEMODE_NEAREST);
-        DB_Set("ntsc", &ntscEnabled, 1);
-        DB_Save();
+        DB_Set(&configDB, "ntsc", &ntscEnabled, 1);
+        DB_Save(&configDB);
     }
     return ntscEnabled;
 }
@@ -424,8 +424,8 @@ int Platform_GetArcadeColor(void) {
 int Platform_SetArcadeColor(int requested) {
     if (requested != arcadeColor) {
         arcadeColor = requested;
-        DB_Set("arcadeColor", &arcadeColor, 1);
-        DB_Save();
+        DB_Set(&configDB, "arcadeColor", &arcadeColor, 1);
+        DB_Save(&configDB);
     }
     return arcadeColor;
 }
@@ -558,14 +558,14 @@ int Platform_Init(void) {
         printf("Error initializing SDL: %s\n", SDL_GetError());
         return 0;
     }
-    DBEntry *entry = DB_Find("scale");
+    DBEntry *entry = DB_Find(&configDB, "scale");
     if (entry) { scale = entry->data[0]; }
-    entry = DB_Find("ntsc");
+    entry = DB_Find(&configDB, "ntsc");
     if (entry) { ntscEnabled = entry->data[0]; }
-    entry = DB_Find("fullscreen");
+    entry = DB_Find(&configDB, "fullscreen");
     if (entry) { fullscreen = entry->data[0]; }
     paletteType = (gameType == GAME_TYPE_ARCADE) ? PALETTE_TYPE_2C04 : PALETTE_TYPE_NES;
-    entry = DB_Find("fullscreenDisplay");
+    entry = DB_Find(&configDB, "fullscreenDisplay");
     if (fullscreen && entry && (entry->dataLen == sizeof(Uint32))) {
         display = Util_LoadUint32(entry->data);
         // make sure display number is valid
@@ -586,9 +586,9 @@ int Platform_Init(void) {
     else {
         display = SDL_GetPrimaryDisplay();
     }
-    entry = DB_Find("overscan");
+    entry = DB_Find(&configDB, "overscan");
     if (entry) { overscan = entry->data[0]; }
-    entry = DB_Find("arcadeColor");
+    entry = DB_Find(&configDB, "arcadeColor");
     if (entry) { arcadeColor = entry->data[0]; }
 
     if (!Platform_InitPalettes()) { return 0; }

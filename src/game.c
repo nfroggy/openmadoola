@@ -21,8 +21,8 @@
 #include <string.h>
 
 #include "camera.h"
+#include "config_db.h"
 #include "daltos.h"
-#include "db.h"
 #include "demo.h"
 #include "ending.h"
 #include "enemy.h"
@@ -99,9 +99,9 @@ static int Game_RunStage(void);
 
 void Game_LoadSettings(void) {
     // initialize game type
-    DBEntry *entry = DB_Find("gametype");
+    DBEntry *entry = DB_Find(&configDB, "gametype");
     gameType = entry ? entry->data[0] : GAME_TYPE_PLUS;
-    entry = DB_Find("arcadediff");
+    entry = DB_Find(&configDB, "arcadediff");
     arcadeDifficulty = entry ? entry->data[0] : ARCADE_DIFF_NORMAL;
 }
 

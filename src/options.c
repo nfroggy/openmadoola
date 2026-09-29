@@ -18,8 +18,8 @@
  */
 
 #include "bg.h"
+#include "config_db.h"
 #include "constants.h"
-#include "db.h"
 #include "game.h"
 #include "graphics.h"
 #include "highscore.h"
@@ -180,8 +180,8 @@ static int gameTypeCB(int num) {
     else {
         Platform_SetPaletteType(PALETTE_TYPE_NES);
     }
-    DB_Set("gametype", &gameType, 1);
-    DB_Save();
+    DB_Set(&configDB, "gametype", &gameType, 1);
+    DB_Save(&configDB);
     return num;
 }
 
@@ -193,8 +193,8 @@ static int arcadeDiffCB(int num) {
     if (num < 0) { num = ARRAY_LEN(arcadeDiffOptions) - 1; }
     if (num >= ARRAY_LEN(arcadeDiffOptions)) { num = 0; }
     arcadeDifficulty = num;
-    DB_Set("arcadediff", &arcadeDifficulty, 1);
-    DB_Save();
+    DB_Set(&configDB, "arcadediff", &arcadeDifficulty, 1);
+    DB_Save(&configDB);
     return num;
 }
 

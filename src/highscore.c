@@ -21,8 +21,8 @@
 
 #include "bg.h"
 #include "buffer.h"
+#include "config_db.h"
 #include "constants.h"
-#include "db.h"
 #include "highscore.h"
 #include "joy.h"
 #include "sound.h"
@@ -75,7 +75,7 @@ static Uint8 highScorePalette[] = {
 };
 
 void HighScore_Init(void) {
-    DBEntry *entry = DB_Find("highscores");
+    DBEntry *entry = DB_Find(&configDB, "highscores");
     if (entry) {
         int cursor = 0;
         for (int i = 0; i < NUM_SCORES; i++) {
@@ -100,8 +100,8 @@ static void HighScore_Save(void) {
         Util_SaveUint32(scores[i].score, buffer + cursor);
         cursor += sizeof(Uint32);
     }
-    DB_Set("highscores", buffer, cursor);
-    DB_Save();
+    DB_Set(&configDB, "highscores", buffer, cursor);
+    DB_Save(&configDB);
 }
 
 void HighScore_ResetScores(void) {

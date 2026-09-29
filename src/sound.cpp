@@ -24,8 +24,8 @@
 extern "C" {
     #include "alloc.h"
     #include "buffer.h"
+    #include "config_db.h"
     #include "constants.h"
-    #include "db.h"
     #include "game.h"
     #include "mml.h"
     #include "platform.h"
@@ -160,7 +160,7 @@ static Uint8 *Sound_LoadData(Uint8 *romData, Sound *out) {
 }
 
 void Sound_Init(void) {
-    DBEntry *entry = DB_Find("volume");
+    DBEntry *entry = DB_Find(&configDB, "volume");
     if (entry) {
         volume = (int)entry->data[0];
     }
@@ -227,8 +227,8 @@ int Sound_SetVolume(int vol) {
     apus[0].volume(volume);
     apus[1].volume(volume);
     Uint8 volumeByte = (Uint8)volume;
-    DB_Set("volume", &volumeByte, 1);
-    DB_Save();
+    DB_Set(&configDB, "volume", &volumeByte, 1);
+    DB_Save(&configDB);
     return volume;
 }
 

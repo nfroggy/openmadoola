@@ -1,5 +1,5 @@
 /* db.h: "database" handler
- * Copyright (c) 2023 Nathan Misner
+ * Copyright (c) 2023-2026 Nathan Misner
  *
  * This file is part of OpenMadoola.
  *
@@ -26,22 +26,29 @@ typedef struct {
     Uint8 *data;
 } DBEntry;
 
+typedef struct {
+    const char *filename;
+    int numEntries;
+    int allocedEntries;
+    DBEntry *entries;
+} DBState;
+
 /**
  * @brief Should be run on startup
  */
-void DB_Init(void);
+void DB_Init(DBState *db, const char *filename);
 
 /**
  * @brief Finds the given db item
  * @param name item name to look for
  * @returns either a DBEntry pointer or NULL if it couldn't be found
  */
-DBEntry *DB_Find(const char *name);
+DBEntry *DB_Find(DBState *db, const char *name);
 
 /**
  * @brief Saves the db to disk
  */
-void DB_Save(void);
+void DB_Save(DBState *db);
 
 /**
  * @brief Sets the given db item to the given data, creating it if necessary
@@ -49,4 +56,4 @@ void DB_Save(void);
  * @param data data to write
  * @param dataLen size of data in bytes
  */
-void DB_Set(const char *name, Uint8 *data, Uint32 dataLen);
+void DB_Set(DBState *db, const char *name, Uint8 *data, Uint32 dataLen);
