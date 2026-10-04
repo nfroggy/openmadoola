@@ -35,11 +35,14 @@ typedef struct {
 
 /**
  * @brief Should be run on startup
+ * @param db the db to populate
+ * @param filename the file to load
  */
-void DB_Init(DBState *db, const char *filename);
+int DB_Init(DBState *db, const char *filename);
 
 /**
  * @brief Finds the given db item
+ * @param db the db to search
  * @param name item name to look for
  * @returns either a DBEntry pointer or NULL if it couldn't be found
  */
@@ -47,11 +50,13 @@ DBEntry *DB_Find(DBState *db, const char *name);
 
 /**
  * @brief Saves the db to disk
+ * @param db the db to save
  */
 void DB_Save(DBState *db);
 
 /**
  * @brief Sets the given db item to the given data, creating it if necessary
+ * @param db the db to use
  * @param name item name
  * @param data data to write
  * @param dataLen size of data in bytes

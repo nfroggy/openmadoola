@@ -72,14 +72,74 @@ void DB_Set(DBState *db, const char *name, Uint8 *data, Uint32 dataLen) {
     }
 }
 
-void DB_Init(DBState *db, const char *filename) {
-    // init vars
+static int DB_Validate(const char *filename) {
+    FILE *fp = File_Open(filename, "rb");
+    if (!fp) {
+        return 0;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    int size = ftell(fp);
+    rewind(fp);
+    Uint8 name[256];
+
+    // file size has to be at least 4 bytes due to entry count
+    if (size < 4) {
+        goto fail;
+    }
+    Uint32 numEntries = File_ReadUint32BE(fp);
+    for (Uint32 i = 0; i < numEntries; i++) {
+        Uint8 nameLen = fgetc(fp);
+        // make sure name doesn't extend past the file
+        if ((ftell(fp) + nameLen) > size) {
+            goto fail;
+        }
+        fread(name, 1, nameLen, fp);
+        // make sure string length matches file
+        if (name[nameLen - 1] != '\0') {
+            goto fail;
+        }
+        // make sure name is valid ascii
+        for (int j = 0; j < nameLen; j++) {
+            if (name[j] >= 0x80) {
+                goto fail;
+            }
+        }
+        // make sure data length doesn't extend past the file
+        if ((ftell(fp) + 4) > size) {
+            goto fail;
+        }
+        Uint32 dataLen = File_ReadUint32BE(fp);
+        if ((ftell(fp) + dataLen) > size) {
+            goto fail;
+        }
+        fseek(fp, dataLen, SEEK_CUR);
+    }
+
+    // make sure we're at the end of the file
+    if (ftell(fp) != size) {
+        goto fail;
+    }
+
+    return 1;
+
+fail:
+    fclose(fp);
+    return 0;
+}
+
+int DB_Init(DBState *db, const char *filename) {
     db->allocedEntries = 10;
     db->entries = ommalloc(db->allocedEntries * sizeof(DBEntry));
     db->numEntries = 0;
     char *filename_copy = ommalloc(strlen(filename) + 1);
     strcpy(filename_copy, filename);
     db->filename = filename_copy;
+
+    // make sure the db is valid before trying to load it
+    if (!DB_Validate(filename)) {
+        return 0;
+    }
 
     // load db file from disk
     FILE *fp = File_Open(db->filename, "rb");
@@ -103,6 +163,8 @@ void DB_Init(DBState *db, const char *filename) {
         free(dataBuff);
         fclose(fp);
     }
+
+    return 1;
 }
 
 void DB_Save(DBState *db) {
